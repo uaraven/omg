@@ -6,7 +6,6 @@ import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.function.Predicate;
 
 /**
  * Compares object to a pattern using reflection.
@@ -15,22 +14,40 @@ import java.util.function.Predicate;
  */
 public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
 
-    public static <A> SlowObjectMatcher<A> create() {
-        return new SlowObjectMatcher<>();
+    private final String defaultPackage;
+    private final ObjectPattern pattern;
+
+    public static <A> SlowObjectMatcher<A> forPattern(final ObjectPattern pattern) {
+        return new SlowObjectMatcher<>(pattern);
     }
 
-    public static <T> Predicate<T> forPattern(final ObjectPattern pattern) {
-        return (obj) -> new SlowObjectMatcher<T>().matches(obj, pattern);
+    public SlowObjectMatcher(final ObjectPattern pattern) {
+        this(pattern, "");
+    }
+
+    public SlowObjectMatcher(final ObjectPattern pattern, final String defaultPackage) {
+        this.pattern = pattern;
+        this.defaultPackage = defaultPackage;
     }
 
     @Override
-    public boolean matches(final T object, final ObjectPattern pattern) {
-        if (!object.getClass().getSimpleName().equals(pattern.getClassName())) {
+    public boolean test(final T object) {
+        final Class clazz = getClassForMatching(pattern);
+
+        if (!object.getClass().isAssignableFrom(clazz)) {
             return false;
         }
         return pattern.getFieldPatterns().stream()
                 .map(matcher -> matchField(matcher, object))
                 .allMatch(it -> Boolean.TRUE.compareTo(it) == 0);
+    }
+
+    private Class getClassForMatching(final ObjectPattern pattern) {
+        final String className = this.defaultPackage.isBlank()
+                ? pattern.getClassName()
+                : String.join(".", this.defaultPackage, pattern.getClassName());
+        return Try.of(() -> Class.forName(className))
+                .getOrElseThrow((ex) -> new MatchingException(String.format("Class '%s' is not found", className), ex));
     }
 
     private Boolean matchField(final FieldPattern matcher, final T object) {

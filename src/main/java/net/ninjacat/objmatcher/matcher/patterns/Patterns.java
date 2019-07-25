@@ -10,11 +10,15 @@ public final class Patterns {
         return new StringPatternBuilder(fieldName);
     }
 
+    public static IntegerPatternBuilder integer(final String fieldName) {
+        return new IntegerPatternBuilder(fieldName);
+    }
+
     @Value
     public static class StringPatternBuilder {
         String fieldName;
 
-        public StringPatternBuilder(final String fieldName) {
+        StringPatternBuilder(final String fieldName) {
             this.fieldName = fieldName;
         }
 
@@ -28,6 +32,30 @@ public final class Patterns {
 
         public StringRegex matches(final String pattern) {
             return new StringRegex(fieldName, pattern);
+        }
+    }
+
+    public static class IntegerPatternBuilder {
+        private final String fieldName;
+
+        IntegerPatternBuilder(final String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        public IntegerEq equalTo(final int value) {
+            return new IntegerEq(fieldName, value);
+        }
+
+        public IntegerNotEq notEqualTo(final int value) {
+            return new IntegerNotEq(fieldName, value);
+        }
+
+        public IntegerLt lessThan(final int value) {
+            return new IntegerLt(fieldName, value);
+        }
+
+        public IntegerGt greaterThan(final int value) {
+            return new IntegerGt(fieldName, value);
         }
     }
 }

@@ -14,7 +14,7 @@ public class StringRegexTest {
     @Test
     public void shouldMatchRegex() {
         final ObjectPattern pattern = ObjectPattern.builder()
-                .className("TestValue")
+                .className(TestValue.class.getName())
                 .fieldMatcher(Patterns.string("field1").matches("Hello.*!"))
                 .build();
 

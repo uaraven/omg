@@ -1,8 +1,10 @@
 package net.ninjacat.objmatcher.matcher;
 
-import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
+import java.util.function.Predicate;
 
 @FunctionalInterface
-public interface ObjectMatcher<T> {
-    boolean matches(T object, ObjectPattern pattern);
+public interface ObjectMatcher<T> extends Predicate<T> {
+    default boolean matches(final T object) {
+        return test(object);
+    }
 }
