@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'net.ninjacat'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 12
+targetCompatibility = 12
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+    implementation 'org.projectlombok:lombok:1.18.8'
+    implementation 'org.ow2.asm:asm:7.1'
+    implementation 'io.vavr:vavr:1.0.0-alpha-3'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.8'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
+    testImplementation 'org.hamcrest:hamcrest:2.1'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
