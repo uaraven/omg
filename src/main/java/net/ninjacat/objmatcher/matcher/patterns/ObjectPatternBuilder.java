@@ -18,6 +18,9 @@ public class ObjectPatternBuilder {
     }
 
     public ObjectPattern build() {
+        if (className == null || className.isBlank()) {
+            throw new IllegalArgumentException("className cannot be blank");
+        }
         return new ObjectPattern(className, List.copyOf(fieldPatterns));
     }
 }

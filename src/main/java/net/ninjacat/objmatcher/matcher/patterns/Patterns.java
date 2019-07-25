@@ -25,5 +25,9 @@ public final class Patterns {
         public StringNotEqual notEqualTo(final String value) {
             return new StringNotEqual(fieldName, value);
         }
+
+        public StringRegex matches(final String pattern) {
+            return new StringRegex(fieldName, pattern);
+        }
     }
 }

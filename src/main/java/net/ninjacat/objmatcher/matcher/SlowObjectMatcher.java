@@ -6,10 +6,10 @@ import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.function.Predicate;
 
 /**
  * Compares object to a pattern using reflection.
- * Will
  *
  * @param <T> Type of the object to compare to
  */
@@ -17,6 +17,10 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
 
     public static <A> SlowObjectMatcher<A> create() {
         return new SlowObjectMatcher<>();
+    }
+
+    public static <T> Predicate<T> forPattern(final ObjectPattern pattern) {
+        return (obj) -> new SlowObjectMatcher<T>().matches(obj, pattern);
     }
 
     @Override
