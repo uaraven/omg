@@ -22,12 +22,12 @@ public final class Patterns {
             this.fieldName = fieldName;
         }
 
-        public StringEquals equalTo(final String value) {
-            return new StringEquals(fieldName, value);
+        public StringEq equalTo(final String value) {
+            return new StringEq(fieldName, value);
         }
 
-        public StringNotEqual notEqualTo(final String value) {
-            return new StringNotEqual(fieldName, value);
+        public StringNotEq notEqualTo(final String value) {
+            return new StringNotEq(fieldName, value);
         }
 
         public StringRegex matches(final String pattern) {

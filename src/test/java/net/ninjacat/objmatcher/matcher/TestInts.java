@@ -3,6 +3,6 @@ package net.ninjacat.objmatcher.matcher;
 import lombok.Value;
 
 @Value
-public class TestInts {
+class TestInts {
     final short shortField;
 }
