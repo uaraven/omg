@@ -1,12 +1,10 @@
 package net.ninjacat.objmatcher.matcher;
 
+import io.vavr.collection.List;
 import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
 import net.ninjacat.objmatcher.matcher.patterns.Patterns;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -84,9 +82,9 @@ public class SlowObjectMatcherTest {
 
         final SlowObjectMatcher<Object> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
 
-        final List<Object> results = list.stream().filter(slowObjectMatcher::matches).collect(Collectors.toList());
+        final List<Object> results = list.toStream().filter(slowObjectMatcher::matches).toList();
 
-        assertThat(results, hasSize(2));
+        assertThat(results.asJava(), hasSize(2));
         assertThat(results, containsInAnyOrder(new TestValue("test1", "success"), new TestValue("test1", "success")));
     }
 
@@ -124,9 +122,9 @@ public class SlowObjectMatcherTest {
 
         final SlowObjectMatcher<Object> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
 
-        final List<TestInts> results = list.stream().filter(slowObjectMatcher::matches).collect(Collectors.toList());
+        final List<TestInts> results = list.toStream().filter(slowObjectMatcher::matches).toList();
 
-        assertThat(results, hasSize(2));
+        assertThat(results.asJava(), hasSize(2));
         assertThat(results, containsInAnyOrder(new TestInts((short) 15), new TestInts((short) 123)));
     }
 

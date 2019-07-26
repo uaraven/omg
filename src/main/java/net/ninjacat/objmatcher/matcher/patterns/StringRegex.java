@@ -11,9 +11,10 @@ import java.util.regex.Pattern;
 public class StringRegex extends FieldPattern<String> {
     private final Predicate<String> regexPredicate;
 
-    StringRegex(final String fieldName, final String value) {
-        super(fieldName, String.class, value);
-        this.regexPredicate = Pattern.compile(value).asMatchPredicate();
+    StringRegex(final String fieldName, final String regex) {
+        super(fieldName, String.class, regex);
+        final Pattern pattern = Pattern.compile(regex);
+        this.regexPredicate = (text) -> pattern.matcher(text).matches();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package net.ninjacat.objmatcher.matcher.patterns;
 
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ObjectPatternBuilder {
@@ -18,9 +20,9 @@ public class ObjectPatternBuilder {
     }
 
     public ObjectPattern build() {
-        if (className == null || className.isBlank()) {
+        if (className == null || className.trim().isEmpty()) {
             throw new IllegalArgumentException("className cannot be blank");
         }
-        return new ObjectPattern(className, List.copyOf(fieldPatterns));
+        return new ObjectPattern(className, Collections.unmodifiableList(fieldPatterns));
     }
 }

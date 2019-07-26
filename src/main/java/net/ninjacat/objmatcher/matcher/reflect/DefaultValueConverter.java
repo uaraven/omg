@@ -1,20 +1,24 @@
 package net.ninjacat.objmatcher.matcher.reflect;
 
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 import io.vavr.control.Try;
 import lombok.Value;
-import net.ninjacat.objmatcher.matcher.errors.MatchingException;
 import net.ninjacat.objmatcher.matcher.TypeConverter;
+import net.ninjacat.objmatcher.matcher.errors.MatcherException;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.Map;
 
+/**
+ * Converts values to different type
+ */
 public class DefaultValueConverter implements TypeConverter.ValueConverter {
     private static final MethodHandle BOX_INT = converterHandle("toLong", int.class, Long.class);
     private static final MethodHandle BOX_DOUBLE = converterHandle("toDouble", double.class, Double.class);
 
-    private static final Map<ConversionKey, MethodHandle> CONVERTERS = Map.of(
+    private static final Map<ConversionKey, MethodHandle> CONVERTERS = HashMap.of(
             ConversionKey.of(int.class, Long.class), BOX_INT,
             ConversionKey.of(short.class, Long.class), BOX_INT,
             ConversionKey.of(byte.class, Long.class), BOX_INT,
@@ -34,13 +38,13 @@ public class DefaultValueConverter implements TypeConverter.ValueConverter {
     @Override
     public Object to(final Class targetClass) {
         final ConversionKey key = ConversionKey.of(value.getClass(), targetClass);
-        if (CONVERTERS.containsKey(key)) {
-            return Try.of(() -> CONVERTERS.get(key).invoke(value))
-                    .getOrElseThrow((ex) -> new MatchingException(String.format(
-                            "Failed to convert value '%s' of type '%s' to '%s'", value, value.getClass().getSimpleName(), targetClass), ex));
-        }
-        throw new MatchingException(String.format(
-                "Cannot find conversion for value '%s' of type '%s' to '%s'", value, value.getClass().getSimpleName(), targetClass));
+        final MethodHandle converter = CONVERTERS.get(key).getOrElseThrow(() -> new MatcherException(
+                "Cannot find conversion for value '%s' of type '%s' to '%s'",
+                value, value.getClass().getSimpleName(), targetClass));
+        return Try.of(() -> converter.invoke(value))
+                .getOrElseThrow((ex) -> new MatcherException(ex,
+                        "Failed to convert value '%s' of type '%s' to '%s'",
+                        value, value.getClass().getSimpleName(), targetClass));
     }
 
     private static MethodHandle converterHandle(final String name, final Class source, final Class target) {
@@ -54,10 +58,12 @@ public class DefaultValueConverter implements TypeConverter.ValueConverter {
         }
     }
 
+    @SuppressWarnings("unused")
     private static Long toLong(final int intValue) {
         return (long) intValue;
     }
 
+    @SuppressWarnings("unused")
     private static Double toDouble(final double doubleValue) {
         return doubleValue;
     }

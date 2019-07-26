@@ -1,14 +1,16 @@
 package net.ninjacat.objmatcher.matcher;
 
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
 import io.vavr.control.Try;
-import net.ninjacat.objmatcher.matcher.errors.MatchingException;
+import net.jcip.annotations.Immutable;
+import net.ninjacat.objmatcher.matcher.errors.MatcherException;
 import net.ninjacat.objmatcher.matcher.patterns.FieldPattern;
 import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
+import net.ninjacat.objmatcher.matcher.reflect.DefaultObjectMetadata;
 import net.ninjacat.objmatcher.matcher.reflect.DefaultTypeConverter;
-import net.ninjacat.objmatcher.matcher.reflect.ObjectMetadata;
-import net.ninjacat.objmatcher.matcher.reflect.PropertyMetadata;
+import net.ninjacat.objmatcher.matcher.reflect.Property;
 
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -16,23 +18,24 @@ import java.util.function.Function;
  *
  * @param <T> Type of the object to compare to
  */
+@Immutable
 public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
 
-    private static final Set<Class> INT_CLASSES = Set.of(
+    private static final Set<Class> INT_CLASSES = HashSet.of(
             Integer.class,
             Long.class,
             Short.class,
             Byte.class,
             Character.class
     );
-    private static final Set<Class> FLOAT_CLASSES = Set.of(
+    private static final Set<Class> FLOAT_CLASSES = HashSet.of(
             Float.class,
             Double.class
     );
 
     private final String defaultPackage;
     private final ObjectMetadata objectMetadata;
-    private TypeConverter typeConverter;
+    private final TypeConverter typeConverter;
     private final ObjectPattern pattern;
 
     public static <A> SlowObjectMatcher<A> forPattern(final ObjectPattern pattern) {
@@ -51,7 +54,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         this.pattern = pattern;
         this.defaultPackage = defaultPackage;
         this.typeConverter = typeConverter;
-        this.objectMetadata = new ObjectMetadata(getClassForMatching(pattern));
+        this.objectMetadata = new DefaultObjectMetadata(getClassForMatching(pattern));
     }
 
     @Override
@@ -67,11 +70,11 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
     }
 
     private Class getClassForMatching(final ObjectPattern pattern) {
-        final String className = this.defaultPackage.isBlank()
+        final String className = this.defaultPackage.trim().isEmpty()
                 ? pattern.getClassName()
                 : String.join(".", this.defaultPackage, pattern.getClassName());
         return Try.of(() -> Class.forName(className))
-                .getOrElseThrow((ex) -> new MatchingException(String.format("Class '%s' is not found", className), ex));
+                .getOrElseThrow((ex) -> new MatcherException(ex, "Class '%s' is not found", className));
     }
 
     @SuppressWarnings("unchecked")
@@ -79,15 +82,15 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         final Class<?> clazz = object.getClass();
         try {
             final String fieldName = matcher.getFieldName();
-            final PropertyMetadata property = objectMetadata.getFieldData(fieldName);
+            final Property property = objectMetadata.getProperty(fieldName);
 
             return tryMatchGetter(property, object)
                     .map(value -> ensureValueType(value, matcher.getFieldType()))
                     .map((Function<Object, Boolean>) matcher::matches)
                     .get();
         } catch (final Throwable e) {
-            throw new MatchingException(String.format("Failed to read field '%s' in class '%s'",
-                    matcher.getFieldName(), clazz.getSimpleName()), e);
+            throw new MatcherException(e, "Failed to read field '%s' in class '%s'",
+                    matcher.getFieldName(), clazz.getSimpleName());
         }
     }
 
@@ -112,7 +115,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         }
     }
 
-    private Try<Object> tryMatchGetter(PropertyMetadata propery, final T object) {
+    private Try<Object> tryMatchGetter(Property propery, final T object) {
         return Try.of(() -> propery.getGetterMethod().invoke(object));
 
     }
