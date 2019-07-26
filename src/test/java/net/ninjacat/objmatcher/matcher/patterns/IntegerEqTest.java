@@ -9,14 +9,14 @@ public class IntegerEqTest {
 
     @Test
     public void shouldMatch() {
-        final IntegerEq byteField = new IntegerEq("byteField", 42L);
+        final IntegerEq byteField = new IntegerEq( 42L);
 
         assertThat(byteField.matches(42L), is(true));
     }
 
     @Test
     public void shouldNotMatch() {
-        final IntegerEq byteField = new IntegerEq("byteField", 41L);
+        final IntegerEq byteField = new IntegerEq( 41L);
 
         assertThat(byteField.matches(42L), is(false));
     }

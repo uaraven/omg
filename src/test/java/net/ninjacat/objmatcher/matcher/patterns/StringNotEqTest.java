@@ -8,14 +8,14 @@ import static org.junit.Assert.assertThat;
 public class StringNotEqTest {
     @Test
     public void shouldMatch() {
-        final StringNotEq field = new StringNotEq("field", "matches");
+        final StringNotEq field = new StringNotEq("matches");
 
         assertThat(field.matches("not matches"), is(true));
     }
 
     @Test
     public void shouldNotMatch() {
-        final StringNotEq field = new StringNotEq("field", "matches");
+        final StringNotEq field = new StringNotEq("matches");
 
         assertThat(field.matches("matches"), is(false));
     }

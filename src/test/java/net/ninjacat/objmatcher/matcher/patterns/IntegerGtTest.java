@@ -9,14 +9,14 @@ public class IntegerGtTest {
 
     @Test
     public void shouldMatch() {
-        final IntegerGt byteField = new IntegerGt("byteField", 42L);
+        final IntegerGt byteField = new IntegerGt( 42L);
 
         assertThat(byteField.matches(43L), is(true));
     }
 
     @Test
     public void shouldNotMatch() {
-        final IntegerGt byteField = new IntegerGt("byteField", 42L);
+        final IntegerGt byteField = new IntegerGt( 42L);
 
         assertThat(byteField.matches(42L), is(false));
     }

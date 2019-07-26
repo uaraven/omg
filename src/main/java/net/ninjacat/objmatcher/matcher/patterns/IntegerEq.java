@@ -1,17 +1,18 @@
 package net.ninjacat.objmatcher.matcher.patterns;
 
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
-@EqualsAndHashCode(callSuper = true)
-public class IntegerEq extends FieldPattern<Long> {
-    IntegerEq(final String fieldName, final Long value) {
-        super(fieldName, Long.class, value);
+public class IntegerEq implements Matcher<Long> {
+    long value;
+
+    @Override
+    public boolean matches(final Long fieldValue) {
+        return Long.compare(fieldValue, getValue()) == 0;
     }
 
     @Override
-    public boolean matches(final Long checkedValue) {
-        return getValue().compareTo(checkedValue) == 0;
+    public String toString() {
+        return "== "+ value;
     }
 }

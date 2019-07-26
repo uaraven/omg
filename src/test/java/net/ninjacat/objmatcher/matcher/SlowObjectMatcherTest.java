@@ -1,11 +1,12 @@
 package net.ninjacat.objmatcher.matcher;
 
 import io.vavr.collection.List;
+import lombok.Value;
 import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
-import net.ninjacat.objmatcher.matcher.patterns.Patterns;
-import org.hamcrest.Matchers;
+import net.ninjacat.objmatcher.matcher.patterns.Matchers;
 import org.junit.Test;
 
+import static net.ninjacat.objmatcher.matcher.patterns.Matchers.integer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
@@ -17,8 +18,8 @@ public class SlowObjectMatcherTest {
 
         final ObjectPattern pattern = ObjectPattern.builder()
                 .className(TestValue.class.getName())
-                .fieldMatcher(Patterns.string("field1").equalTo("test1"))
-                .fieldMatcher(Patterns.string("field2").notEqualTo("test2"))
+                .fieldMatcher(Matchers.string("field1").equalTo("test1"))
+                .fieldMatcher(Matchers.string("field2").notEqualTo("test2"))
                 .build();
 
         final TestValue test = new TestValue("test1", "test3");
@@ -26,7 +27,7 @@ public class SlowObjectMatcherTest {
         final SlowObjectMatcher<TestValue> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
         final boolean matches = slowObjectMatcher.matches(test);
 
-        assertThat(matches, Matchers.is(true));
+        assertThat(matches, org.hamcrest.Matchers.is(true));
     }
 
     @Test
@@ -34,8 +35,8 @@ public class SlowObjectMatcherTest {
 
         final ObjectPattern pattern = ObjectPattern.builder()
                 .className(TestValue.class.getName())
-                .fieldMatcher(Patterns.string("field1").equalTo("test1"))
-                .fieldMatcher(Patterns.string("field2").notEqualTo("test3"))
+                .fieldMatcher(Matchers.string("field1").equalTo("test1"))
+                .fieldMatcher(Matchers.string("field2").notEqualTo("test3"))
                 .build();
 
         final TestValue test = new TestValue("test1", "test3");
@@ -43,7 +44,7 @@ public class SlowObjectMatcherTest {
         final SlowObjectMatcher<TestValue> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
         final boolean matches = slowObjectMatcher.matches(test);
 
-        assertThat(matches, Matchers.is(false));
+        assertThat(matches, org.hamcrest.Matchers.is(false));
     }
 
     @Test
@@ -51,8 +52,8 @@ public class SlowObjectMatcherTest {
 
         final ObjectPattern pattern = ObjectPattern.builder()
                 .className(TestValue.class.getName())
-                .fieldMatcher(Patterns.string("field1").equalTo("test1"))
-                .fieldMatcher(Patterns.string("field2").notEqualTo("test3"))
+                .fieldMatcher(Matchers.string("field1").equalTo("test1"))
+                .fieldMatcher(Matchers.string("field2").notEqualTo("test3"))
                 .build();
 
         final NotTestValue test = new NotTestValue("test1", "test2");
@@ -60,7 +61,7 @@ public class SlowObjectMatcherTest {
         final SlowObjectMatcher<Object> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
         final boolean matches = slowObjectMatcher.matches(test);
 
-        assertThat(matches, Matchers.is(false));
+        assertThat(matches, org.hamcrest.Matchers.is(false));
     }
 
     @Test
@@ -68,8 +69,8 @@ public class SlowObjectMatcherTest {
 
         final ObjectPattern pattern = ObjectPattern.builder()
                 .className(TestValue.class.getName())
-                .fieldMatcher(Patterns.string("field1").equalTo("test1"))
-                .fieldMatcher(Patterns.string("field2").notEqualTo("failed"))
+                .fieldMatcher(Matchers.string("field1").equalTo("test1"))
+                .fieldMatcher(Matchers.string("field2").notEqualTo("failed"))
                 .build();
 
         final List<Object> list = List.of(
@@ -93,7 +94,7 @@ public class SlowObjectMatcherTest {
 
         final ObjectPattern pattern = ObjectPattern.builder()
                 .className(TestInts.class.getName())
-                .fieldMatcher(Patterns.integer("shortField").equalTo(11))
+                .fieldMatcher(integer("shortField").equalTo(11))
                 .build();
 
         final TestInts test = new TestInts((short) 11);
@@ -101,7 +102,7 @@ public class SlowObjectMatcherTest {
         final SlowObjectMatcher<Object> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
         final boolean matches = slowObjectMatcher.matches(test);
 
-        assertThat(matches, Matchers.is(true));
+        assertThat(matches, org.hamcrest.Matchers.is(true));
     }
 
     @Test
@@ -109,7 +110,7 @@ public class SlowObjectMatcherTest {
 
         final ObjectPattern pattern = ObjectPattern.builder()
                 .className(TestInts.class.getName())
-                .fieldMatcher(Patterns.integer("shortField").greaterThan(10))
+                .fieldMatcher(integer("shortField").greaterThan(10))
                 .build();
 
         final List<TestInts> list = List.of(
@@ -126,6 +127,39 @@ public class SlowObjectMatcherTest {
 
         assertThat(results.asJava(), hasSize(2));
         assertThat(results, containsInAnyOrder(new TestInts((short) 15), new TestInts((short) 123)));
+    }
+
+    @Test
+    public void shouldFilterWithLogicalFilters() {
+
+        final ObjectPattern pattern = ObjectPattern.builder()
+                .className(LogicalTest.class.getName())
+                .fieldMatcher(
+                        Matchers.integer("intField").or()..done()
+                        )
+
+                .build();
+
+        final List<TestInts> list = List.of(
+                new TestInts((short) 1),
+                new TestInts((short) 15),
+                new TestInts((short) 10),
+                new TestInts((short) 123),
+                new TestInts((short) -5)
+        );
+
+        final SlowObjectMatcher<Object> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
+
+        final List<TestInts> results = list.toStream().filter(slowObjectMatcher::matches).toList();
+
+        assertThat(results.asJava(), hasSize(2));
+        assertThat(results, containsInAnyOrder(new TestInts((short) 15), new TestInts((short) 123)));
+    }
+
+    @Value
+    private static class LogicalTest {
+        String strField;
+        int intField;
     }
 
 }

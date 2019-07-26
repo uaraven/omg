@@ -1,28 +1,17 @@
 package net.ninjacat.objmatcher.matcher.patterns;
 
+import lombok.Value;
+import net.jcip.annotations.Immutable;
 
-public abstract class FieldPattern<T> implements Pattern<T> {
-    private final String fieldName;
-    private final Class fieldType;
-    private final T value;
+@Value
+@Immutable
+public class FieldPattern<T> implements Matcher<T> {
+    String fieldName;
+    Class fieldType;
+    Matcher<T> matcher;
 
-    protected FieldPattern(final String fieldName, final Class fieldType, final T value) {
-        this.fieldName = fieldName;
-        this.fieldType = fieldType;
-        this.value = value;
+    public boolean matches(final T checkedValue) {
+        return getMatcher().matches(checkedValue);
     }
 
-    public abstract boolean matches(final T checkedValue);
-
-    public Class getFieldType() {
-        return fieldType;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public T getValue() {
-        return value;
-    }
 }
