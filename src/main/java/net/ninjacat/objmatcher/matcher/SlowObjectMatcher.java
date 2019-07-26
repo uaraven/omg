@@ -1,15 +1,13 @@
 package net.ninjacat.objmatcher.matcher;
 
-import io.vavr.collection.HashSet;
-import io.vavr.collection.Set;
 import io.vavr.control.Try;
 import net.jcip.annotations.Immutable;
 import net.ninjacat.objmatcher.matcher.errors.MatcherException;
-import net.ninjacat.objmatcher.matcher.patterns.FieldPattern;
-import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
-import net.ninjacat.objmatcher.matcher.reflect.DefaultObjectMetadata;
+import net.ninjacat.objmatcher.matcher.matchers.ObjectPattern;
+import net.ninjacat.objmatcher.matcher.reflect.DefaultObjectProperties;
 import net.ninjacat.objmatcher.matcher.reflect.DefaultTypeConverter;
 import net.ninjacat.objmatcher.matcher.reflect.Property;
+import net.ninjacat.objmatcher.matcher.reflect.PropertyMatcher;
 
 import java.util.function.Function;
 
@@ -20,18 +18,6 @@ import java.util.function.Function;
  */
 @Immutable
 public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
-
-    private static final Set<Class> INT_CLASSES = HashSet.of(
-            Integer.class,
-            Long.class,
-            Short.class,
-            Byte.class,
-            Character.class
-    );
-    private static final Set<Class> FLOAT_CLASSES = HashSet.of(
-            Float.class,
-            Double.class
-    );
 
     private final String defaultPackage;
     private final ObjectProperties objectMetadata;
@@ -54,7 +40,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         this.pattern = pattern;
         this.defaultPackage = defaultPackage;
         this.typeConverter = typeConverter;
-        this.objectMetadata = new DefaultObjectMetadata(getClassForMatching(pattern));
+        this.objectMetadata = new DefaultObjectProperties(getClassForMatching(pattern));
     }
 
     @Override
@@ -64,7 +50,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         if (!object.getClass().isAssignableFrom(clazz)) {
             return false;
         }
-        return pattern.getFieldPatterns().stream()
+        return pattern.getPropertyMatchers().stream()
                 .map(matcher -> matchField(matcher, object))
                 .allMatch(it -> Boolean.TRUE.compareTo(it) == 0);
     }
@@ -78,7 +64,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private Boolean matchField(final FieldPattern matcher, final T object) {
+    private Boolean matchField(final PropertyMatcher matcher, final T object) {
         final Class<?> clazz = object.getClass();
         try {
             final String fieldName = matcher.getFieldName();
@@ -105,15 +91,6 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         }
     }
 
-    private static Class expandClass(final Class<?> aClass) {
-        if (INT_CLASSES.contains(aClass)) {
-            return Long.class;
-        } else if (FLOAT_CLASSES.contains(aClass)) {
-            return Double.class;
-        } else {
-            return aClass;
-        }
-    }
 
     private Try<Object> tryMatchGetter(final Property property, final T object) {
         return Try.of(() -> property.getGetterMethod().invoke(object));

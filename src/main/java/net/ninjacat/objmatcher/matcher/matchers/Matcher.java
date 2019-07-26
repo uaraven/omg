@@ -1,4 +1,4 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 @FunctionalInterface
 public interface Matcher<T> {

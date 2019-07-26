@@ -1,9 +1,9 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 import lombok.Value;
 
 @Value
-public class StringEq implements Matcher<String> {
+public class StringEq implements StringMatcher {
 
     String value;
 

@@ -1,4 +1,4 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 import org.junit.Test;
 

@@ -1,22 +1,22 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class IntegerGtTest {
+public class IntegerNotEqTest {
 
     @Test
     public void shouldMatch() {
-        final IntegerGt byteField = new IntegerGt( 42L);
+        final IntegerNotEq byteField = new IntegerNotEq(42L);
 
-        assertThat(byteField.matches(43L), is(true));
+        assertThat(byteField.matches(41L), is(true));
     }
 
     @Test
     public void shouldNotMatch() {
-        final IntegerGt byteField = new IntegerGt( 42L);
+        final IntegerNotEq byteField = new IntegerNotEq(42L);
 
         assertThat(byteField.matches(42L), is(false));
     }

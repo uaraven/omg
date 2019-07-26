@@ -1,9 +1,9 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 import lombok.Value;
 
 @Value
-public class IntegerEq implements Matcher<Long> {
+public class IntegerEq implements IntMatcher {
     long value;
 
     @Override

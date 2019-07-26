@@ -3,11 +3,11 @@ package net.ninjacat.objmatcher.matcher.reflect;
 import io.vavr.collection.Map;
 import net.jcip.annotations.Immutable;
 import net.ninjacat.objmatcher.matcher.ObjectProperties;
-import net.ninjacat.objmatcher.matcher.errors.MatcherException;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,24 +20,24 @@ import java.util.stream.Collectors;
  * Indexed properties are not supported.
  */
 @Immutable
-public class DefaultObjectMetadata implements ObjectProperties {
+public class DefaultObjectProperties implements ObjectProperties {
     private final Map<String, Property> fieldTypes;
 
-    public DefaultObjectMetadata(final Class objectClass) {
+    public DefaultObjectProperties(final Class objectClass) {
         fieldTypes = io.vavr.collection.HashMap.ofAll(Arrays.stream(objectClass.getMethods())
-                        .filter(DefaultObjectMetadata::isGetter)
-                        .map(Property::fromMethod)
-                        .collect(Collectors.toMap(
-                                Property::getPropertyName,
-                                Function.identity()
-                        )));
+                .filter(DefaultObjectProperties::isGetter)
+                .map(Property::fromMethod)
+                .collect(Collectors.toMap(
+                        Property::getPropertyName,
+                        Function.identity()
+                )));
     }
 
     @Override
-    public Property getProperty(final String fieldName) {
-        return fieldTypes
+    public Optional<Property> getProperty(final String fieldName) {
+        return Optional.ofNullable(fieldTypes
                 .get(fieldName)
-                .getOrElseThrow(() -> new MatcherException("Cannot get type of field '%s", fieldName));
+                .getOrNull());
     }
 
     @Override

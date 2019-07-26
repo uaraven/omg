@@ -1,4 +1,4 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 import io.vavr.collection.List;
 import org.junit.Test;
@@ -10,7 +10,7 @@ public class LogicalAndMatcherTest {
 
     @Test
     public void shouldMatchOneOfValues() {
-        final Matcher<Long> matcher = new LogicalAndMatcher<>(
+        final TypedMatcher<Long> matcher = new LogicalAndMatcher<>(
                 List.of(
                         new IntegerEq(10),
                         new IntegerGt(5)
@@ -22,7 +22,7 @@ public class LogicalAndMatcherTest {
 
     @Test
     public void shouldMatchNoneOfValues() {
-        final Matcher<Long> matcher = new LogicalAndMatcher<>(
+        final TypedMatcher<Long> matcher = new LogicalAndMatcher<>(
                 List.of(
                         new IntegerEq(10),
                         new IntegerGt(5)

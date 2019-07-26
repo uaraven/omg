@@ -1,16 +1,16 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 import io.vavr.collection.List;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class LogicalOrMatcherTest {
 
     @Test
     public void shouldMatchOneOfValues() {
-        final Matcher<Long> matcher = new LogicalOrMatcher<>(
+        final TypedMatcher<Long> matcher = new LogicalOrMatcher<>(
                 List.of(
                         new IntegerEq(10),
                         new IntegerEq(20),
@@ -23,7 +23,7 @@ public class LogicalOrMatcherTest {
 
     @Test
     public void shouldMatchNoneOfValues() {
-        final Matcher<Long> matcher = new LogicalOrMatcher<>(
+        final TypedMatcher<Long> matcher = new LogicalOrMatcher<>(
                 List.of(
                         new IntegerEq(10),
                         new IntegerEq(20),

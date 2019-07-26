@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ObjectMetadataTest {
     @Test
     public void shouldFindAllGetters() {
-        final ObjectProperties objectMetadata = new DefaultObjectMetadata(TestObject.class);
+        final ObjectProperties objectMetadata = new DefaultObjectProperties(TestObject.class);
         final List<Property> properties = objectMetadata.getProperties();
 
         final List<String> propNames = properties.stream().map(Property::getPropertyName).collect(Collectors.toList());

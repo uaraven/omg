@@ -2,11 +2,11 @@ package net.ninjacat.objmatcher.matcher;
 
 import io.vavr.collection.List;
 import lombok.Value;
-import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
-import net.ninjacat.objmatcher.matcher.patterns.Matchers;
+import net.ninjacat.objmatcher.matcher.matchers.Matchers;
+import net.ninjacat.objmatcher.matcher.matchers.ObjectPattern;
 import org.junit.Test;
 
-import static net.ninjacat.objmatcher.matcher.patterns.Matchers.integer;
+import static net.ninjacat.objmatcher.matcher.matchers.Matchers.integer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;

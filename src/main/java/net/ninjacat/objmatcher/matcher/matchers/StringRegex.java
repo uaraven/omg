@@ -1,4 +1,4 @@
-package net.ninjacat.objmatcher.matcher.patterns;
+package net.ninjacat.objmatcher.matcher.matchers;
 
 import jdk.nashorn.internal.ir.annotations.Immutable;
 import lombok.NonNull;
@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 @Immutable
-public class StringRegex implements Matcher<String> {
+public class StringRegex implements StringMatcher {
     private final Predicate<String> regexPredicate;
     private final String regex;
 
