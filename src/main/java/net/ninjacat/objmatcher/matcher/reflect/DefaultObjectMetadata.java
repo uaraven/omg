@@ -2,11 +2,13 @@ package net.ninjacat.objmatcher.matcher.reflect;
 
 import io.vavr.collection.Map;
 import net.jcip.annotations.Immutable;
-import net.ninjacat.objmatcher.matcher.ObjectMetadata;
+import net.ninjacat.objmatcher.matcher.ObjectProperties;
 import net.ninjacat.objmatcher.matcher.errors.MatcherException;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -18,15 +20,16 @@ import java.util.stream.Collectors;
  * Indexed properties are not supported.
  */
 @Immutable
-public class DefaultObjectMetadata implements ObjectMetadata {
+public class DefaultObjectMetadata implements ObjectProperties {
     private final Map<String, Property> fieldTypes;
 
     public DefaultObjectMetadata(final Class objectClass) {
         fieldTypes = io.vavr.collection.HashMap.ofAll(Arrays.stream(objectClass.getMethods())
-                        .filter(this::isGetter)
+                        .filter(DefaultObjectMetadata::isGetter)
+                        .map(Property::fromMethod)
                         .collect(Collectors.toMap(
-                                method -> nameToFieldName(method.getName()),
-                                Property::fromMethod
+                                Property::getPropertyName,
+                                Function.identity()
                         )));
     }
 
@@ -37,20 +40,14 @@ public class DefaultObjectMetadata implements ObjectMetadata {
                 .getOrElseThrow(() -> new MatcherException("Cannot get type of field '%s", fieldName));
     }
 
-    private String nameToFieldName(final String name) {
-        final String fieldNamePascalCase;
-        if (name.startsWith("get")) {
-            fieldNamePascalCase = name.substring(3);
-        } else if (name.startsWith("is")) {
-            fieldNamePascalCase = name.substring(2);
-        } else {
-            fieldNamePascalCase = name;
-        }
-        return fieldNamePascalCase.substring(0,1).toLowerCase() + fieldNamePascalCase.substring(1);
+    @Override
+    public List<Property> getProperties() {
+        return fieldTypes.values().asJava();
     }
 
-    private boolean isGetter(final Method method) {
+    private static boolean isGetter(final Method method) {
         return !method.getReturnType().equals(Void.class)
+                && !method.getReturnType().equals(Class.class)
                 && method.getParameterCount() == 0
                 && (method.getName().startsWith("get") || method.getName().startsWith("is"));
     }

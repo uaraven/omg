@@ -21,9 +21,22 @@ public class Property {
      * If method accepts parameters, {@link IllegalArgumentException} will be thrown. Indexed properties are not supported
      *
      * @param method Method
-     * @return
+     * @return Property
      */
     static Property fromMethod(final Method method) {
-        return new Property(method.getReturnType(), method);
+        return new Property(nameToFieldName(method.getName()), method.getReturnType(), method);
     }
+
+    private static String nameToFieldName(final String name) {
+        final String fieldNamePascalCase;
+        if (name.startsWith("get")) {
+            fieldNamePascalCase = name.substring(3);
+        } else if (name.startsWith("is")) {
+            fieldNamePascalCase = name.substring(2);
+        } else {
+            fieldNamePascalCase = name;
+        }
+        return fieldNamePascalCase.substring(0, 1).toLowerCase() + fieldNamePascalCase.substring(1);
+    }
+
 }

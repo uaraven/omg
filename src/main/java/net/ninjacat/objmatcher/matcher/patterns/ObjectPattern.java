@@ -5,6 +5,9 @@ import net.jcip.annotations.Immutable;
 
 import java.util.List;
 
+/**
+ * Pattern to compare object to
+ */
 @Value
 @Immutable
 public class ObjectPattern {

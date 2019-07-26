@@ -1,7 +1,7 @@
 package net.ninjacat.objmatcher.matcher.patterns;
 
 
-public abstract class FieldPattern<T> {
+public abstract class FieldPattern<T> implements Pattern<T> {
     private final String fieldName;
     private final Class fieldType;
     private final T value;

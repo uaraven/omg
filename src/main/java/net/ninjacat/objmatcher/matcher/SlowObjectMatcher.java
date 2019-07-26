@@ -34,7 +34,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
     );
 
     private final String defaultPackage;
-    private final ObjectMetadata objectMetadata;
+    private final ObjectProperties objectMetadata;
     private final TypeConverter typeConverter;
     private final ObjectPattern pattern;
 
@@ -105,7 +105,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         }
     }
 
-    private Class expandClass(final Class<?> aClass) {
+    private static Class expandClass(final Class<?> aClass) {
         if (INT_CLASSES.contains(aClass)) {
             return Long.class;
         } else if (FLOAT_CLASSES.contains(aClass)) {
@@ -115,8 +115,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         }
     }
 
-    private Try<Object> tryMatchGetter(Property propery, final T object) {
-        return Try.of(() -> propery.getGetterMethod().invoke(object));
-
+    private Try<Object> tryMatchGetter(final Property property, final T object) {
+        return Try.of(() -> property.getGetterMethod().invoke(object));
     }
 }

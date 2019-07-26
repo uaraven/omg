@@ -4,7 +4,7 @@ import net.ninjacat.objmatcher.matcher.reflect.Property;
 
 import java.util.List;
 
-public interface ObjectMetadata {
+public interface ObjectProperties {
     Property getProperty(String fieldName);
 
     List<Property> getProperties();
