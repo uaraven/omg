@@ -7,7 +7,7 @@ import lombok.Value;
 @EqualsAndHashCode(callSuper = true)
 public class IntegerEq extends FieldPattern<Integer> {
     IntegerEq(final String fieldName, final Integer value) {
-        super(fieldName, value);
+        super(fieldName, Integer.class, value);
     }
 
     @Override

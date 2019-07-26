@@ -8,7 +8,7 @@ import lombok.Value;
 public class IntegerGt extends FieldPattern<Integer> {
 
     IntegerGt(final String fieldName, final Integer value) {
-        super(fieldName, value);
+        super(fieldName, Integer.class, value);
     }
 
     @Override

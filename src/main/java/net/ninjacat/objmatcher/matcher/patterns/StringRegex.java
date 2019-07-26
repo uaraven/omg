@@ -12,7 +12,7 @@ public class StringRegex extends FieldPattern<String> {
     private final Predicate<String> regexPredicate;
 
     StringRegex(final String fieldName, final String value) {
-        super(fieldName, value);
+        super(fieldName, String.class, value);
         this.regexPredicate = Pattern.compile(value).asMatchPredicate();
     }
 

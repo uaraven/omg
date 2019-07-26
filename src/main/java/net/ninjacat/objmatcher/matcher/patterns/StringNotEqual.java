@@ -8,7 +8,7 @@ import lombok.Value;
 public class StringNotEqual extends FieldPattern<String> {
 
     StringNotEqual(final String fieldName, final String value) {
-        super(fieldName, value);
+        super(fieldName, String.class, value);
     }
 
     @Override
