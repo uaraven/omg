@@ -42,19 +42,19 @@ public final class Patterns {
             this.fieldName = fieldName;
         }
 
-        public IntegerEq equalTo(final int value) {
+        public IntegerEq equalTo(final long value) {
             return new IntegerEq(fieldName, value);
         }
 
-        public IntegerNotEq notEqualTo(final int value) {
+        public IntegerNotEq notEqualTo(final long value) {
             return new IntegerNotEq(fieldName, value);
         }
 
-        public IntegerLt lessThan(final int value) {
+        public IntegerLt lessThan(final long value) {
             return new IntegerLt(fieldName, value);
         }
 
-        public IntegerGt greaterThan(final int value) {
+        public IntegerGt greaterThan(final long value) {
             return new IntegerGt(fieldName, value);
         }
     }

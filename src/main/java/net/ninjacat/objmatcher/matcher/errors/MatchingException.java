@@ -1,4 +1,4 @@
-package net.ninjacat.objmatcher.matcher;
+package net.ninjacat.objmatcher.matcher.errors;
 
 public class MatchingException extends RuntimeException {
     public MatchingException(final String message) {

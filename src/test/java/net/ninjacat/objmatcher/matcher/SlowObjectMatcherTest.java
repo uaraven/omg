@@ -89,4 +89,45 @@ public class SlowObjectMatcherTest {
         assertThat(results, hasSize(2));
         assertThat(results, containsInAnyOrder(new TestValue("test1", "success"), new TestValue("test1", "success")));
     }
+
+    @Test
+    public void shouldMatchNonIntField() {
+
+        final ObjectPattern pattern = ObjectPattern.builder()
+                .className(TestInts.class.getName())
+                .fieldMatcher(Patterns.integer("shortField").equalTo(11))
+                .build();
+
+        final TestInts test = new TestInts((short) 11);
+
+        final SlowObjectMatcher<Object> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
+        final boolean matches = slowObjectMatcher.matches(test);
+
+        assertThat(matches, Matchers.is(true));
+    }
+
+    @Test
+    public void shouldFilterGtThanTen() {
+
+        final ObjectPattern pattern = ObjectPattern.builder()
+                .className(TestInts.class.getName())
+                .fieldMatcher(Patterns.integer("shortField").greaterThan(10))
+                .build();
+
+        final List<TestInts> list = List.of(
+                new TestInts((short) 1),
+                new TestInts((short) 15),
+                new TestInts((short) 10),
+                new TestInts((short) 123),
+                new TestInts((short) -5)
+        );
+
+        final SlowObjectMatcher<Object> slowObjectMatcher = SlowObjectMatcher.forPattern(pattern);
+
+        final List<TestInts> results = list.stream().filter(slowObjectMatcher::matches).collect(Collectors.toList());
+
+        assertThat(results, hasSize(2));
+        assertThat(results, containsInAnyOrder(new TestInts((short) 15), new TestInts((short) 123)));
+    }
+
 }

@@ -6,4 +6,5 @@ import lombok.Value;
 public class TestValue {
     final String field1;
     final String field2;
+    final short shortField = 0;
 }

@@ -1,12 +1,14 @@
 package net.ninjacat.objmatcher.matcher;
 
 import io.vavr.control.Try;
+import net.ninjacat.objmatcher.matcher.errors.MatchingException;
 import net.ninjacat.objmatcher.matcher.patterns.FieldPattern;
 import net.ninjacat.objmatcher.matcher.patterns.ObjectPattern;
 import net.ninjacat.objmatcher.matcher.reflect.DefaultTypeConverter;
+import net.ninjacat.objmatcher.matcher.reflect.ObjectMetadata;
+import net.ninjacat.objmatcher.matcher.reflect.PropertyMetadata;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -16,7 +18,20 @@ import java.util.function.Function;
  */
 public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
 
+    private static final Set<Class> INT_CLASSES = Set.of(
+            Integer.class,
+            Long.class,
+            Short.class,
+            Byte.class,
+            Character.class
+    );
+    private static final Set<Class> FLOAT_CLASSES = Set.of(
+            Float.class,
+            Double.class
+    );
+
     private final String defaultPackage;
+    private final ObjectMetadata objectMetadata;
     private TypeConverter typeConverter;
     private final ObjectPattern pattern;
 
@@ -36,6 +51,7 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         this.pattern = pattern;
         this.defaultPackage = defaultPackage;
         this.typeConverter = typeConverter;
+        this.objectMetadata = new ObjectMetadata(getClassForMatching(pattern));
     }
 
     @Override
@@ -62,8 +78,10 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
     private Boolean matchField(final FieldPattern matcher, final T object) {
         final Class<?> clazz = object.getClass();
         try {
-            return tryMatchGetter(matcher, clazz, object)
-                    .orElse(tryMatchField(matcher, clazz, object))
+            final String fieldName = matcher.getFieldName();
+            final PropertyMetadata property = objectMetadata.getFieldData(fieldName);
+
+            return tryMatchGetter(property, object)
                     .map(value -> ensureValueType(value, matcher.getFieldType()))
                     .map((Function<Object, Boolean>) matcher::matches)
                     .get();
@@ -73,30 +91,29 @@ public class SlowObjectMatcher<T> implements ObjectMatcher<T> {
         }
     }
 
+
     private Object ensureValueType(final Object value, final Class fieldType) {
         final Class valueType = value.getClass();
+        final Class expandedFieldType = expandClass(fieldType);
         if (valueType.equals(fieldType)) {
             return value;
         } else {
-            return typeConverter.convert(value).to(fieldType);
+            return typeConverter.convert(value).to(expandedFieldType);
         }
     }
 
-    private Try<Object> tryMatchField(final FieldPattern matcher, final Class<?> clazz, final T object) {
-        return Try.of(() -> {
-            final Field fieldToMatch = clazz.getDeclaredField(matcher.getFieldName());
-            fieldToMatch.setAccessible(true);
-            return fieldToMatch.get(object);
-        });
+    private Class expandClass(final Class<?> aClass) {
+        if (INT_CLASSES.contains(aClass)) {
+            return Long.class;
+        } else if (FLOAT_CLASSES.contains(aClass)) {
+            return Double.class;
+        } else {
+            return aClass;
+        }
     }
 
-    private Try<Object> tryMatchGetter(final FieldPattern matcher, final Class<?> clazz, final T object) {
-        final String fieldName = matcher.getFieldName();
-        final String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-        return Try.of(() -> {
-            final Method getter = clazz.getMethod(getterName);
-            return getter.invoke(object);
-        });
+    private Try<Object> tryMatchGetter(PropertyMetadata propery, final T object) {
+        return Try.of(() -> propery.getGetterMethod().invoke(object));
 
     }
 }

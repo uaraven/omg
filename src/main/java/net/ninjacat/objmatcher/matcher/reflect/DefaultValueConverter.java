@@ -2,7 +2,7 @@ package net.ninjacat.objmatcher.matcher.reflect;
 
 import io.vavr.control.Try;
 import lombok.Value;
-import net.ninjacat.objmatcher.matcher.MatchingException;
+import net.ninjacat.objmatcher.matcher.errors.MatchingException;
 import net.ninjacat.objmatcher.matcher.TypeConverter;
 
 import java.lang.invoke.MethodHandle;
