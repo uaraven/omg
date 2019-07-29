@@ -1,5 +1,7 @@
 package net.ninjacat.objmatcher.matcher.conditions;
 
+import net.ninjacat.objmatcher.utils.Strings;
+
 public abstract class ComparisonCondition<T> implements PropertyCondition<T> {
     private final String field;
     private final T value;
@@ -24,4 +26,10 @@ public abstract class ComparisonCondition<T> implements PropertyCondition<T> {
         return repr();
     }
 
+    @Override
+    public String repr(int level) {
+        return Strings.indent("", level * 2) + "'" + getField() + "' " + operatorRepr() + " '" + getValue() + "'";
+    }
+
+    protected abstract String operatorRepr();
 }

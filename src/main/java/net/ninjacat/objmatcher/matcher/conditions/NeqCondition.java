@@ -6,7 +6,8 @@ public class NeqCondition<T> extends ComparisonCondition<T> {
     }
 
     @Override
-    public String repr(final int level) {
-        return "'" + getField() + "' != '" + getValue() + "'";
+    protected String operatorRepr() {
+        return "!=";
     }
+
 }

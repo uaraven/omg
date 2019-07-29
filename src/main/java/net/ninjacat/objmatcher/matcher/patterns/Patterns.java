@@ -16,12 +16,12 @@ public final class Patterns {
     private Patterns() {
     }
 
-    public static <T> Pattern<T> build(final Condition condition, final PropertyPatternBuilder<T> propBuilder) {
+    public static <T> Pattern<T> compile(final Condition condition, final PropertyPatternCompiler<T> propBuilder) {
         return processCondition(condition, propBuilder);
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Pattern<T> processCondition(final Condition condition, final PropertyPatternBuilder<T> propBuilder) {
+    private static <T> Pattern<T> processCondition(final Condition condition, final PropertyPatternCompiler<T> propBuilder) {
         return Match(condition).of(
                 Case($(instanceOf(AndCondition.class)), andCondition -> processAndCondition(andCondition, propBuilder)),
                 Case($(instanceOf(OrCondition.class)), orCondition -> processOrCondition(orCondition, propBuilder)),
@@ -32,16 +32,16 @@ public final class Patterns {
         );
     }
 
-    private static <T, P> PropertyPattern<T> processPropertyCondition(final PropertyCondition<P> condition, final PropertyPatternBuilder<T> propBuilder) {
+    private static <T, P> PropertyPattern<T> processPropertyCondition(final PropertyCondition<P> condition, final PropertyPatternCompiler<T> propBuilder) {
         return propBuilder.build(condition);
     }
 
-    private static <T> Pattern<T> processAndCondition(final AndCondition condition, final PropertyPatternBuilder<T> propBuilder) {
+    private static <T> Pattern<T> processAndCondition(final AndCondition condition, final PropertyPatternCompiler<T> propBuilder) {
         final List<Pattern<T>> patterns = condition.getChildren().stream().map(cond -> processCondition(cond, propBuilder)).collect(Collectors.toList());
         return new AndPattern<>(patterns);
     }
 
-    private static <T> Pattern<T> processOrCondition(final OrCondition condition, final PropertyPatternBuilder<T> propBuilder) {
+    private static <T> Pattern<T> processOrCondition(final OrCondition condition, final PropertyPatternCompiler<T> propBuilder) {
         final List<Pattern<T>> patterns = condition.getChildren().stream().map(cond -> processCondition(cond, propBuilder)).collect(Collectors.toList());
         return new OrPattern<>(patterns);
     }

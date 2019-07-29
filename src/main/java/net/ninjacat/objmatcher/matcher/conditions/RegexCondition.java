@@ -6,7 +6,9 @@ public class RegexCondition extends ComparisonCondition<String> {
     }
 
     @Override
-    public String repr(final int level) {
-        return "'" + getField() + "' ~= /" + getValue() + "/";
+    protected String operatorRepr() {
+        return "~=";
     }
+
+
 }

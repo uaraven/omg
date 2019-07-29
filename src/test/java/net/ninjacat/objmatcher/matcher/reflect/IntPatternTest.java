@@ -11,7 +11,7 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class PatternsTest {
+public class IntPatternTest {
 
     @Test
     public void testSimplePattern() {
@@ -19,7 +19,7 @@ public class PatternsTest {
                 .property("longField").eq(42)
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.build(condition, ReflectPatternBuilder.forClass(TestClass.class));
+        final Pattern<TestClass> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(TestClass.class));
 
         final List<TestClass> tests = List.of(new TestClass(0, (short) 0, 42L),
                 new TestClass(0, (short) 0, 41L));
@@ -38,7 +38,7 @@ public class PatternsTest {
                         .property("longField").gt(10))
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.build(condition, ReflectPatternBuilder.forClass(TestClass.class));
+        final Pattern<TestClass> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(TestClass.class));
 
         final List<TestClass> tests = List.of(new TestClass(0, (short) 0, 2L),
                 new TestClass(1, (short) 0, -10L),
@@ -62,7 +62,7 @@ public class PatternsTest {
                         .property("longField").gt(10))
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.build(condition, ReflectPatternBuilder.forClass(TestClass.class));
+        final Pattern<TestClass> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(TestClass.class));
 
         final List<TestClass> tests = List.of(new TestClass(0, (short) 0, 2L),
                 new TestClass(1, (short) 0, -10L),
@@ -88,7 +88,7 @@ public class PatternsTest {
                 )
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.build(condition, ReflectPatternBuilder.forClass(TestClass.class));
+        final Pattern<TestClass> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(TestClass.class));
 
         final List<TestClass> tests = List.of(
                 new TestClass(1, (short) 100, 10L),

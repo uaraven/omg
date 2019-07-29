@@ -6,7 +6,9 @@ public class GtCondition<T> extends ComparisonCondition<T> {
     }
 
     @Override
-    public String repr(final int level) {
-        return "'" + getField() + "' > '" + getValue() + "'";
+    protected String operatorRepr() {
+        return ">";
     }
+
+
 }

@@ -1,7 +1,9 @@
 package net.ninjacat.objmatcher.matcher.conditions;
 
 /**
- * Basic interface for condition
+ * Basic interface for condition.
+ *
+ * Conditions are simple criteria comparing named field to a value.
  */
 public interface Condition {
     /**
@@ -12,6 +14,11 @@ public interface Condition {
      */
     String repr(int level);
 
+    /**
+     * Default representation without indentation
+     *
+     * @return String representation of condition
+     */
     default String repr() {
         return repr(0);
     }
