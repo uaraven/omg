@@ -41,6 +41,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         final Property<T> property = createProperty(condition.getField());
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
+                Case($(is(Double.class)), doubleProp -> new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(is(String.class)), strProp -> new StringEqPattern<>(property, toStringOrNull(condition.getValue())))
         );
     }
@@ -49,6 +50,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         final Property<T> property = createProperty(condition.getField());
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongNeqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
+                Case($(is(Double.class)), doubleProp -> new DoubleNeqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(is(String.class)), strProp -> new StringNeqPattern<>(property, toStringOrNull(condition.getValue())))
         );
     }
@@ -57,6 +59,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         final Property<T> property = createProperty(condition.getField());
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongGtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
+                Case($(is(Double.class)), doubleProp -> new DoubleGtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(), () -> {
                     throw new MatcherException("Greater-than expressions are only supported for numeric properties. Got property: %s", property);
                 })
@@ -67,6 +70,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         final Property<T> property = createProperty(condition.getField());
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongLtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
+                Case($(is(Double.class)), doubleProp -> new DoubleLtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(), () -> {
                     throw new MatcherException("Less-than expressions are only supported for numeric properties. Got property: %s", property);
                 })
