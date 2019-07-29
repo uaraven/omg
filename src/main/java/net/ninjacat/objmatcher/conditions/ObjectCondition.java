@@ -4,7 +4,7 @@ public class ObjectCondition implements PropertyCondition<Condition> {
     private final String property;
     private final Condition value;
 
-    public ObjectCondition(final String property, final Condition value) {
+    ObjectCondition(final String property, final Condition value) {
         this.property = property;
         this.value = value;
     }

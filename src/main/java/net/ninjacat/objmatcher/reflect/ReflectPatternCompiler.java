@@ -87,11 +87,26 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         );
     }
 
+    private PropertyPattern<T> buildObjectPattern(final ObjectCondition condition) {
+        final Property<T> property = createProperty(condition.getProperty());
+        return Match(property.getWidenedType()).of(
+                Case($(this::isBasicType), () -> {
+                    throw new MatcherException("Not a nested object. Property: %s ", property);
+                }),
+                Case($(), () -> new ObjectPattern<>(property, ReflectPatternCompiler.forClass(property.getType()).build(condition)))
+        );
+    }
+
+
     private Property<T> createProperty(final String field) {
         return Property.fromPropertyName(field, cls);
     }
 
     private String toStringOrNull(final Object value) {
         return Optional.ofNullable(value).map(Object::toString).orElse(null);
+    }
+
+    private boolean isBasicType(final Class<T> cls) {
+        return cls.equals(Long.class) || cls.equals(Double.class) || cls.equals(String.class);
     }
 }
