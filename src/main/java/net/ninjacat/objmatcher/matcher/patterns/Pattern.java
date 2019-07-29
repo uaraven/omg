@@ -1,5 +1,15 @@
 package net.ninjacat.objmatcher.matcher.patterns;
 
-public interface Pattern<T> {
-    public abstract boolean matches(final T checkedValue);
+import java.util.function.Predicate;
+
+/**
+ * Pattern is a condition applied to specific class.
+ */
+@FunctionalInterface
+public interface Pattern<T> extends Predicate<T> {
+    boolean matches(final T instance);
+
+    default boolean test(final T instance) {
+        return matches(instance);
+    }
 }

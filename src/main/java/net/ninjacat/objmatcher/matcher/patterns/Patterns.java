@@ -1,61 +1,48 @@
 package net.ninjacat.objmatcher.matcher.patterns;
 
-import lombok.Value;
+import net.ninjacat.objmatcher.matcher.conditions.AndCondition;
+import net.ninjacat.objmatcher.matcher.conditions.Condition;
+import net.ninjacat.objmatcher.matcher.conditions.OrCondition;
+import net.ninjacat.objmatcher.matcher.conditions.PropertyCondition;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
 
 public final class Patterns {
+
     private Patterns() {
     }
 
-    public static StringPatternBuilder string(final String fieldName) {
-        return new StringPatternBuilder(fieldName);
+    public static <T> Pattern<T> compile(final Condition condition, final PropertyPatternCompiler<T> propBuilder) {
+        return processCondition(condition, propBuilder);
     }
 
-    public static IntegerPatternBuilder integer(final String fieldName) {
-        return new IntegerPatternBuilder(fieldName);
+    @SuppressWarnings("unchecked")
+    private static <T> Pattern<T> processCondition(final Condition condition, final PropertyPatternCompiler<T> propBuilder) {
+        return Match(condition).of(
+                Case($(instanceOf(AndCondition.class)), andCondition -> processAndCondition(andCondition, propBuilder)),
+                Case($(instanceOf(OrCondition.class)), orCondition -> processOrCondition(orCondition, propBuilder)),
+                Case($(instanceOf(PropertyCondition.class)), propCondition -> processPropertyCondition(propCondition, propBuilder)),
+                Case($(), o -> {
+                    throw new IllegalStateException("Unexpected condition: " + o.toString());
+                })
+        );
     }
 
-    @Value
-    public static class StringPatternBuilder {
-        String fieldName;
-
-        StringPatternBuilder(final String fieldName) {
-            this.fieldName = fieldName;
-        }
-
-        public StringEq equalTo(final String value) {
-            return new StringEq(fieldName, value);
-        }
-
-        public StringNotEq notEqualTo(final String value) {
-            return new StringNotEq(fieldName, value);
-        }
-
-        public StringRegex matches(final String pattern) {
-            return new StringRegex(fieldName, pattern);
-        }
+    private static <T, P> PropertyPattern<T> processPropertyCondition(final PropertyCondition<P> condition, final PropertyPatternCompiler<T> propBuilder) {
+        return propBuilder.build(condition);
     }
 
-    public static class IntegerPatternBuilder {
-        private final String fieldName;
+    private static <T> Pattern<T> processAndCondition(final AndCondition condition, final PropertyPatternCompiler<T> propBuilder) {
+        final List<Pattern<T>> patterns = condition.getChildren().stream().map(cond -> processCondition(cond, propBuilder)).collect(Collectors.toList());
+        return new AndPattern<>(patterns);
+    }
 
-        IntegerPatternBuilder(final String fieldName) {
-            this.fieldName = fieldName;
-        }
-
-        public IntegerEq equalTo(final long value) {
-            return new IntegerEq(fieldName, value);
-        }
-
-        public IntegerNotEq notEqualTo(final long value) {
-            return new IntegerNotEq(fieldName, value);
-        }
-
-        public IntegerLt lessThan(final long value) {
-            return new IntegerLt(fieldName, value);
-        }
-
-        public IntegerGt greaterThan(final long value) {
-            return new IntegerGt(fieldName, value);
-        }
+    private static <T> Pattern<T> processOrCondition(final OrCondition condition, final PropertyPatternCompiler<T> propBuilder) {
+        final List<Pattern<T>> patterns = condition.getChildren().stream().map(cond -> processCondition(cond, propBuilder)).collect(Collectors.toList());
+        return new OrPattern<>(patterns);
     }
 }

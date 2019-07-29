@@ -20,7 +20,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
     implementation group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
-    implementation 'org.projectlombok:lombok:1.18.8'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
     implementation 'org.ow2.asm:asm:7.1'
     implementation 'io.vavr:vavr:1.0.0-alpha-3'
 

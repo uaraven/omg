@@ -1,42 +1,56 @@
 package net.ninjacat.objmatcher.matcher.reflect;
 
+import io.vavr.control.Try;
 import lombok.Value;
 import net.jcip.annotations.Immutable;
+import net.ninjacat.objmatcher.matcher.errors.PatternException;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 @Value
 @Immutable
-public class Property {
+public class Property<T> {
+    final Class<T> owner;
     final String propertyName;
     final Class type;
-    final Method getterMethod;
+    final Class widenedType;
+    final MethodHandle getterMethod;
 
-    /**
-     * Creates a new property from a given getter method.
-     * <p>
-     * Property name is derived from Javabeans property naming conventions. If provided getter does not follow
-     * convention, then property will be named the same as the getter.
-     * <p>
-     * If method accepts parameters, {@link IllegalArgumentException} will be thrown. Indexed properties are not supported
-     *
-     * @param method Method
-     * @return Property
-     */
-    static Property fromMethod(final Method method) {
-        return new Property(nameToFieldName(method.getName()), method.getReturnType(), method);
+
+    static <T> Property<T> fromPropertyName(final String propertyName, final Class<T> cls) {
+        final Method getter = findGetter(cls, toPascalCase(propertyName));
+        final Class propertyType = getter.getReturnType();
+        final Class widenedType = TypeUtils.widen(propertyType);
+        final MethodType methodType = MethodType.methodType(getter.getReturnType());
+        final MethodHandle handle = Try.of(() -> MethodHandles.lookup().findVirtual(cls, getter.getName(), methodType))
+                .getOrElseThrow(err -> new PatternException(
+                        err,
+                        "Failed to get handle for accessor method for property '%s' in class '%s'",
+                        propertyName, cls.getName()));
+        return new Property<>(cls, propertyName, propertyType, widenedType, handle);
     }
 
-    private static String nameToFieldName(final String name) {
-        final String fieldNamePascalCase;
-        if (name.startsWith("get")) {
-            fieldNamePascalCase = name.substring(3);
-        } else if (name.startsWith("is")) {
-            fieldNamePascalCase = name.substring(2);
-        } else {
-            fieldNamePascalCase = name;
-        }
-        return fieldNamePascalCase.substring(0, 1).toLowerCase() + fieldNamePascalCase.substring(1);
+    @SuppressWarnings("unchecked")
+    private static Method findGetter(final Class cls, final String propertyName) {
+        final Try<Method> method = Try
+                .of(() -> cls.getMethod("get" + propertyName))
+                .orElse(Try.of(() -> cls.getMethod("is" + propertyName)))
+                .filter(m -> !m.getReturnType().equals(Void.class) && m.getParameterCount() == 0);
+        return method.getOrElseThrow((ex) ->
+                new PatternException(ex, "Cannot find accessor method for property '%s' in class '%s'",
+                        propertyName, cls.getName()));
     }
 
+    private static String toPascalCase(final String name) {
+        return name.substring(0, 1).toUpperCase(Locale.getDefault()) + name.substring(1);
+    }
+
+    @Override
+    public String toString() {
+        return "Property{" + owner.getName() + '.' + propertyName + ": " + type + '}';
+    }
 }
