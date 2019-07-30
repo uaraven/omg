@@ -44,7 +44,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), doubleProp -> new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
-                Case($(is(String.class)), strProp -> new StringEqPattern<>(property, toStringOrNull(condition.getValue())))
+                Case($(is(String.class)), strProp -> new StringEqPattern<>(property, toStringOrNull(condition.getValue()))),
+                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumEqPattern<>(property, toStringOrNull(condition.getValue())))
         );
     }
 
@@ -53,7 +54,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongNeqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), doubleProp -> new DoubleNeqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
-                Case($(is(String.class)), strProp -> new StringNeqPattern<>(property, toStringOrNull(condition.getValue())))
+                Case($(is(String.class)), strProp -> new StringNeqPattern<>(property, toStringOrNull(condition.getValue()))),
+                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumNeqPattern<>(property, toStringOrNull(condition.getValue())))
         );
     }
 
@@ -100,13 +102,16 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         }
     }
 
-
     private Property<T> createProperty(final String field) {
         return Property.fromPropertyName(field, cls);
     }
 
     private String toStringOrNull(final Object value) {
         return Optional.ofNullable(value).map(Object::toString).orElse(null);
+    }
+
+    private static boolean isEnum(final Class cls) {
+        return Enum.class.isAssignableFrom(cls);
     }
 
     private static boolean isBasicType(final Class cls) {
