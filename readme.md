@@ -52,7 +52,7 @@ JSON pattern for previous example:
 [
   {
    "op": "and",
-   "conditions": [
+   "value": [
     {
       "op": "regex",
       "property": "lastName",
