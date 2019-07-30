@@ -11,3 +11,30 @@ Supports matching properties of types:
 - String
 - Enums
 - Arbitrary objects 
+
+Example:
+```
+    @Value
+    class Entity {
+        private final String firstName;
+        private final String lastName;
+        private final int age;
+    }
+
+    final Condition condition = Conditions.start()
+        .or(cond -> cond
+            .property("lastName").regex("John.*on")
+            .property("lastName").regex("Smith.*"))
+        .property("firstName").neq("Mary")
+        .property("age").gt(21)
+        .build();
+
+
+    final Pattern pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(Entity.class));
+
+    List<Entity> entities = ...;
+
+    List<Entity> filtered = entities.stream().filter(pattern).collect(Collectors.toList());
+
+
+```
