@@ -19,10 +19,12 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
-    implementation group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    implementation 'net.jcip:jcip-annotations:1.0'
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
     implementation 'org.ow2.asm:asm:7.1'
     implementation 'io.vavr:vavr:1.0.0-alpha-3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
+
 
     testCompileOnly 'org.projectlombok:lombok:1.18.8'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
