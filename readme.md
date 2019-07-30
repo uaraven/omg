@@ -68,7 +68,7 @@ JSON pattern for previous example:
     "value": "Mary"
   },
   {
-    "op": "eq",
+    "op": "gt",
     "property": "age",
     "value": 21
   } 
