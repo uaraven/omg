@@ -27,6 +27,11 @@ public class ObjectCondition implements PropertyCondition<Condition> {
     }
 
     @Override
+    public ConditionMethod getMethod() {
+        return ConditionMethod.MATCH;
+    }
+
+    @Override
     public String toString() {
         return repr();
     }

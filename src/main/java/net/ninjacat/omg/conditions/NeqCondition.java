@@ -1,7 +1,7 @@
 package net.ninjacat.omg.conditions;
 
 public class NeqCondition<T> extends ComparisonCondition<T> {
-    public NeqCondition(final String property, final T value) {
+    NeqCondition(final String property, final T value) {
         super(property, value);
     }
 
@@ -10,4 +10,8 @@ public class NeqCondition<T> extends ComparisonCondition<T> {
         return "!=";
     }
 
+    @Override
+    public ConditionMethod getMethod() {
+        return ConditionMethod.NEQ;
+    }
 }

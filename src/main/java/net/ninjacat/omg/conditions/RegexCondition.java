@@ -1,7 +1,7 @@
 package net.ninjacat.omg.conditions;
 
 public class RegexCondition extends ComparisonCondition<String> {
-    public RegexCondition(final String property, final String value) {
+    RegexCondition(final String property, final String value) {
         super(property, value);
     }
 
@@ -10,5 +10,8 @@ public class RegexCondition extends ComparisonCondition<String> {
         return "~=";
     }
 
-
+    @Override
+    public ConditionMethod getMethod() {
+        return ConditionMethod.REGEX;
+    }
 }
