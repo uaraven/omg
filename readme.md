@@ -13,13 +13,13 @@ Supports matching properties of types:
 - Arbitrary objects 
 
 Example:
-```
+```java
     @Value
     class Entity {
         private final String firstName;
         private final String lastName;
         private final int age;
-    }
+    };
 
     final Condition condition = Conditions.start()
         .or(cond -> cond
@@ -30,11 +30,48 @@ Example:
         .build();
 
 
-    final Pattern pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(Entity.class));
+    final Pattern pattern = Patterns.compile(
+        condition, 
+        ReflectPatternCompiler.forClass(Entity.class));
 
     List<Entity> entities = ...;
 
-    List<Entity> filtered = entities.stream().filter(pattern).collect(Collectors.toList());
+    List<Entity> filtered = entities.stream()
+        .filter(pattern)
+        .collect(Collectors.toList());
 
+```
+
+JSON pattern for previous example:
+
+```json
+
+[
+  {
+   "op": "and",
+   "conditions": [
+    {
+      "op": "regex",
+      "property": "lastName",
+      "value": "John.*on"
+    },
+    {
+      "op": "regex",
+      "property": "lastName",
+      "value": "Smith.*"
+    }
+   ]
+  },
+  {
+    "op": "neq",
+    "property": "firstName",
+    "value": "Mary"
+  },
+  {
+    "op": "eq",
+    "property": "age",
+    "value": 21
+  } 
+]  
 
 ```
