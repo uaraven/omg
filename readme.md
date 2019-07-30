@@ -51,7 +51,7 @@ JSON pattern for previous example:
 
 [
   {
-   "op": "and",
+   "op": "or",
    "value": [
     {
       "op": "regex",
