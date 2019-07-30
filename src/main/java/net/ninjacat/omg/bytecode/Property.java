@@ -4,12 +4,8 @@ import io.vavr.control.Try;
 import lombok.Value;
 import net.jcip.annotations.Immutable;
 import net.ninjacat.omg.errors.PatternException;
-import net.ninjacat.omg.reflect.TypeUtils;
+import org.objectweb.asm.commons.Method;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
 import java.util.Locale;
 
 @Value
@@ -18,24 +14,19 @@ public class Property<T> {
     final Class<T> owner;
     final String propertyName;
     final Class type;
-    final MethodHandle getterMethod;
+    final Method method;
 
     static <T> Property<T> fromPropertyName(final String propertyName, final Class<T> cls) {
-        final Method getter = findGetter(cls, propertyName);
+        final java.lang.reflect.Method getter = findGetter(cls, propertyName);
+        final Method method = Method.getMethod(getter);
         final Class propertyType = getter.getReturnType();
-        final MethodType methodType = MethodType.methodType(getter.getReturnType());
-        final MethodHandle handle = Try.of(() -> MethodHandles.lookup().findVirtual(cls, getter.getName(), methodType))
-                .getOrElseThrow(err -> new PatternException(
-                        err,
-                        "Failed to get handle for accessor method for property '%s' in class '%s'",
-                        propertyName, cls.getName()));
-        return new Property<>(cls, propertyName, propertyType, handle);
+        return new Property<>(cls, propertyName, propertyType, method);
     }
 
     @SuppressWarnings("unchecked")
-    private static Method findGetter(final Class cls, final String propertyName) {
+    private static java.lang.reflect.Method findGetter(final Class cls, final String propertyName) {
         final String propertyNamePascal = toPascalCase(propertyName);
-        final Try<Method> method = Try
+        final Try<java.lang.reflect.Method> method = Try
                 .of(() -> cls.getMethod("get" + propertyNamePascal))
                 .orElse(Try.of(() -> cls.getMethod("is" + propertyNamePascal)))
                 .filter(m -> !m.getReturnType().equals(Void.class) && m.getParameterCount() == 0);
