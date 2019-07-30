@@ -22,7 +22,7 @@ public class Property<T> {
 
 
     static <T> Property<T> fromPropertyName(final String propertyName, final Class<T> cls) {
-        final Method getter = findGetter(cls, toPascalCase(propertyName));
+        final Method getter = findGetter(cls, propertyName);
         final Class propertyType = getter.getReturnType();
         final Class widenedType = TypeUtils.widen(propertyType);
         final MethodType methodType = MethodType.methodType(getter.getReturnType());
@@ -36,9 +36,10 @@ public class Property<T> {
 
     @SuppressWarnings("unchecked")
     private static Method findGetter(final Class cls, final String propertyName) {
+        final String propertyNamePascal = toPascalCase(propertyName);
         final Try<Method> method = Try
-                .of(() -> cls.getMethod("get" + propertyName))
-                .orElse(Try.of(() -> cls.getMethod("is" + propertyName)))
+                .of(() -> cls.getMethod("get" + propertyNamePascal))
+                .orElse(Try.of(() -> cls.getMethod("is" + propertyNamePascal)))
                 .filter(m -> !m.getReturnType().equals(Void.class) && m.getParameterCount() == 0);
         return method.getOrElseThrow((ex) ->
                 new PatternException(ex, "Cannot find accessor method for property '%s' in class '%s'",

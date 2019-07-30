@@ -3,6 +3,7 @@ package net.ninjacat.objmatcher.reflect;
 import net.jcip.annotations.Immutable;
 import net.ninjacat.objmatcher.conditions.*;
 import net.ninjacat.objmatcher.errors.MatcherException;
+import net.ninjacat.objmatcher.patterns.Patterns;
 import net.ninjacat.objmatcher.patterns.PropertyPattern;
 import net.ninjacat.objmatcher.patterns.PropertyPatternCompiler;
 
@@ -33,7 +34,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
                 Case($(instanceOf(NeqCondition.class)), this::buildNeqPattern),
                 Case($(instanceOf(GtCondition.class)), this::buildGtPattern),
                 Case($(instanceOf(LtCondition.class)), this::buildLtPattern),
-                Case($(instanceOf(RegexCondition.class)), this::buildRegexPattern)
+                Case($(instanceOf(RegexCondition.class)), this::buildRegexPattern),
+                Case($(instanceOf(ObjectCondition.class)), this::buildObjectPattern)
         );
     }
 
@@ -89,12 +91,13 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
 
     private PropertyPattern<T> buildObjectPattern(final ObjectCondition condition) {
         final Property<T> property = createProperty(condition.getProperty());
-        return Match(property.getWidenedType()).of(
-                Case($(this::isBasicType), () -> {
-                    throw new MatcherException("Not a nested object. Property: %s ", property);
-                }),
-                Case($(), () -> new ObjectPattern<>(property, ReflectPatternCompiler.forClass(property.getType()).build(condition)))
-        );
+        if (isBasicType(property.getWidenedType())) {
+            throw new MatcherException("Not a nested object. Property: %s ", property);
+        } else {
+            return new ObjectPattern<T>(property,
+                    Patterns.compile(condition.getValue(), ReflectPatternCompiler.forClass(property.getType())));
+
+        }
     }
 
 
@@ -106,7 +109,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Optional.ofNullable(value).map(Object::toString).orElse(null);
     }
 
-    private boolean isBasicType(final Class<T> cls) {
+    private static boolean isBasicType(final Class cls) {
         return cls.equals(Long.class) || cls.equals(Double.class) || cls.equals(String.class);
     }
 }

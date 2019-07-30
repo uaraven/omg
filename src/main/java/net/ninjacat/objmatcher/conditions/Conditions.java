@@ -19,7 +19,7 @@ public class Conditions {
     public abstract static class LogicalConditionBuilder implements ConditionBuilder {
         private final List<ConditionBuilder> conditions;
 
-        private LogicalConditionBuilder(final LogicalConditionBuilder parentBuilder) {
+        private LogicalConditionBuilder() {
             this.conditions = new ArrayList<>();
         }
 
@@ -85,7 +85,7 @@ public class Conditions {
         }
 
         public LogicalConditionBuilder match(final Consumer<LogicalConditionBuilder> nested) {
-            final ObjectConditionBuilder builder = new ObjectConditionBuilder(propertyName, parentBuilder);
+            final ObjectConditionBuilder builder = new ObjectConditionBuilder(propertyName, null);
             nested.accept(builder);
             parentBuilder.addCondition(builder);
             return parentBuilder;
@@ -94,7 +94,7 @@ public class Conditions {
 
     public static class AndConditionBuilder extends LogicalConditionBuilder {
         AndConditionBuilder(final LogicalConditionBuilder parentBuilder) {
-            super(parentBuilder);
+            super();
         }
 
         @Override
@@ -111,7 +111,7 @@ public class Conditions {
         private final String propertyName;
 
         ObjectConditionBuilder(final String propertyName, final LogicalConditionBuilder parentBuilder) {
-            super(parentBuilder);
+            super();
             this.propertyName = propertyName;
         }
 
@@ -127,7 +127,7 @@ public class Conditions {
 
     public static final class OrConditionBuilder extends LogicalConditionBuilder {
         OrConditionBuilder(final LogicalConditionBuilder parentBuilder) {
-            super(parentBuilder);
+            super();
         }
 
         @Override

@@ -10,9 +10,9 @@ import java.lang.invoke.MethodHandle;
 public class ObjectPattern<T> implements PropertyPattern<T> {
 
     private final Property property;
-    private final Pattern<Object> objectPattern;
+    private final Pattern objectPattern;
 
-    ObjectPattern(final Property property, final Pattern<Object> objectPattern) {
+    ObjectPattern(final Property property, final Pattern objectPattern) {
         this.property = property;
         this.objectPattern = objectPattern;
     }
@@ -29,5 +29,8 @@ public class ObjectPattern<T> implements PropertyPattern<T> {
                 .getOrElseThrow(err -> new MatcherException(err, "Failed to match property %s in %s", property, instance));
     }
 
-
+    @Override
+    public String toString() {
+        return String.format("'%s' %% '%s'", property.toString(), objectPattern);
+    }
 }

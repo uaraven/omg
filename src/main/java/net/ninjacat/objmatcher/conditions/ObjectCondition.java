@@ -1,5 +1,7 @@
 package net.ninjacat.objmatcher.conditions;
 
+import net.ninjacat.objmatcher.utils.Strings;
+
 public class ObjectCondition implements PropertyCondition<Condition> {
     private final String property;
     private final Condition value;
@@ -21,6 +23,11 @@ public class ObjectCondition implements PropertyCondition<Condition> {
 
     @Override
     public String repr(final int level) {
-        return property + " matches\n" + value.repr(level);
+        return Strings.indent("", level * 2) + property + " matches\n" + value.repr(level + 1);
+    }
+
+    @Override
+    public String toString() {
+        return repr();
     }
 }
