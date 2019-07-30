@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class Conditions {
+public final class Conditions {
+
+    private Conditions() {
+    }
 
     public static LogicalConditionBuilder start() {
         return new AndConditionBuilder(null);
