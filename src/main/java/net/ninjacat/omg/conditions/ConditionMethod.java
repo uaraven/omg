@@ -7,5 +7,5 @@ public enum ConditionMethod {
     LT,
     REGEX,
     MATCH,
-    LOGIC;
+    LOGIC
 }

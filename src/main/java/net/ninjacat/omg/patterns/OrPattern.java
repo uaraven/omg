@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 public class OrPattern<T> extends GroupPattern<T> {
 
-    public OrPattern(final List<Pattern<T>> patterns) {
+    OrPattern(final List<Pattern<T>> patterns) {
         super(patterns);
     }
 

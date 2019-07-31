@@ -22,7 +22,7 @@ public final class CompileDebugger {
         final StringWriter sw = new StringWriter();
         CheckClassAdapter.verify(new ClassReader(bytecode), false, new PrintWriter(sw));
         final String verificationLog = sw.toString();
-        if (verificationLog.length() != 0) {
+        if (!verificationLog.isEmpty()) {
             System.err.println(verificationLog);
         }
     }

@@ -17,6 +17,7 @@ public class ObjectPattern<T> implements PropertyPattern<T> {
         this.objectPattern = objectPattern;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean matches(final T instance) {
         final Object propValue = getObjectValue(instance);

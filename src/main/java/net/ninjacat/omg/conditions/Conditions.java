@@ -88,7 +88,7 @@ public final class Conditions {
         }
 
         public LogicalConditionBuilder match(final Consumer<LogicalConditionBuilder> nested) {
-            final ObjectConditionBuilder builder = new ObjectConditionBuilder(propertyName, null);
+            final ObjectConditionBuilder builder = new ObjectConditionBuilder(propertyName);
             nested.accept(builder);
             parentBuilder.addCondition(builder);
             return parentBuilder;
@@ -113,7 +113,7 @@ public final class Conditions {
     public static class ObjectConditionBuilder extends LogicalConditionBuilder {
         private final String propertyName;
 
-        ObjectConditionBuilder(final String propertyName, final LogicalConditionBuilder parentBuilder) {
+        ObjectConditionBuilder(final String propertyName) {
             super();
             this.propertyName = propertyName;
         }
