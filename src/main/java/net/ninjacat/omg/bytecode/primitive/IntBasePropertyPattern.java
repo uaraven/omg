@@ -7,7 +7,7 @@ import net.ninjacat.omg.errors.CompilerException;
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
 
-public abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
+abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
 
     IntBasePropertyPattern(final Property property, final Object matchingValue) {
         super(property, matchingValue);

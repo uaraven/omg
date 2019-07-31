@@ -5,17 +5,16 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.*;
-import org.objectweb.asm.util.CheckClassAdapter;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Constructor;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Optional;
 
-class AccessorCompiler<T> {
+/**
+ * Generates and loads class implementing {@link PropertyPattern<T>}
+ *
+ * @param <T> Type of object to match property on
+ */
+class PropertyPatternGenerator<T> {
 
     private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class),
             Type.getType(Property.class), Type.getType(Object.class));
@@ -26,7 +25,7 @@ class AccessorCompiler<T> {
     private final PropertyCondition condition;
     private final PatternCompilerStrategy compGen;
 
-    AccessorCompiler(final Property<T> property, final PropertyCondition condition) {
+    PropertyPatternGenerator(final Property<T> property, final PropertyCondition condition) {
         this.property = property;
         this.condition = condition;
         final GeneratorKey key = GeneratorKey.of(property.getType(), condition.getMethod());
@@ -82,8 +81,7 @@ class AccessorCompiler<T> {
      * Implementation reads property from passed object instance, performs null checks and then calls provided strategy
      * to generate casting and comparison code
      */
-    private void createMatches(
-            final ClassVisitor cv) {
+    private void createMatches(final ClassVisitor cv) {
 
         final MethodVisitor match = cv.visitMethod(Opcodes.ACC_PUBLIC, "matches", MATCHES_DESC, "(TT;)Z", null);
         final Label propNotNull = new Label();
@@ -91,7 +89,6 @@ class AccessorCompiler<T> {
         final Label matchingNotNull2 = new Label();
         final Label start = new Label();
         final Label end = new Label();
-        final Label exit = new Label();
 
         final Label localMatchingStart = new Label();
         final Label localMatchingEnd = new Label();
@@ -115,7 +112,7 @@ class AccessorCompiler<T> {
         compGen.generatePropertyGet(match, property);
         match.visitLabel(localPropStart);
         match.visitVarInsn(compGen.store(), localProperty);
-        // if property type is reference perform reference checks
+        // if property type is reference then perform reference checks
         if (compGen.isReference()) {
             // if (property != null) goto comparision
             match.visitVarInsn(compGen.load(), localProperty);
@@ -126,11 +123,11 @@ class AccessorCompiler<T> {
             match.visitJumpInsn(Opcodes.IFNONNULL, matchingNotNull);
 
             match.visitInsn(Opcodes.ICONST_1);
-            match.visitJumpInsn(Opcodes.GOTO, exit);
+            match.visitInsn(Opcodes.IRETURN);
             // matching is not null, return false
             match.visitLabel(matchingNotNull);
             match.visitInsn(Opcodes.ICONST_0);
-            match.visitJumpInsn(Opcodes.GOTO, exit);
+            match.visitInsn(Opcodes.IRETURN);
 
             match.visitLabel(propNotNull);
         }
@@ -139,7 +136,7 @@ class AccessorCompiler<T> {
         match.visitJumpInsn(Opcodes.IFNONNULL, matchingNotNull2);
         // if it is null, return false
         match.visitInsn(Opcodes.ICONST_0);
-        match.visitJumpInsn(Opcodes.GOTO, exit);
+        match.visitInsn(Opcodes.IRETURN);
 
         match.visitLabel(matchingNotNull2);
         compGen.convertMatchingType(match);
@@ -151,7 +148,6 @@ class AccessorCompiler<T> {
         match.visitLabel(localPropEnd);
 
         compGen.generateCompareCode(match);
-        match.visitLabel(exit);
         match.visitInsn(Opcodes.IRETURN);
         match.visitLabel(end);
 
@@ -165,13 +161,13 @@ class AccessorCompiler<T> {
     }
 
     private String generateClassName() {
-        return "net/ninjacat/omg/bytecode/generated/PropertyAccessor$" + property.getOwner().getSimpleName() + '$' +
-                property.getPropertyName();
+        return "net/ninjacat/omg/bytecode/generated/Gen" + property.getOwner().getSimpleName() + '$' +
+                property.getPropertyName() + '$' + "PropertyPattern";
     }
 
     private String generateBinaryClassName() {
-        return "net.ninjacat.omg.bytecode.generated.PropertyAccessor$" + property.getOwner().getSimpleName() + '$' +
-                property.getPropertyName();
+        return "net.ninjacat.omg.bytecode.generated.Gen" + property.getOwner().getSimpleName() + '$' +
+                property.getPropertyName() + '$' + "PropertyPattern";
     }
 
 }

@@ -4,7 +4,7 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
-public class AsmPatternCompiler<T> implements PropertyPatternCompiler<T> {
+public final class AsmPatternCompiler<T> implements PropertyPatternCompiler<T> {
     private final Class<T> cls;
 
     public static <T> AsmPatternCompiler<T> forClass(final Class<T> cls) {
@@ -22,7 +22,7 @@ public class AsmPatternCompiler<T> implements PropertyPatternCompiler<T> {
 
     private <P> PropertyPattern<T> buildPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
-        final AccessorCompiler<T> compiler = new AccessorCompiler<>(property, condition);
+        final PropertyPatternGenerator<T> compiler = new PropertyPatternGenerator<>(property, condition);
         return compiler.compilePattern();
     }
 
