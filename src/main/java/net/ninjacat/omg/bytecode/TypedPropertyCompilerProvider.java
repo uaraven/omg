@@ -6,7 +6,7 @@ import net.ninjacat.omg.conditions.ConditionMethod;
 
 import java.util.Map;
 
-class TypedPropertyCompilerProvider {
+final class TypedPropertyCompilerProvider {
     static final Map<GeneratorKey, PatternCompilerStrategy> COMPILERS =
             io.vavr.collection.HashMap.of(
                     GeneratorKey.of(Integer.class, ConditionMethod.EQ), IntegerStrategy.forMethod(ConditionMethod.EQ),
@@ -18,4 +18,7 @@ class TypedPropertyCompilerProvider {
                     GeneratorKey.of(Long.class, ConditionMethod.LT), LongStrategy.forMethod(ConditionMethod.LT),
                     GeneratorKey.of(Long.class, ConditionMethod.GT), LongStrategy.forMethod(ConditionMethod.GT)
             ).toJavaMap();
+
+    private TypedPropertyCompilerProvider() {
+    }
 }

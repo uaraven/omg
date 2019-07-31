@@ -5,42 +5,50 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.*;
+import org.objectweb.asm.util.CheckClassAdapter;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Optional;
 
-public class AccessorCompiler<T> {
+class AccessorCompiler<T> {
 
     private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class),
             Type.getType(Property.class), Type.getType(Object.class));
-    private static final String GET_MATCHING_DESC = Type.getDescriptor(Object.class);
     private static final String PARENT_INTERNAL_NAME = Type.getInternalName(BasePropertyPattern.class);
     private static final String MATCHES_DESC = Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class));
 
     private final Property<T> property;
-    private PropertyCondition condition;
+    private final PropertyCondition condition;
     private final PatternCompilerStrategy compGen;
 
-    public AccessorCompiler(final Property<T> property, final PropertyCondition condition) {
+    AccessorCompiler(final Property<T> property, final PropertyCondition condition) {
         this.property = property;
         this.condition = condition;
         final GeneratorKey key = GeneratorKey.of(property.getType(), condition.getMethod());
-        this.compGen = TypedPropertyCompilerProvider.COMPILERS.get(key);
+        this.compGen = Optional.ofNullable(TypedPropertyCompilerProvider.COMPILERS.get(key))
+                .orElseThrow(() -> new CompilerException("Cannot find compiler for property '%s' and condition '%s'", property, condition));
     }
 
     @SuppressWarnings("unchecked")
-    public PropertyPattern<T> compilePattern() {
+    PropertyPattern<T> compilePattern() {
         final ClassReader classReader =
                 Try.of(() -> new ClassReader(BasePropertyPattern.class.getName()))
                         .getOrElseThrow(ex -> new CompilerException(ex, "Failed to read base class for compiling"));
-        final ClassWriter writer = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES);
-
-        final ClassVisitor cv = new AccessorVisitor(Opcodes.ASM6, writer);
-        classReader.accept(cv, 0);
+        final ClassWriter writer = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS);
+        final Type type = Type.getType(BasePropertyPattern.class);
+        writer.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, generateClassName(), null, type.getInternalName(), null);
+        createConstructor(writer);
+        createMatches(writer);
 
         writer.visitEnd();
         return Try.of(() -> {
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
-            final Constructor<?> constructor = patternClass.getConstructor(Property.class, Object.class);
+            final Constructor<?> constructor = patternClass.getConstructor(Property.class, property.getType());
             return (PropertyPattern<T>) constructor.newInstance(property, condition.getValue());
         }).getOrElseThrow((ex) -> new CompilerException(ex, "Failed to generate accessor for '%s'", property));
     }
@@ -48,12 +56,10 @@ public class AccessorCompiler<T> {
     /**
      * Generates constructor for property accessor. Generated constructor will call super constructor.
      *
-     * @param cv           {@link ClassVisitor} for which constructor will be generated
-     * @param propertyType Type of the property to access
-     * @return {@link MethodVisitor} for the constructor
+     * @param cv {@link ClassVisitor} for which constructor will be generated
      */
-    public static MethodVisitor createConstructor(final ClassVisitor cv, final Class propertyType) {
-        final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(propertyType));
+    private void createConstructor(final ClassVisitor cv) {
+        final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(property.getType()));
         final MethodVisitor init = cv.visitMethod(Opcodes.ACC_PUBLIC, "<init>", initDescriptor, null, null);
         init.visitCode();
         init.visitVarInsn(Opcodes.ALOAD, 0);
@@ -68,7 +74,6 @@ public class AccessorCompiler<T> {
         init.visitInsn(Opcodes.RETURN);
         init.visitMaxs(0, 0);
         init.visitEnd();
-        return init;
     }
 
     /**
@@ -76,19 +81,22 @@ public class AccessorCompiler<T> {
      * <p>
      * Implementation reads property from passed object instance, performs null checks and then calls provided strategy
      * to generate casting and comparison code
-     *
-     * @param cv
-     * @param property
-     * @return
      */
-    public MethodVisitor createMatches(
-            final ClassVisitor cv,
-            final Property property) {
+    private void createMatches(
+            final ClassVisitor cv) {
 
         final MethodVisitor match = cv.visitMethod(Opcodes.ACC_PUBLIC, "matches", MATCHES_DESC, "(TT;)Z", null);
         final Label propNotNull = new Label();
         final Label matchingNotNull = new Label();
         final Label matchingNotNull2 = new Label();
+        final Label start = new Label();
+        final Label end = new Label();
+        final Label exit = new Label();
+
+        final Label localMatchingStart = new Label();
+        final Label localMatchingEnd = new Label();
+        final Label localPropStart = new Label();
+        final Label localPropEnd = new Label();
 
         final int localProperty = 2;
         final int localMatching = 3;
@@ -96,29 +104,33 @@ public class AccessorCompiler<T> {
         match.visitCode();
 
         // get matching value and store it to local var
-        match.visitVarInsn(Opcodes.ALOAD, 0);
-        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, PARENT_INTERNAL_NAME, GET_MATCHING_DESC, null, false);
+        match.visitLabel(start);
+        match.visitVarInsn(Opcodes.ALOAD, 0); // this
+        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, PARENT_INTERNAL_NAME, "getMatchingValue", "()Ljava/lang/Object;", false);
+        match.visitLabel(localMatchingStart);
         match.visitVarInsn(Opcodes.ASTORE, localMatching);
 
         // get property from instance
-        match.visitVarInsn(Opcodes.ALOAD, 1);
+        match.visitVarInsn(Opcodes.ALOAD, 1); // instance parameter
         compGen.generatePropertyGet(match, property);
-
+        match.visitLabel(localPropStart);
         match.visitVarInsn(compGen.store(), localProperty);
         // if property type is reference perform reference checks
         if (compGen.isReference()) {
             // if (property != null) goto comparision
+            match.visitVarInsn(compGen.load(), localProperty);
             match.visitJumpInsn(Opcodes.IFNONNULL, propNotNull);
 
             // property == null, now if matching value == null return true
             match.visitVarInsn(Opcodes.ALOAD, localMatching);
             match.visitJumpInsn(Opcodes.IFNONNULL, matchingNotNull);
+
             match.visitInsn(Opcodes.ICONST_1);
-            match.visitInsn(Opcodes.IRETURN);
+            match.visitJumpInsn(Opcodes.GOTO, exit);
             // matching is not null, return false
             match.visitLabel(matchingNotNull);
             match.visitInsn(Opcodes.ICONST_0);
-            match.visitInsn(Opcodes.IRETURN);
+            match.visitJumpInsn(Opcodes.GOTO, exit);
 
             match.visitLabel(propNotNull);
         }
@@ -127,19 +139,29 @@ public class AccessorCompiler<T> {
         match.visitJumpInsn(Opcodes.IFNONNULL, matchingNotNull2);
         // if it is null, return false
         match.visitInsn(Opcodes.ICONST_0);
-        match.visitInsn(Opcodes.IRETURN);
+        match.visitJumpInsn(Opcodes.GOTO, exit);
 
         match.visitLabel(matchingNotNull2);
-        match.visitVarInsn(Opcodes.ALOAD, localMatching);
         compGen.convertMatchingType(match);
         match.visitVarInsn(compGen.load(), localProperty);
 
+        match.visitVarInsn(Opcodes.ALOAD, localMatching);
+        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(property.getType()));
+        match.visitLabel(localMatchingEnd);
+        match.visitLabel(localPropEnd);
+
         compGen.generateCompareCode(match);
+        match.visitLabel(exit);
         match.visitInsn(Opcodes.IRETURN);
+        match.visitLabel(end);
 
         match.visitMaxs(0, 0);
+        match.visitLocalVariable("this", "L" + generateClassName() + ";", null, start, end, 0);
+        match.visitLocalVariable("instance", Type.getDescriptor(Object.class), null, start, end, 1);
+        match.visitLocalVariable("localProperty", Type.getDescriptor(property.getType()), null, localPropStart, localPropEnd, localProperty);
+        match.visitLocalVariable("localMatching", Type.getDescriptor(Object.class), null, localMatchingStart, localMatchingEnd, localMatching);
+
         match.visitEnd();
-        return match;
     }
 
     private String generateClassName() {
@@ -152,30 +174,4 @@ public class AccessorCompiler<T> {
                 property.getPropertyName();
     }
 
-    private class AccessorVisitor extends ClassVisitor {
-
-        AccessorVisitor(final int api, final ClassVisitor classVisitor) {
-            super(api, classVisitor);
-        }
-
-        @Override
-        public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
-            final Type type = Type.getType(BasePropertyPattern.class);
-            super.visit(version, Opcodes.ACC_PUBLIC, generateClassName(), null, type.getInternalName(), interfaces);
-        }
-
-        @Override
-        public MethodVisitor visitMethod(final int access, final String name, final String descriptor, final String signature, final String[] exceptions) {
-            switch (name) {
-                case "<init>":
-                    return createConstructor(cv, Integer.class);
-                case "matches":
-                    final MethodVisitor mv = super.visitMethod(Opcodes.ACC_PUBLIC, name, MATCHES_DESC, signature, exceptions);
-                    return createMatches(cv, property);
-                default:
-                    return super.visitMethod(access, name, descriptor, signature, exceptions);
-            }
-        }
-
-    }
 }

@@ -10,7 +10,7 @@ import org.objectweb.asm.Type;
 /**
  * Compilation strategy for java.lang.Integer type
  */
-public class IntegerStrategy extends IntNumberReferenceTypeStrategy {
+public final class IntegerStrategy extends IntNumberReferenceTypeStrategy {
 
     private static final String COMPARE = "compareTo";
     private static final String COMPARE_DESC = "(Ljava/lang/Integer;)I";
@@ -27,7 +27,7 @@ public class IntegerStrategy extends IntNumberReferenceTypeStrategy {
 
     @Override
     protected void callCompareTo(final MethodVisitor mv) {
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getDescriptor(Integer.class), COMPARE, COMPARE_DESC, false);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Integer.class), COMPARE, COMPARE_DESC, false);
     }
 
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {

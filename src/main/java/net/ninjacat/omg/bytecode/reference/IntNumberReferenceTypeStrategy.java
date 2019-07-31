@@ -17,9 +17,11 @@ public abstract class IntNumberReferenceTypeStrategy implements PatternCompilerS
     @SuppressWarnings("FeatureEnvy")
     @Override
     public void generatePropertyGet(final MethodVisitor mv, final Property property) {
+        final String internalName = Type.getInternalName(property.getOwner());
+        mv.visitTypeInsn(Opcodes.CHECKCAST, internalName);
         mv.visitMethodInsn(
                 Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(property.getOwner()),
+                internalName,
                 property.getMethod().getName(),
                 property.getMethod().getDescriptor(),
                 false);

@@ -5,14 +5,16 @@ package net.ninjacat.omg.bytecode;
  * TODO: Delete
  */
 public class GenTest {
+
     public GenTest() {
 
     }
 
     public boolean compare() {
-        long i1 = 10L;
-        long i2 = i1 * 2;
-        return longCmp(i1, i2);
+
+        Object b = new Integer(1);
+        int c = (Integer)b;
+        return false;
     }
 
     private boolean longCmp(long l1, long l2) {
