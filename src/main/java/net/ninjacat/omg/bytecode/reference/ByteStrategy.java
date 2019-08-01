@@ -30,6 +30,11 @@ public final class ByteStrategy extends IntNumberReferenceTypeStrategy {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Byte.class), COMPARE, COMPARE_DESC, false);
     }
 
+    @Override
+    public void convertMatchingType(final MethodVisitor match) {
+        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Byte.class));
+    }
+
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         switch (method) {
             case EQ: return new ByteStrategy(Opcodes.IFEQ);

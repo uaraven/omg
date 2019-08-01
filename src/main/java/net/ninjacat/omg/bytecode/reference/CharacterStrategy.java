@@ -30,6 +30,11 @@ public final class CharacterStrategy extends IntNumberReferenceTypeStrategy {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Character.class), COMPARE, COMPARE_DESC, false);
     }
 
+    @Override
+    public void convertMatchingType(final MethodVisitor match) {
+        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Character.class));
+    }
+
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         switch (method) {
             case EQ: return new CharacterStrategy(Opcodes.IFEQ);

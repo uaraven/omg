@@ -13,6 +13,7 @@ abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
         super(property, matchingValue);
     }
 
+    //TODO: Unwrap with invokedynamic
     private int getMatchingValueAsInt() {
         return Match(getMatchingValue()).of(
                 Case($(instanceOf(Long.class)), Long::intValue),

@@ -2,30 +2,15 @@ package net.ninjacat.omg.bytecode.reference;
 
 import io.vavr.control.Try;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
-import net.ninjacat.omg.bytecode.Property;
 import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 /**
  * Compilation strategy for integer reference types (Long, Integer, Byte, Short, Character)
  */
 public abstract class IntNumberReferenceTypeStrategy implements PatternCompilerStrategy {
-    
-    @SuppressWarnings("FeatureEnvy")
-    @Override
-    public void generatePropertyGet(final MethodVisitor mv, final Property property) {
-        final String internalName = Type.getInternalName(property.getOwner());
-        mv.visitTypeInsn(Opcodes.CHECKCAST, internalName);
-        mv.visitMethodInsn(
-                Opcodes.INVOKEVIRTUAL,
-                internalName,
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                false);
-    }
 
     public void generateCompareCode(final MethodVisitor mv) {
         Try.of(() -> {

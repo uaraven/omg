@@ -30,6 +30,11 @@ public final class LongStrategy extends IntNumberReferenceTypeStrategy {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Long.class), COMPARE, COMPARE_DESC, false);
     }
 
+    @Override
+    public void convertMatchingType(final MethodVisitor match) {
+        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Long.class));
+    }
+
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         switch (method) {
             case EQ: return new LongStrategy(Opcodes.IFEQ);
