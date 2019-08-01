@@ -28,8 +28,7 @@ class PropertyPatternGenerator<T> {
     PropertyPatternGenerator(final Property<T> property, final PropertyCondition condition) {
         this.property = property;
         this.condition = condition;
-        final GeneratorKey key = GeneratorKey.of(property.getType(), condition.getMethod());
-        this.compGen = Optional.ofNullable(TypedPropertyCompilerProvider.COMPILERS.get(key))
+        this.compGen = Optional.ofNullable(TypedPropertyCompilerProvider.getGeneratorFor(property.getType(), condition.getMethod()))
                 .orElseThrow(() -> new CompilerException("Cannot find compiler for property '%s' and condition '%s'", property, condition));
     }
 

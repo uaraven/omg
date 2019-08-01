@@ -1,24 +1,30 @@
 package net.ninjacat.omg.bytecode;
 
-import net.ninjacat.omg.bytecode.reference.IntegerStrategy;
-import net.ninjacat.omg.bytecode.reference.LongStrategy;
+import net.ninjacat.omg.bytecode.reference.*;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.errors.CompilerException;
 
-import java.util.Map;
+import static io.vavr.API.*;
+import static io.vavr.Predicates.is;
 
 final class TypedPropertyCompilerProvider {
-    static final Map<GeneratorKey, PatternCompilerStrategy> COMPILERS =
-            io.vavr.collection.HashMap.of(
-                    GeneratorKey.of(Integer.class, ConditionMethod.EQ), IntegerStrategy.forMethod(ConditionMethod.EQ),
-                    GeneratorKey.of(Integer.class, ConditionMethod.NEQ), IntegerStrategy.forMethod(ConditionMethod.NEQ),
-                    GeneratorKey.of(Integer.class, ConditionMethod.LT), IntegerStrategy.forMethod(ConditionMethod.LT),
-                    GeneratorKey.of(Integer.class, ConditionMethod.GT), IntegerStrategy.forMethod(ConditionMethod.GT),
-                    GeneratorKey.of(Long.class, ConditionMethod.EQ), LongStrategy.forMethod(ConditionMethod.EQ),
-                    GeneratorKey.of(Long.class, ConditionMethod.NEQ), LongStrategy.forMethod(ConditionMethod.NEQ),
-                    GeneratorKey.of(Long.class, ConditionMethod.LT), LongStrategy.forMethod(ConditionMethod.LT),
-                    GeneratorKey.of(Long.class, ConditionMethod.GT), LongStrategy.forMethod(ConditionMethod.GT)
-            ).toJavaMap();
 
     private TypedPropertyCompilerProvider() {
     }
+
+    static PatternCompilerStrategy getGeneratorFor(final Class cls, final ConditionMethod method) {
+        return Match(cls).of(
+                Case($(is(Integer.class)), intCls -> IntegerStrategy.forMethod(method)),
+                Case($(is(Long.class)), longCls -> LongStrategy.forMethod(method)),
+                Case($(is(Short.class)), s -> ShortStrategy.forMethod(method)),
+                Case($(is(Byte.class)), s -> ByteStrategy.forMethod(method)),
+                Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
+                Case($(), () -> {
+                    throw new CompilerException("Cannot find compiler for property of class '%s' and maching operation '%s'",
+                            cls.getName(),
+                            method);
+                })
+        );
+    }
+
 }
