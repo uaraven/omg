@@ -28,6 +28,8 @@ final class CompilerProvider {
                 Case($(is(Long.class)), longCls -> LongStrategy.forMethod(method)),
                 Case($(is(Short.class)), s -> ShortStrategy.forMethod(method)),
                 Case($(is(Byte.class)), s -> ByteStrategy.forMethod(method)),
+                Case($(is(Double.class)), s -> DoubleStrategy.forMethod(method)),
+                Case($(is(Float.class)), s -> FloatStrategy.forMethod(method)),
                 Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
                 Case($(is(String.class)), s -> StringStrategyProvider.forMethod(method)),
                 Case($((Predicate<Class>) Enum.class::isAssignableFrom), e -> EnumStrategy.forMethod(method)),

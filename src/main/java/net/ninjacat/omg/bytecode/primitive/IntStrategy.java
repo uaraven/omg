@@ -60,7 +60,7 @@ public final class IntStrategy extends PrimitiveTypeStrategy {
 
     @Override
     public void convertMatchingType(final MethodVisitor match) {
-        match.visitInsn(Opcodes.POP);
+        match.visitInsn(Opcodes.POP); //remove matched value
         match.visitVarInsn(Opcodes.ALOAD, 0);
         match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(IntBasePropertyPattern.class), "getMatchingValueAsInt", "()I", false);
     }
