@@ -1,10 +1,11 @@
 package net.ninjacat.omg.bytecode.reference;
 
+import java.util.regex.Pattern;
+
 public class JavaByteCodeGenTest {
 
     public void test() {
-        boolean b = true;
-        int i = 1;
-        int z = ~i;
+        Pattern p = Pattern.compile(".*");
+        boolean b = p.matcher("test").matches();
     }
 }

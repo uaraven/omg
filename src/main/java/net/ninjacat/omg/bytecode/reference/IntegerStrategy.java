@@ -30,6 +30,11 @@ public final class IntegerStrategy extends IntNumberReferenceTypeStrategy {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Integer.class), COMPARE, COMPARE_DESC, false);
     }
 
+    @Override
+    public void convertMatchingType(final MethodVisitor match) {
+        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Integer.class));
+    }
+
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         switch (method) {
             case EQ: return new IntegerStrategy(Opcodes.IFEQ);

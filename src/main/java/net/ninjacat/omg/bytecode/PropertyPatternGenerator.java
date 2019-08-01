@@ -1,18 +1,12 @@
 package net.ninjacat.omg.bytecode;
 
 import io.vavr.control.Try;
-import net.ninjacat.omg.bytecode.reference.*;
-import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Constructor;
-import java.util.Optional;
-
-import static io.vavr.API.*;
-import static io.vavr.Predicates.is;
 
 /**
  * Generates and loads class implementing {@link PropertyPattern<T>}
@@ -23,7 +17,6 @@ class PropertyPatternGenerator<T> {
 
     private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class),
             Type.getType(Property.class), Type.getType(Object.class));
-    private static final String PARENT_INTERNAL_NAME = Type.getInternalName(BasePropertyPattern.class);
     private static final String MATCHES_DESC = Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class));
 
     private final Property<T> property;
@@ -39,16 +32,17 @@ class PropertyPatternGenerator<T> {
     @SuppressWarnings("unchecked")
     PropertyPattern<T> compilePattern() {
         final ClassReader classReader =
-                Try.of(() -> new ClassReader(BasePropertyPattern.class.getName()))
+                Try.of(() -> new ClassReader(compGen.getParentPropertyPatternClass().getName()))
                         .getOrElseThrow(ex -> new CompilerException(ex, "Failed to read base class for compiling"));
         final ClassWriter writer = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS);
-        final Type type = Type.getType(BasePropertyPattern.class);
+        final Type type = Type.getType(compGen.getParentPropertyPatternClass());
         writer.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, generateClassName(), null, type.getInternalName(), null);
         createConstructor(writer);
         createMatches(writer);
 
         writer.visitEnd();
         return Try.of(() -> {
+            CompileDebugger.dumpClass("/tmp/Generated.class", writer.toByteArray());
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
             final Constructor<?> constructor = patternClass.getConstructor(Property.class, property.getType());
             return (PropertyPattern<T>) constructor.newInstance(property, condition.getValue());
@@ -69,7 +63,7 @@ class PropertyPatternGenerator<T> {
         init.visitVarInsn(Opcodes.ALOAD, 2);
         init.visitMethodInsn(
                 Opcodes.INVOKESPECIAL,
-                PARENT_INTERNAL_NAME,
+                Type.getInternalName(compGen.getParentPropertyPatternClass()),
                 "<init>",
                 BASE_INIT_DESCRIPTOR,
                 false);
@@ -84,6 +78,7 @@ class PropertyPatternGenerator<T> {
      * Implementation reads property from passed object instance, performs null checks and then calls provided strategy
      * to generate casting and comparison code
      */
+    @SuppressWarnings({"FeatureEnvy", "OverlyLongMethod"})
     private void createMatches(final ClassVisitor cv) {
 
         final MethodVisitor match = cv.visitMethod(Opcodes.ACC_PUBLIC, "matches", MATCHES_DESC, "(TT;)Z", null);
@@ -106,7 +101,9 @@ class PropertyPatternGenerator<T> {
         // get matching value and store it to local var
         match.visitLabel(start);
         match.visitVarInsn(Opcodes.ALOAD, 0); // this
-        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, PARENT_INTERNAL_NAME, "getMatchingValue", "()Ljava/lang/Object;", false);
+        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(compGen.getParentPropertyPatternClass())
+                , "getMatchingValue", compGen.getMatchingValueDescriptor(), false);
         match.visitLabel(localMatchingStart);
         match.visitVarInsn(Opcodes.ASTORE, localMatching);
 
@@ -142,11 +139,10 @@ class PropertyPatternGenerator<T> {
         match.visitInsn(Opcodes.IRETURN);
 
         match.visitLabel(matchingNotNull2);
-        compGen.convertMatchingType(match);
         match.visitVarInsn(compGen.load(), localProperty);
 
         match.visitVarInsn(Opcodes.ALOAD, localMatching);
-        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(property.getType()));
+        compGen.convertMatchingType(match);
         match.visitLabel(localMatchingEnd);
         match.visitLabel(localPropEnd);
 

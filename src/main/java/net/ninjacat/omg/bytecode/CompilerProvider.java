@@ -13,9 +13,9 @@ final class CompilerProvider {
     private CompilerProvider() {
     }
 
-    public static <T> PropertyPatternGenerator<T> getPatternGenerator(final Property<T> property, final PropertyCondition condition) {
+    static <T> PropertyPatternGenerator<T> getPatternGenerator(final Property<T> property, final PropertyCondition condition) {
         final PatternCompilerStrategy strategy = getStrategyFor(property.getType(), condition.getMethod());
-        return new PropertyPatternGenerator<T>(property, condition, strategy);
+        return new PropertyPatternGenerator<>(property, condition, strategy);
     }
 
     private static PatternCompilerStrategy getStrategyFor(final Class cls, final ConditionMethod method) {
@@ -25,9 +25,9 @@ final class CompilerProvider {
                 Case($(is(Short.class)), s -> ShortStrategy.forMethod(method)),
                 Case($(is(Byte.class)), s -> ByteStrategy.forMethod(method)),
                 Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
-                Case($(is(String.class)), s -> StringStrategy.forMethod(method)),
+                Case($(is(String.class)), s -> StringStrategyProvider.forMethod(method)),
                 Case($(), () -> {
-                    throw new CompilerException("Cannot find compiler for property of class '%s' and maching operation '%s'",
+                    throw new CompilerException("Cannot find compiler for property of class '%s' and matching operation '%s'",
                             cls.getName(),
                             method);
                 })

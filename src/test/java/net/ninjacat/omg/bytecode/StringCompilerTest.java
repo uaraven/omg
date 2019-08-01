@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class StringEqNeqCompilerTest {
+public class StringCompilerTest {
 
     @Test
     public void shouldMatchSimpleEqPattern() {
@@ -29,6 +29,16 @@ public class StringEqNeqCompilerTest {
 
         assertThat(pattern.matches(new StringTest("jabba")), is(false));
         assertThat(pattern.matches(new StringTest("bubba")), is(true));
+    }
+
+    @Test
+    public void shouldMatchRegexPattern() {
+        final PropertyCondition<String> condition = createPropertyCondition(ConditionMethod.REGEX, "Hell.*!");
+
+        final PropertyPattern<StringTest> pattern = AsmPatternCompiler.forClass(StringTest.class).build(condition);
+
+        assertThat(pattern.matches(new StringTest("Hello, world!")), is(true));
+        assertThat(pattern.matches(new StringTest("Hello, boredom :(")), is(false));
     }
 
 

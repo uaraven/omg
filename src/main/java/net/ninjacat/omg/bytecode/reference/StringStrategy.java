@@ -17,28 +17,6 @@ public class StringStrategy implements PatternCompilerStrategy {
         conditionMethod = method;
     }
 
-    public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
-        switch (method) {
-            case EQ:
-            case NEQ:
-                return new StringStrategy(method);
-            default: throw new CompilerException("Unsupported condition for String type: '%s'", method);
-        }
-    }
-
-    @Override
-    public void generatePropertyGet(final MethodVisitor mv, final Property property) {
-        final String internalName = Type.getInternalName(property.getOwner());
-        mv.visitTypeInsn(Opcodes.CHECKCAST, internalName);
-        mv.visitMethodInsn(
-                Opcodes.INVOKEVIRTUAL,
-                internalName,
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                false);
-
-    }
-
     @Override
     public void generateCompareCode(final MethodVisitor mv) {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(String.class), "equals", "(Ljava/lang/Object;)Z", false);
@@ -71,6 +49,6 @@ public class StringStrategy implements PatternCompilerStrategy {
 
     @Override
     public void convertMatchingType(final MethodVisitor match) {
-
+        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(String.class));
     }
 }
