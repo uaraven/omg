@@ -23,4 +23,6 @@ public interface Condition {
         return repr(0);
     }
 
+    ConditionMethod getMethod();
+
 }

@@ -1,7 +1,7 @@
 package net.ninjacat.omg.conditions;
 
 public class GtCondition<T> extends ComparisonCondition<T> {
-    public GtCondition(final String property, final T value) {
+    GtCondition(final String property, final T value) {
         super(property, value);
     }
 
@@ -10,5 +10,8 @@ public class GtCondition<T> extends ComparisonCondition<T> {
         return ">";
     }
 
-
+    @Override
+    public ConditionMethod getMethod() {
+        return ConditionMethod.GT;
+    }
 }

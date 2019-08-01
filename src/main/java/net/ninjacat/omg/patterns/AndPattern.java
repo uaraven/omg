@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 public class AndPattern<T> extends GroupPattern<T> {
 
-    public AndPattern(final List<Pattern<T>> patterns) {
+    AndPattern(final List<Pattern<T>> patterns) {
         super(patterns);
     }
 

@@ -10,4 +10,8 @@ public interface LogicalCondition extends Condition {
      */
     List<Condition> getChildren();
 
+    @Override
+    default ConditionMethod getMethod() {
+        return ConditionMethod.LOGIC;
+    }
 }
