@@ -79,7 +79,7 @@ public interface PatternCompilerStrategy {
      *
      * @param match
      */
-    void convertMatchingType(MethodVisitor match);
+    void convertMatchingType(final MethodVisitor match);
 
     /**
      * Returns method descriptor for {@link BasePropertyPattern#getMatchingValue()}

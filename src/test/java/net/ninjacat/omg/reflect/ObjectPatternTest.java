@@ -18,7 +18,7 @@ public class ObjectPatternTest {
 
     @Test
     public void testSimpleMatching() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("inner").match(obj -> obj.property("aString").eq("found it"))
                 .build();
 
@@ -33,7 +33,7 @@ public class ObjectPatternTest {
 
     @Test
     public void testLogicalMatching() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("inner").match(obj ->
                         obj.or(orCond -> orCond
                                 .property("aString").eq("found it")

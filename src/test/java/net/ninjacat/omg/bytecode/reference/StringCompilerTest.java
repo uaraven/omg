@@ -1,5 +1,6 @@
-package net.ninjacat.omg.bytecode;
+package net.ninjacat.omg.bytecode.reference;
 
+import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;

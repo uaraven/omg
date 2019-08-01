@@ -1,5 +1,6 @@
 package net.ninjacat.omg.bytecode;
 
+import net.ninjacat.omg.bytecode.primitive.IntStrategy;
 import net.ninjacat.omg.bytecode.reference.*;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -23,6 +24,7 @@ final class CompilerProvider {
     private static PatternCompilerStrategy getStrategyFor(final Class cls, final ConditionMethod method) {
         return Match(cls).of(
                 Case($(is(Integer.class)), intCls -> IntegerStrategy.forMethod(method)),
+                Case($(is(int.class)), intCls -> IntStrategy.forMethod(method)),
                 Case($(is(Long.class)), longCls -> LongStrategy.forMethod(method)),
                 Case($(is(Short.class)), s -> ShortStrategy.forMethod(method)),
                 Case($(is(Byte.class)), s -> ByteStrategy.forMethod(method)),

@@ -15,7 +15,7 @@ public class EnumPatternTest {
 
     @Test
     public void testSimplePattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("e1").eq("VALUE1")
                 .build();
 

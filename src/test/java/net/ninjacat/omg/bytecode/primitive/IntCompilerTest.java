@@ -1,5 +1,6 @@
-package net.ninjacat.omg.bytecode;
+package net.ninjacat.omg.bytecode.primitive;
 
+import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
@@ -7,9 +8,9 @@ import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
-public class IntegerCompilerTest {
+public class IntCompilerTest {
 
     @Test
     public void shouldMatchSimpleEqPattern() {
@@ -123,13 +124,13 @@ public class IntegerCompilerTest {
     }
 
     public static class IntTest {
-        private final Integer intField;
+        private final int intField;
 
         IntTest(final int intField) {
             this.intField = intField;
         }
 
-        public Integer getIntField() {
+        public int getIntField() {
             return intField;
         }
     }

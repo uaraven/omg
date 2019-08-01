@@ -7,15 +7,17 @@ import net.ninjacat.omg.errors.CompilerException;
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
 
-abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
+public abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
 
-    IntBasePropertyPattern(final Property property, final Object matchingValue) {
+
+    protected IntBasePropertyPattern(final Property property, final Object matchingValue) {
         super(property, matchingValue);
     }
 
     //TODO: Unwrap with invokedynamic
-    private int getMatchingValueAsInt() {
+    protected int getMatchingValueAsInt() {
         return Match(getMatchingValue()).of(
+                Case($(instanceOf(Integer.class)), i -> i),
                 Case($(instanceOf(Long.class)), Long::intValue),
                 Case($(instanceOf(Short.class)), Short::intValue),
                 Case($(instanceOf(Byte.class)), Byte::intValue),

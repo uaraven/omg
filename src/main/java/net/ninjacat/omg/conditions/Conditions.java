@@ -10,7 +10,12 @@ public final class Conditions {
     private Conditions() {
     }
 
-    public static LogicalConditionBuilder start() {
+    /**
+     * Starts building a condition
+     *
+     * @return {@link ConditionBuilder}
+     */
+    public static LogicalConditionBuilder matcher() {
         return new AndConditionBuilder(null);
     }
 
