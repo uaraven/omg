@@ -15,15 +15,11 @@ public abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
     }
 
     protected int getMatchingValueAsInt() {
-        return Match(getMatchingValue()).of(
-                Case($(instanceOf(Integer.class)), Integer::intValue),
-                Case($(instanceOf(Long.class)), Long::intValue),
-                Case($(instanceOf(Short.class)), Short::intValue),
-                Case($(instanceOf(Byte.class)), Byte::intValue),
-                Case($(instanceOf(Character.class)), chr -> (int) chr),
-                Case($(), () -> {
-                    throw new CompilerException("Cannot convert '%s' to 'int'", getMatchingValue());
-                })
-        );
+        final Object mv = getMatchingValue();
+        if (mv instanceof Number) {
+            return ((Number) mv).intValue();
+        } else {
+            throw new CompilerException("Cannot convert '%s %s' to 'int'", mv.getClass().getName(), mv);
+        }
     }
 }
