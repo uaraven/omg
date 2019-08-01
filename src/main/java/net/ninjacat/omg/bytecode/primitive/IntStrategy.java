@@ -18,17 +18,6 @@ public class IntStrategy extends PrimitiveTypeStrategy {
         this.subtractCode = subtractCode;
     }
 
-    @SuppressWarnings("FeatureEnvy")
-    @Override
-    public void generatePropertyGet(final MethodVisitor mv, final Property property) {
-        mv.visitMethodInsn(
-                Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(property.getOwner()),
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                false);
-    }
-
     public void generateCompareCode(final MethodVisitor mv) {
         Try.of(() -> {
             final Label matched = new Label();

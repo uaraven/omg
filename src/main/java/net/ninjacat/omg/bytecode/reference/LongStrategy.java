@@ -41,7 +41,7 @@ public final class LongStrategy extends IntNumberReferenceTypeStrategy {
             case NEQ: return new LongStrategy(Opcodes.IFNE);
             case LT: return new LongStrategy(Opcodes.IFLT);
             case GT: return new LongStrategy(Opcodes.IFGT);
-            default: throw new CompilerException("Unsupported condition for Long type: '%s'", method);
+            default: throw new CompilerException("Unsupported condition '%s' for Long type", method);
         }
     }
 }

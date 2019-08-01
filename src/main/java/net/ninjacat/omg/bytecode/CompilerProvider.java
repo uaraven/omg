@@ -5,6 +5,8 @@ import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 
+import java.util.function.Predicate;
+
 import static io.vavr.API.*;
 import static io.vavr.Predicates.is;
 
@@ -26,6 +28,7 @@ final class CompilerProvider {
                 Case($(is(Byte.class)), s -> ByteStrategy.forMethod(method)),
                 Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
                 Case($(is(String.class)), s -> StringStrategyProvider.forMethod(method)),
+                Case($((Predicate<Class>) Enum.class::isAssignableFrom), e -> EnumStrategy.forMethod(method)),
                 Case($(), () -> {
                     throw new CompilerException("Cannot find compiler for property of class '%s' and matching operation '%s'",
                             cls.getName(),
