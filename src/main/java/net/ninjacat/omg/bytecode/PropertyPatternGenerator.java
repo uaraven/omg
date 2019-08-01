@@ -1,6 +1,8 @@
 package net.ninjacat.omg.bytecode;
 
 import io.vavr.control.Try;
+import net.ninjacat.omg.bytecode.reference.*;
+import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -8,6 +10,9 @@ import org.objectweb.asm.*;
 
 import java.lang.reflect.Constructor;
 import java.util.Optional;
+
+import static io.vavr.API.*;
+import static io.vavr.Predicates.is;
 
 /**
  * Generates and loads class implementing {@link PropertyPattern<T>}
@@ -25,11 +30,10 @@ class PropertyPatternGenerator<T> {
     private final PropertyCondition condition;
     private final PatternCompilerStrategy compGen;
 
-    PropertyPatternGenerator(final Property<T> property, final PropertyCondition condition) {
+    PropertyPatternGenerator(final Property<T> property, final PropertyCondition condition, final PatternCompilerStrategy strategy) {
         this.property = property;
         this.condition = condition;
-        this.compGen = Optional.ofNullable(TypedPropertyCompilerProvider.getGeneratorFor(property.getType(), condition.getMethod()))
-                .orElseThrow(() -> new CompilerException("Cannot find compiler for property '%s' and condition '%s'", property, condition));
+        this.compGen = strategy;
     }
 
     @SuppressWarnings("unchecked")

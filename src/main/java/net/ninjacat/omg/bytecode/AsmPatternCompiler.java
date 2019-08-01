@@ -22,7 +22,7 @@ public final class AsmPatternCompiler<T> implements PropertyPatternCompiler<T> {
 
     private <P> PropertyPattern<T> buildPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
-        final PropertyPatternGenerator<T> compiler = new PropertyPatternGenerator<>(property, condition);
+        final PropertyPatternGenerator<T> compiler = CompilerProvider.getPatternGenerator(property, condition);
         return compiler.compilePattern();
     }
 
