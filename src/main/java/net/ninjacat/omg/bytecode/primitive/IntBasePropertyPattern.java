@@ -14,10 +14,9 @@ public abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
         super(property, matchingValue);
     }
 
-    //TODO: Unwrap with invokedynamic
     protected int getMatchingValueAsInt() {
         return Match(getMatchingValue()).of(
-                Case($(instanceOf(Integer.class)), i -> i),
+                Case($(instanceOf(Integer.class)), Integer::intValue),
                 Case($(instanceOf(Long.class)), Long::intValue),
                 Case($(instanceOf(Short.class)), Short::intValue),
                 Case($(instanceOf(Byte.class)), Byte::intValue),

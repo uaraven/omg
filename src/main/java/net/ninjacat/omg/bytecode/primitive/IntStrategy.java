@@ -1,6 +1,5 @@
 package net.ninjacat.omg.bytecode.primitive;
 
-import org.objectweb.asm.Type;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.errors.CompilerException;
@@ -8,6 +7,7 @@ import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 public final class IntStrategy extends PrimitiveTypeStrategy {
 
