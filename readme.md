@@ -12,6 +12,9 @@ Supports matching properties of types:
 - Enums
 - Arbitrary objects 
 
+`OMG` generates property-specific matchers and compiles them to bytecode to minimize performance penalty. 
+Reflection-based matchers are also available.
+
 Example:
 ```java
     @Value
@@ -32,7 +35,7 @@ Example:
 
     final Pattern pattern = Patterns.compile(
         condition, 
-        ReflectPatternCompiler.forClass(Entity.class));
+        PatternCompiler.forClass(Entity.class));
 
     List<Entity> entities = ...;
 
