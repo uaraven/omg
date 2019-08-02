@@ -7,7 +7,7 @@ import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 public final class AsmPatternCompiler<T> implements PropertyPatternCompiler<T> {
     private final Class<T> cls;
 
-    public static <T> AsmPatternCompiler<T> forClass(final Class<T> cls) {
+    public static <T> PropertyPatternCompiler<T> forClass(final Class<T> cls) {
         return new AsmPatternCompiler<>(cls);
     }
 

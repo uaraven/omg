@@ -24,6 +24,7 @@ final class CompilerProvider {
         return new PropertyPatternGenerator<>(property, condition, strategy);
     }
 
+    @SuppressWarnings("FeatureEnvy")
     private static PatternCompilerStrategy getStrategyFor(final Class cls, final ConditionMethod method) {
         return Match(cls).of(
                 Case($(is(int.class)), intCls -> IntStrategy.forMethod(method, int.class)),
@@ -42,11 +43,7 @@ final class CompilerProvider {
                 Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
                 Case($(is(String.class)), s -> StringStrategyProvider.forMethod(method)),
                 Case($((Predicate<Class>) Enum.class::isAssignableFrom), e -> EnumStrategy.forMethod(method)),
-                Case($(), () -> {
-                    throw new CompilerException("Cannot find compiler for property of class '%s' and matching operation '%s'",
-                            cls.getName(),
-                            method);
-                })
+                Case($(), ObjectMatchStrategy::new)
         );
     }
 
