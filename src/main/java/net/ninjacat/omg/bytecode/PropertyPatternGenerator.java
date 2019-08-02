@@ -8,6 +8,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Constructor;
+import java.util.regex.Pattern;
 
 /**
  * Generates and loads class implementing {@link PropertyPattern<T>}
@@ -20,7 +21,8 @@ class PropertyPatternGenerator<T> {
             Type.getType(Property.class), Type.getType(Object.class));
     private static final String MATCHES_DESC = Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class));
     private static final String PACKAGE_NAME = PropertyPatternGenerator.class.getPackage() + ".generated";
-    private static final String PACKAGE_DESC = PACKAGE_NAME.replaceAll("\\.", "/");
+    private static final Pattern DOTS = Pattern.compile("\\.");
+    private static final String PACKAGE_DESC = DOTS.matcher(PACKAGE_NAME).replaceAll("/");
 
     private final Property<T> property;
     private final PropertyCondition condition;
@@ -45,7 +47,6 @@ class PropertyPatternGenerator<T> {
 
         writer.visitEnd();
         return Try.of(() -> {
-            CompileDebugger.dumpClass("/tmp/Generated.class", writer.toByteArray());
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
             final Class propType = property.getType().isPrimitive()
                     ? ClassUtils.primitiveToWrapper(property.getType())
@@ -100,8 +101,8 @@ class PropertyPatternGenerator<T> {
         final Label localPropStart = new Label();
         final Label localPropEnd = new Label();
 
-        final int localProperty = 2;
-        final int localMatching = 3;
+        final int localProperty = compGen.getPropertyLocalIndex();
+        final int localMatching = compGen.getMatchingLocalIndex();
 
         match.visitCode();
 
@@ -150,10 +151,12 @@ class PropertyPatternGenerator<T> {
 
         match.visitVarInsn(Opcodes.ALOAD, localMatching);
         compGen.convertMatchingType(match);
+
+        compGen.generateCompareCode(match);
+
         match.visitLabel(localMatchingEnd);
         match.visitLabel(localPropEnd);
 
-        compGen.generateCompareCode(match);
         match.visitInsn(Opcodes.IRETURN);
         match.visitLabel(end);
 

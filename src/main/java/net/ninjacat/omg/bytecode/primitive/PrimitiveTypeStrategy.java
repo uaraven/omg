@@ -7,7 +7,6 @@ import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
  */
 public abstract class PrimitiveTypeStrategy implements PatternCompilerStrategy {
 
-
     @Override
     public boolean isReference() {
         return false;
