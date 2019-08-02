@@ -15,7 +15,7 @@ public class StringPatternTest {
 
     @Test
     public void testSimplePattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("str2").eq("test")
                 .build();
 
@@ -32,7 +32,7 @@ public class StringPatternTest {
 
     @Test
     public void testOrPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .or(orCond -> orCond
                         .property("str1").eq("string")
                         .property("str2").eq("test"))
@@ -51,7 +51,7 @@ public class StringPatternTest {
 
     @Test
     public void testAndPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .and(orCond -> orCond
                         .property("str1").eq("string")
                         .property("str2").eq("test"))
@@ -71,7 +71,7 @@ public class StringPatternTest {
 
     @Test
     public void testRegexPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("str1").regex("st.*[abc]final")
                 .build();
 
@@ -91,7 +91,7 @@ public class StringPatternTest {
 
     @Test
     public void testNullPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("str1").eq(null)
                 .build();
 

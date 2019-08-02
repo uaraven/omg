@@ -15,7 +15,7 @@ public class IntPatternTest {
 
     @Test
     public void testSimplePattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("longField").eq(42)
                 .build();
 
@@ -32,7 +32,7 @@ public class IntPatternTest {
 
     @Test
     public void testOrPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .or(cond -> cond
                         .property("intField").eq(1)
                         .property("longField").gt(10))
@@ -56,7 +56,7 @@ public class IntPatternTest {
 
     @Test
     public void testAndPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .and(cond -> cond
                         .property("intField").eq(1)
                         .property("longField").gt(10))
@@ -77,7 +77,7 @@ public class IntPatternTest {
 
     @Test
     public void testComplexPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("shortField").neq(100)
                 .and(cond -> cond
                         .property("intField").eq(1)

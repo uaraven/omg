@@ -9,17 +9,17 @@ import net.ninjacat.omg.errors.CompilerException;
  *
  * @param <T>
  */
-public abstract class IntBasePropertyPattern<T> extends BasePropertyPattern<T> {
+public abstract class ShortBasePropertyPattern<T> extends BasePropertyPattern<T> {
 
 
-    protected IntBasePropertyPattern(final Property property, final T matchingValue) {
+    protected ShortBasePropertyPattern(final Property property, final T matchingValue) {
         super(property, matchingValue);
     }
 
-    protected int getMatchingValueConverted() {
+    protected short getMatchingValueConverted() {
         final T mv = getMatchingValue();
         if (mv instanceof Number) {
-            return ((Number) mv).intValue();
+            return ((Number) mv).shortValue();
         } else {
             throw new CompilerException("Cannot convert '%s %s' to 'int'", mv.getClass().getName(), mv);
         }

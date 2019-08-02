@@ -4,9 +4,11 @@ import io.vavr.control.Try;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
+import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Constructor;
+import java.util.regex.Pattern;
 
 /**
  * Generates and loads class implementing {@link PropertyPattern<T>}
@@ -18,6 +20,9 @@ class PropertyPatternGenerator<T> {
     private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class),
             Type.getType(Property.class), Type.getType(Object.class));
     private static final String MATCHES_DESC = Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class));
+    private static final String PACKAGE_NAME = PropertyPatternGenerator.class.getPackage() + ".generated";
+    private static final Pattern DOTS = Pattern.compile("\\.");
+    private static final String PACKAGE_DESC = DOTS.matcher(PACKAGE_NAME).replaceAll("/");
 
     private final Property<T> property;
     private final PropertyCondition condition;
@@ -42,9 +47,11 @@ class PropertyPatternGenerator<T> {
 
         writer.visitEnd();
         return Try.of(() -> {
-            CompileDebugger.dumpClass("/tmp/Generated.class", writer.toByteArray());
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
-            final Constructor<?> constructor = patternClass.getConstructor(Property.class, property.getType());
+            final Class propType = property.getType().isPrimitive()
+                    ? ClassUtils.primitiveToWrapper(property.getType())
+                    : property.getType();
+            final Constructor<?> constructor = patternClass.getConstructor(Property.class, propType);
             return (PropertyPattern<T>) constructor.newInstance(property, condition.getValue());
         }).getOrElseThrow((ex) -> new CompilerException(ex, "Failed to generate accessor for '%s'", property));
     }
@@ -55,7 +62,8 @@ class PropertyPatternGenerator<T> {
      * @param cv {@link ClassVisitor} for which constructor will be generated
      */
     private void createConstructor(final ClassVisitor cv) {
-        final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(property.getType()));
+        final Class wrapperType = ClassUtils.primitiveToWrapper(property.getType());
+        final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(wrapperType));
         final MethodVisitor init = cv.visitMethod(Opcodes.ACC_PUBLIC, "<init>", initDescriptor, null, null);
         init.visitCode();
         init.visitVarInsn(Opcodes.ALOAD, 0);
@@ -93,8 +101,8 @@ class PropertyPatternGenerator<T> {
         final Label localPropStart = new Label();
         final Label localPropEnd = new Label();
 
-        final int localProperty = 2;
-        final int localMatching = 3;
+        final int localProperty = compGen.getPropertyLocalIndex();
+        final int localMatching = compGen.getMatchingLocalIndex();
 
         match.visitCode();
 
@@ -143,10 +151,12 @@ class PropertyPatternGenerator<T> {
 
         match.visitVarInsn(Opcodes.ALOAD, localMatching);
         compGen.convertMatchingType(match);
+
+        compGen.generateCompareCode(match);
+
         match.visitLabel(localMatchingEnd);
         match.visitLabel(localPropEnd);
 
-        compGen.generateCompareCode(match);
         match.visitInsn(Opcodes.IRETURN);
         match.visitLabel(end);
 
@@ -160,12 +170,12 @@ class PropertyPatternGenerator<T> {
     }
 
     private String generateClassName() {
-        return "net/ninjacat/omg/bytecode/generated/Gen" + property.getOwner().getSimpleName() + '$' +
+        return PACKAGE_DESC + "/Gen" + property.getOwner().getSimpleName() + '$' +
                 property.getPropertyName() + '$' + "PropertyPattern";
     }
 
     private String generateBinaryClassName() {
-        return "net.ninjacat.omg.bytecode.generated.Gen" + property.getOwner().getSimpleName() + '$' +
+        return PACKAGE_NAME + ".Gen" + property.getOwner().getSimpleName() + '$' +
                 property.getPropertyName() + '$' + "PropertyPattern";
     }
 

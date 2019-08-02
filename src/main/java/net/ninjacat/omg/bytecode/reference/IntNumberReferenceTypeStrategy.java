@@ -42,11 +42,6 @@ public abstract class IntNumberReferenceTypeStrategy implements PatternCompilerS
         return true;
     }
 
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        // no-op
-    }
-
     protected abstract int getCompOpcode();
 
     protected abstract void callCompareTo(MethodVisitor mv);

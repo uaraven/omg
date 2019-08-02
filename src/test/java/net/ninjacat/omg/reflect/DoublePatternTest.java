@@ -15,7 +15,7 @@ public class DoublePatternTest {
 
     @Test
     public void testSimplePattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .property("doubleField").eq(42.0)
                 .build();
 
@@ -32,7 +32,7 @@ public class DoublePatternTest {
 
     @Test
     public void testOrPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .or(cond -> cond
                         .property("floatField").eq(1.0)
                         .property("doubleField").gt(10.0))
@@ -56,7 +56,7 @@ public class DoublePatternTest {
 
     @Test
     public void testAndPattern() {
-        final Condition condition = Conditions.start()
+        final Condition condition = Conditions.matcher()
                 .and(cond -> cond
                         .property("floatField").eq(1.0)
                         .property("doubleField").gt(10.0))

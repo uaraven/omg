@@ -10,13 +10,13 @@ import org.objectweb.asm.Type;
 /**
  * Compilation strategy for java.lang.Integer type
  */
-public final class IntegerStrategy extends IntNumberReferenceTypeStrategy {
+public final class DoubleStrategy extends IntNumberReferenceTypeStrategy {
 
     private static final String COMPARE = "compareTo";
-    private static final String COMPARE_DESC = "(Ljava/lang/Integer;)I";
+    private static final String COMPARE_DESC = "(Ljava/lang/Double;)I";
     private final int comparisonOpcode;
 
-    private IntegerStrategy(final int comparisonOpcode) {
+    private DoubleStrategy(final int comparisonOpcode) {
         this.comparisonOpcode = comparisonOpcode;
     }
 
@@ -27,20 +27,20 @@ public final class IntegerStrategy extends IntNumberReferenceTypeStrategy {
 
     @Override
     protected void callCompareTo(final MethodVisitor mv) {
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Integer.class), COMPARE, COMPARE_DESC, false);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Double.class), COMPARE, COMPARE_DESC, false);
     }
 
     @Override
     public void convertMatchingType(final MethodVisitor match) {
-        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Integer.class));
+        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Double.class));
     }
 
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         switch (method) {
-            case EQ: return new IntegerStrategy(Opcodes.IFEQ);
-            case NEQ: return new IntegerStrategy(Opcodes.IFNE);
-            case LT: return new IntegerStrategy(Opcodes.IFLT);
-            case GT: return new IntegerStrategy(Opcodes.IFGT);
+            case EQ: return new DoubleStrategy(Opcodes.IFEQ);
+            case NEQ: return new DoubleStrategy(Opcodes.IFNE);
+            case LT: return new DoubleStrategy(Opcodes.IFLT);
+            case GT: return new DoubleStrategy(Opcodes.IFGT);
             default: throw new CompilerException("Unsupported condition '%s' for Integer type", method);
         }
     }

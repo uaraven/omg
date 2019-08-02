@@ -79,7 +79,7 @@ public interface PatternCompilerStrategy {
      *
      * @param match
      */
-    void convertMatchingType(MethodVisitor match);
+    void convertMatchingType(final MethodVisitor match);
 
     /**
      * Returns method descriptor for {@link BasePropertyPattern#getMatchingValue()}
@@ -91,4 +91,29 @@ public interface PatternCompilerStrategy {
     default String getMatchingValueDescriptor() {
         return "()Ljava/lang/Object;";
     }
+
+    /**
+     * Returns local variable index for property value. Should not be less than 2. It is not a good idea to
+     * override default value.
+     *
+     * @return local variable index for property value
+     */
+    default int getPropertyLocalIndex() {
+        return 2;
+    }
+
+    ;
+
+    /**
+     * Returns local variable index for matching value reference. Should not be less than 3.
+     * Default value is fine for almost every implementation except when property type takes two slots in
+     * local variables (i.e. long or double)
+     *
+     * @return local variable index for matching value reference.
+     */
+    default int getMatchingLocalIndex() {
+        return 3;
+    }
+
+    ;
 }

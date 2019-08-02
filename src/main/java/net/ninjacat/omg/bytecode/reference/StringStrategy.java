@@ -1,9 +1,7 @@
 package net.ninjacat.omg.bytecode.reference;
 
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
-import net.ninjacat.omg.bytecode.Property;
 import net.ninjacat.omg.conditions.ConditionMethod;
-import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
