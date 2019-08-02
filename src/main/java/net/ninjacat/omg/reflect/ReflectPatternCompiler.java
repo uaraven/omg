@@ -2,16 +2,17 @@ package net.ninjacat.omg.reflect;
 
 import net.jcip.annotations.Immutable;
 import net.ninjacat.omg.conditions.*;
+import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.MatcherException;
 import net.ninjacat.omg.patterns.Patterns;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-import static io.vavr.Predicates.is;
+import static io.vavr.Predicates.*;
 import static net.ninjacat.omg.reflect.TypeUtils.convertToBasicType;
 
 @SuppressWarnings("FeatureEnvy")
@@ -29,14 +30,21 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
 
     @Override
     public <P> PropertyPattern<T> build(final PropertyCondition<P> condition) {
-        return Match((PropertyCondition) condition).of(
-                Case($(instanceOf(EqCondition.class)), this::buildEqPattern),
-                Case($(instanceOf(NeqCondition.class)), this::buildNeqPattern),
-                Case($(instanceOf(GtCondition.class)), this::buildGtPattern),
-                Case($(instanceOf(LtCondition.class)), this::buildLtPattern),
-                Case($(instanceOf(RegexCondition.class)), this::buildRegexPattern),
-                Case($(instanceOf(ObjectCondition.class)), this::buildObjectPattern)
+        return Match(condition.getMethod()).of(
+                Case($(is(ConditionMethod.EQ)), m -> buildEqPattern(condition)),
+                Case($(is(ConditionMethod.NEQ)), m -> buildNeqPattern(condition)),
+                Case($(is(ConditionMethod.GT)),m -> buildGtPattern(condition)),
+                Case($(is(ConditionMethod.LT)),m -> buildLtPattern(condition)),
+                Case($(is(ConditionMethod.REGEX)),m -> buildRegexPattern(condition)),
+                Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition)condition)),
+                Case($(), () -> {
+                    throw new CompilerException("Cannot build pattern for '%s'", condition);
+                })
         );
+    }
+
+    private <P> Predicate<ConditionMethod> isValidCondition(final PropertyCondition<P> condition) {
+        return c -> condition instanceof ObjectCondition;
     }
 
     private <P> PropertyPattern<T> buildEqPattern(final PropertyCondition<P> condition) {

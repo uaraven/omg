@@ -1,4 +1,4 @@
-package net.ninjacat.omg.reflect;
+package net.ninjacat.omg.patterns;
 
 import lombok.Value;
 import net.jcip.annotations.Immutable;
@@ -6,6 +6,7 @@ import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.Patterns;
+import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
 
 import java.util.List;
@@ -62,13 +63,13 @@ public class ObjectPatternTest {
 
     @Value
     @Immutable
-    private static class InnerClass {
+    public static class InnerClass {
         int anInt;
         String aString;
     }
 
     @Value
-    private static class TestClass {
+    public static class TestClass {
         private InnerClass inner;
         String name;
     }

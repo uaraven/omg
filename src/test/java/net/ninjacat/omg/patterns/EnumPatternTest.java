@@ -1,4 +1,4 @@
-package net.ninjacat.omg.reflect;
+package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
 import lombok.Value;
@@ -6,6 +6,7 @@ import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.Patterns;
+import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,13 +31,13 @@ public class EnumPatternTest {
         assertThat(result.get(0), is(new EnumTest(Enum1.VALUE1)));
     }
 
-    private enum Enum1 {
+    public enum Enum1 {
         VALUE1,
         VALUE2
     }
 
     @Value
-    private static class EnumTest {
+    public static class EnumTest {
         private Enum1 e1;
     }
 }

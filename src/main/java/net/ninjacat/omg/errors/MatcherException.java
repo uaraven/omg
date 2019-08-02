@@ -1,12 +1,12 @@
 package net.ninjacat.omg.errors;
 
-public class MatcherException extends RuntimeException {
+public class MatcherException extends OmgException {
 
     public MatcherException(final String format, final Object... args) {
-        super(String.format(format, args));
+        super(format, args);
     }
 
     public MatcherException(final Throwable cause, final String format, final Object... args) {
-        super(String.format(format, args), cause);
+        super(cause, format, args);
     }
 }

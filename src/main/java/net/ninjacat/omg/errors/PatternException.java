@@ -1,12 +1,12 @@
 package net.ninjacat.omg.errors;
 
-public class PatternException extends RuntimeException {
+public class PatternException extends OmgException {
 
     public PatternException(final String format, final Object... args) {
-        super(String.format(format, args));
+        super(format, args);
     }
 
     public PatternException(final Throwable cause, final String format, final Object... args) {
-        super(String.format(format, args), cause);
+        super(cause, format, args);
     }
 }

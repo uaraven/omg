@@ -1,4 +1,4 @@
-package net.ninjacat.omg.reflect;
+package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
 import lombok.Value;
@@ -6,6 +6,7 @@ import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.Patterns;
+import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -77,7 +78,7 @@ public class DoublePatternTest {
     }
 
     @Value
-    private static class TestClass {
+    public static class TestClass {
         private float floatField;
         private double doubleField;
     }
