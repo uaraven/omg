@@ -1,6 +1,8 @@
 package net.ninjacat.omg.bytecode;
 
 import net.ninjacat.omg.bytecode.primitive.IntStrategy;
+import net.ninjacat.omg.bytecode.primitive.PrimitiveDoubleStrategy;
+import net.ninjacat.omg.bytecode.primitive.PrimitiveFloatStrategy;
 import net.ninjacat.omg.bytecode.primitive.PrimitiveLongStrategy;
 import net.ninjacat.omg.bytecode.reference.*;
 import net.ninjacat.omg.conditions.ConditionMethod;
@@ -22,6 +24,7 @@ final class CompilerProvider {
         return new PropertyPatternGenerator<>(property, condition, strategy);
     }
 
+    @SuppressWarnings("FeatureEnvy")
     private static PatternCompilerStrategy getStrategyFor(final Class cls, final ConditionMethod method) {
         return Match(cls).of(
                 Case($(is(int.class)), intCls -> IntStrategy.forMethod(method, int.class)),
@@ -29,6 +32,8 @@ final class CompilerProvider {
                 Case($(is(byte.class)), intCls -> IntStrategy.forMethod(method, byte.class)),
                 Case($(is(char.class)), intCls -> IntStrategy.forMethod(method, char.class)),
                 Case($(is(long.class)), l -> PrimitiveLongStrategy.forMethod(method)),
+                Case($(is(float.class)), l -> PrimitiveFloatStrategy.forMethod(method)),
+                Case($(is(double.class)), l -> PrimitiveDoubleStrategy.forMethod(method)),
                 Case($(is(Integer.class)), intCls -> IntegerStrategy.forMethod(method)),
                 Case($(is(Long.class)), longCls -> LongStrategy.forMethod(method)),
                 Case($(is(Short.class)), s -> ShortStrategy.forMethod(method)),
@@ -38,11 +43,7 @@ final class CompilerProvider {
                 Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
                 Case($(is(String.class)), s -> StringStrategyProvider.forMethod(method)),
                 Case($((Predicate<Class>) Enum.class::isAssignableFrom), e -> EnumStrategy.forMethod(method)),
-                Case($(), () -> {
-                    throw new CompilerException("Cannot find compiler for property of class '%s' and matching operation '%s'",
-                            cls.getName(),
-                            method);
-                })
+                Case($(), ObjectMatchStrategy::new)
         );
     }
 

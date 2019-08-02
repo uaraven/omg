@@ -1,16 +1,13 @@
 package net.ninjacat.omg.bytecode.reference;
 
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
-import net.ninjacat.omg.conditions.ConditionMethod;
-import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.regex.Pattern;
 
-import static net.ninjacat.omg.conditions.ConditionMethod.REGEX;
+import static org.objectweb.asm.Opcodes.*;
 
 public class StringRegexStrategy implements PatternCompilerStrategy {
 
@@ -24,23 +21,23 @@ public class StringRegexStrategy implements PatternCompilerStrategy {
 
     @Override
     public void generateCompareCode(final MethodVisitor mv) {
-        mv.visitInsn(Opcodes.SWAP); // pattern should be first on stack
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        mv.visitInsn(SWAP); // pattern should be first on stack
+        mv.visitMethodInsn(INVOKEVIRTUAL,
                 Type.getInternalName(java.util.regex.Pattern.class),
                 "matcher", "(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;", false);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        mv.visitMethodInsn(INVOKEVIRTUAL,
                 Type.getInternalName(java.util.regex.Matcher.class),
                 "matches", "()Z", false);
     }
 
     @Override
     public int store() {
-        return Opcodes.ASTORE;
+        return ASTORE;
     }
 
     @Override
     public int load() {
-        return Opcodes.ALOAD;
+        return ALOAD;
     }
 
     @Override
