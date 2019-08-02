@@ -14,4 +14,6 @@ public class EqCondition<T> extends ComparisonCondition<T> {
     public ConditionMethod getMethod() {
         return ConditionMethod.EQ;
     }
+
+
 }

@@ -51,8 +51,8 @@ JSON pattern for previous example:
 
 [
   {
-   "op": "and",
-   "conditions": [
+   "op": "or",
+   "value": [
     {
       "op": "regex",
       "property": "lastName",

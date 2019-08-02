@@ -1,0 +1,23 @@
+[
+  {
+    "op": "eq",
+    "property": "testProp",
+    "value": 50
+  },
+  {
+    "op": "match",
+    "property": "nested",
+    "value": [
+      {
+        "op": "eq",
+        "property": "nestedStr",
+        "value": "123"
+      },
+      {
+        "op": "gt",
+        "property": "nestedDbl",
+        "value": 12.3
+      }
+    ]
+  }
+]

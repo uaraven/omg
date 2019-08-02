@@ -98,6 +98,13 @@ public final class Conditions {
             parentBuilder.addCondition(builder);
             return parentBuilder;
         }
+
+        public LogicalConditionBuilder match(final Condition nested) {
+            final ObjectConditionBuilder builder = new ObjectConditionBuilder(propertyName);
+            builder.addCondition(() -> nested);
+            parentBuilder.addCondition(builder);
+            return parentBuilder;
+        }
     }
 
     public static class AndConditionBuilder extends LogicalConditionBuilder {
