@@ -23,3 +23,22 @@ Next sections will cover some of these classes in more detail
 `BasePropertyPattern` is an abstract class which is basis for almost all generated `PropertyPattern` implementations.
 It provides constructor and getters for `property` and `matchingValue` fields. `property` field is generated from the
 actual matched class and `matchingValue` is retrieved from the `Condition` being matched.
+
+`BasePropertyPattern` is overwritten for some types, especially for all primitive types, where it contains
+method for unboxing value in condition into correct primitive type.
+
+### `PropertyPatternGenerator`
+
+`PropertyPatternGenerator` is an actual compiler which creates, loads and instantiates implementation of `PropertyPattern` 
+for a specific property of specific object.
+
+`PropertyPatternGenerator` creates a new subclass of `BasePropertyPattern` (or similar) and overrides `mathes`
+method, creating type-specific bytecode to retrieve value from object property and compare it to value in
+`Condition`.
+
+Depending on type, different code can be generated as governed by `PatternCompilerStrategy`
+
+### `PatternCompilerStrategy`
+
+`PatternCompilerStrategy` is an interface defining methods used by `PropertyPatternGenerator` to customize code 
+generation depending on property type.
