@@ -21,7 +21,7 @@ Example:
         private final int age;
     };
 
-    final Condition condition = Conditions.start()
+    final Condition condition = Conditions.matcher()
         .or(cond -> cond
             .property("lastName").regex("John.*on")
             .property("lastName").regex("Smith.*"))
