@@ -51,7 +51,7 @@ class PropertyPatternGenerator<T> {
 
         writer.visitEnd();
         return Try.of(() -> {
-            CompileDebugger.dumpClass("/tmp/" + generateBinaryClassName() + ".class", writer.toByteArray());
+//            CompileDebugger.dumpClass("/tmp/" + generateBinaryClassName() + ".class", writer.toByteArray());
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
             final Class propType = property.getType().isPrimitive()
                     ? ClassUtils.primitiveToWrapper(property.getType())
