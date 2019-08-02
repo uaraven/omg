@@ -1,7 +1,9 @@
 package net.ninjacat.omg.conditions;
 
+import lombok.EqualsAndHashCode;
 import net.ninjacat.omg.utils.Strings;
 
+@EqualsAndHashCode
 public class ObjectCondition implements PropertyCondition<Condition> {
     private final String property;
     private final Condition value;

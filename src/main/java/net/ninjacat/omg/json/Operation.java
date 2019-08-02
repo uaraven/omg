@@ -21,7 +21,7 @@ public enum Operation {
 
     private static final Map<String, Operation> opCodeMap =
             Arrays.stream(values()).collect(Collectors.toMap(
-                    kv -> kv.opCode,
+                    Operation::getOpCode,
                     Function.identity()
             ));
 

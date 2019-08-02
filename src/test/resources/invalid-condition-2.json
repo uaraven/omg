@@ -1,0 +1,16 @@
+{
+  "op": "regex",
+  "property": "testProp",
+  "value": [
+    {
+      "op": "or",
+      "value": [
+        {
+          "op": "eq",
+          "property": "prop",
+          "value": 0
+        }
+      ]
+    }
+  ]
+}

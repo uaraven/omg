@@ -1,0 +1,5 @@
+{
+  "op": "lte",
+  "property": "testProp",
+  "value": 50
+}
