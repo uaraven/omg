@@ -2,28 +2,42 @@ package net.ninjacat.omg.patterns;
 
 import lombok.Value;
 import net.jcip.annotations.Immutable;
+import net.ninjacat.omg.CompilerSelectionStrategy;
+import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
-import net.ninjacat.omg.patterns.Pattern;
-import net.ninjacat.omg.patterns.Patterns;
-import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 
 public class ObjectPatternTest {
 
     @Test
-    public void testSimpleMatching() {
+    public void testReflection() {
+        testAll(CompilerSelectionStrategy.SAFE);
+    }
+
+    @Test
+    public void testCompiled() {
+        testAll(CompilerSelectionStrategy.FAST);
+    }
+
+    private static void testAll(final CompilerSelectionStrategy strategy) {
+        testSimplePattern(strategy);
+        testComplexPattern(strategy);
+    }
+
+    private static void testSimplePattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").match(obj -> obj.property("aString").eq("found it"))
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(TestClass.class));
+        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
 
         final TestClass testObj = new TestClass(new InnerClass(1, "found it"), "Waldo");
 
@@ -32,8 +46,7 @@ public class ObjectPatternTest {
         assertThat(match, is(true));
     }
 
-    @Test
-    public void testLogicalMatching() {
+    private static void testComplexPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").match(obj ->
                         obj.or(orCond -> orCond
@@ -43,7 +56,7 @@ public class ObjectPatternTest {
                 .property("name").neq("Waldo")
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(TestClass.class));
+        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
 
         final List<TestClass> testList =
                 io.vavr.collection.List.of(

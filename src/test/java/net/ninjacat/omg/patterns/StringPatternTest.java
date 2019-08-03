@@ -2,11 +2,10 @@ package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
 import lombok.Value;
+import net.ninjacat.omg.CompilerSelectionStrategy;
+import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
-import net.ninjacat.omg.patterns.Pattern;
-import net.ninjacat.omg.patterns.Patterns;
-import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,12 +14,29 @@ import static org.hamcrest.Matchers.*;
 public class StringPatternTest {
 
     @Test
-    public void testSimplePattern() {
+    public void testReflection() {
+        testAll(CompilerSelectionStrategy.SAFE);
+    }
+
+    @Test
+    public void testCompiled() {
+        testAll(CompilerSelectionStrategy.FAST);
+    }
+
+    private static void testAll(final CompilerSelectionStrategy strategy) {
+        testSimplePattern(strategy);
+        testOrPattern(strategy);
+        testAndPattern(strategy);
+        testRegexPattern(strategy);
+        testNullPattern(strategy);
+    }
+
+    private static void testSimplePattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str2").eq("test")
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(StringTest.class));
+        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
 
         final List<StringTest> tests = List.of(new StringTest("string", "test"),
                 new StringTest("string", "something"));
@@ -31,15 +47,14 @@ public class StringPatternTest {
         assertThat(result.get(0), is(new StringTest("string", "test")));
     }
 
-    @Test
-    public void testOrPattern() {
+    private static void testOrPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .or(orCond -> orCond
                         .property("str1").eq("string")
                         .property("str2").eq("test"))
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(StringTest.class));
+        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
 
         final List<StringTest> tests = List.of(new StringTest("whoops", "test"),
                 new StringTest("string", "something"),
@@ -50,15 +65,14 @@ public class StringPatternTest {
         assertThat(result, contains(new StringTest("whoops", "test"), new StringTest("string", "something")));
     }
 
-    @Test
-    public void testAndPattern() {
+    private static void testAndPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .and(orCond -> orCond
                         .property("str1").eq("string")
                         .property("str2").eq("test"))
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(StringTest.class));
+        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
 
         final List<StringTest> tests = List.of(new StringTest("whoops", "test"),
                 new StringTest("string", "something"),
@@ -70,13 +84,12 @@ public class StringPatternTest {
         assertThat(result, contains(new StringTest("string", "test")));
     }
 
-    @Test
-    public void testRegexPattern() {
+    private static void testRegexPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str1").regex("st.*[abc]final")
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(StringTest.class));
+        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
 
         final List<StringTest> tests = List.of(new StringTest("st12final", "test"),
                 new StringTest("stringcfinal", "something"),
@@ -90,13 +103,12 @@ public class StringPatternTest {
                 new StringTest("stop it afinal", "test")));
     }
 
-    @Test
-    public void testNullPattern() {
+    private static void testNullPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str1").eq(null)
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, ReflectPatternCompiler.forClass(StringTest.class));
+        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
 
         final List<StringTest> tests = List.of(new StringTest("st12final", "test"),
                 new StringTest(null, "something"),

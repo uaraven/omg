@@ -9,7 +9,9 @@ import net.ninjacat.omg.patterns.PropertyPattern;
 import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.*;
 
-import java.lang.reflect.Constructor;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -62,14 +64,18 @@ class PropertyPatternGenerator<T> {
         }).getOrElseThrow((ex) -> new CompilerException(ex, "Failed to generate accessor for '%s'", property));
     }
 
-    private PropertyPattern<T> instantiatePattern(final Class<?> patternClass, final Class propType) throws NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
-        final Constructor<?> constructor = patternClass.getConstructor(Property.class, propType);
-        return (PropertyPattern<T>) constructor.newInstance(property, condition.getValue());
+    @SuppressWarnings("unchecked")
+    private PropertyPattern<T> instantiatePattern(final Class<?> patternClass, final Class propType) throws Throwable {
+        final MethodType constructorType = MethodType.methodType(void.class, Property.class, propType);
+        final MethodHandle constructor = MethodHandles.lookup().findConstructor(patternClass, constructorType);
+        return (PropertyPattern<T>) constructor.invoke(property, condition.getValue());
     }
 
-    private PropertyPattern<T> instantiateMatchPattern(final Class<?> patternClass) throws NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
-        final Constructor<?> constructor = patternClass.getConstructor(Property.class, Condition.class);
-        return (PropertyPattern<T>) constructor.newInstance(property, (Condition) condition.getValue());
+    @SuppressWarnings("unchecked")
+    private PropertyPattern<T> instantiateMatchPattern(final Class<?> patternClass) throws Throwable {
+        final MethodType constructorType = MethodType.methodType(void.class, Property.class, Condition.class);
+        final MethodHandle constructor = MethodHandles.lookup().findConstructor(patternClass, constructorType);
+        return (PropertyPattern<T>) constructor.invoke(property, condition.getValue());
     }
 
     /**
