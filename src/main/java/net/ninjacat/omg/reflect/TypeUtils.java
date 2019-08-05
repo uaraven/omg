@@ -2,7 +2,10 @@ package net.ninjacat.omg.reflect;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
+import io.vavr.control.Try;
+import net.ninjacat.omg.errors.MatcherException;
 
+import java.lang.invoke.MethodHandle;
 import java.util.function.Function;
 
 import static io.vavr.API.*;
@@ -10,7 +13,7 @@ import static io.vavr.API.*;
 /**
  * Basic type conversions
  */
-public final class TypeUtils {
+final class TypeUtils {
     private TypeUtils() {
     }
 
@@ -59,7 +62,7 @@ public final class TypeUtils {
     /**
      * Converts value to a basic type which is {@link Long} for all integer types and {@link Double} for floating-point.
      * <p>
-     * All other times remain unchanged
+     * All other types remain unchanged
      *
      * @param value Value to convert to basic type
      * @return Value converted to basic type, if possible, otherwise original value
@@ -73,6 +76,13 @@ public final class TypeUtils {
                 Case($(TypeUtils::isFloat), i -> (double) (float) i),
                 Case($(), Function.identity())
         );
+    }
+
+    static <T, R> R getAsType(final T instance, final Property<T> property, final Class<? extends R> valueType) {
+        final MethodHandle getter = property.getGetterMethod();
+        return Try.of(() -> getter.invoke(instance))
+                .map(it -> valueType.cast(TypeUtils.convertToBasicType(it)))
+                .getOrElseThrow(err -> new MatcherException(err, "Failed to match property %s in %s", property, instance));
     }
 
     private static boolean isInteger(final Object o) {

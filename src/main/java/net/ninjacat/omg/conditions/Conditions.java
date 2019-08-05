@@ -87,6 +87,11 @@ public final class Conditions {
             return parentBuilder;
         }
 
+        public <T> LogicalConditionBuilder in(final List<T> value) {
+            parentBuilder.addCondition(() -> new InCondition<>(propertyName, value));
+            return parentBuilder;
+        }
+
         public LogicalConditionBuilder regex(final String value) {
             parentBuilder.addCondition(() -> new RegexCondition(propertyName, value));
             return parentBuilder;

@@ -2,6 +2,7 @@ package net.ninjacat.omg.bytecode;
 
 
 import net.ninjacat.omg.patterns.PropertyPattern;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -108,4 +109,10 @@ public interface PatternCompilerStrategy {
         return 3;
     }
 
+    /**
+     * Called before comparision code is generated, specifically before
+     * <b>*load</b>s for matching value and property value are executed
+     * @param match Method visitor
+     */
+    default void beforeCompare(MethodVisitor match) {}
 }

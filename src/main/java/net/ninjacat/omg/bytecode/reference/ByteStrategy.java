@@ -48,6 +48,7 @@ public final class ByteStrategy extends IntNumberReferenceTypeStrategy {
             case NEQ: return new ByteStrategy(Opcodes.IFNE);
             case LT: return new ByteStrategy(Opcodes.IFLT);
             case GT: return new ByteStrategy(Opcodes.IFGT);
+            case IN: return new ReferenceInStrategy();
             default: throw new CompilerException("Unsupported condition '%s' for Byte type", method);
         }
     }

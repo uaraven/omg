@@ -48,6 +48,7 @@ public final class CharacterStrategy extends IntNumberReferenceTypeStrategy {
             case NEQ: return new CharacterStrategy(Opcodes.IFNE);
             case LT: return new CharacterStrategy(Opcodes.IFLT);
             case GT: return new CharacterStrategy(Opcodes.IFGT);
+            case IN: return new ReferenceInStrategy();
             default: throw new CompilerException("Unsupported condition '%s' for Character type", method);
         }
     }

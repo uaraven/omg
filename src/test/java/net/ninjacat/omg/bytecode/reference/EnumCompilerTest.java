@@ -1,7 +1,9 @@
 package net.ninjacat.omg.bytecode.reference;
 
+import io.vavr.collection.List;
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -30,6 +32,16 @@ public class EnumCompilerTest {
 
         assertThat(pattern.matches(new EnumTest(TestE.E1)), is(false));
         assertThat(pattern.matches(new EnumTest(TestE.E2)), is(true));
+    }
+
+    @Test
+    public void shouldMatchInPattern() {
+        final InCondition<TestE> condition = new InCondition<>("eField", List.of(TestE.E1, TestE.E3).asJava());
+
+        final PropertyPattern<EnumTest> pattern = AsmPatternCompiler.forClass(EnumTest.class).build(condition);
+
+        assertThat(pattern.matches(new EnumTest(TestE.E1)), is(true));
+        assertThat(pattern.matches(new EnumTest(TestE.E2)), is(false));
     }
 
     @Test(expected = CompilerException.class)
@@ -74,7 +86,8 @@ public class EnumCompilerTest {
 
     public enum TestE {
         E1,
-        E2;
+        E2,
+        E3
     }
 
     public static class EnumTest {

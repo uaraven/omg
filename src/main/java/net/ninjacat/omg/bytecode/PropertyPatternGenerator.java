@@ -5,7 +5,6 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
-import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.*;
 
 import java.lang.invoke.MethodHandle;
@@ -41,7 +40,6 @@ class PropertyPatternGenerator<T> {
         this.compGen = strategy;
     }
 
-    @SuppressWarnings("unchecked")
     PropertyPattern<T> compilePattern() {
         final ClassReader classReader =
                 Try.of(() -> new ClassReader(compGen.getParentPropertyPatternClass().getName()))
@@ -57,9 +55,6 @@ class PropertyPatternGenerator<T> {
             CompileDebugger.dumpClass("/tmp/" + generateBinaryClassName() + ".class", writer.toByteArray());
             CompileDebugger.verifyClass(writer.toByteArray());
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
-            final Class propType = property.getType().isPrimitive()
-                    ? ClassUtils.primitiveToWrapper(property.getType())
-                    : property.getType();
             return instantiatePattern(patternClass);
         }).getOrElseThrow(this::wrapException);
     }
@@ -85,9 +80,6 @@ class PropertyPatternGenerator<T> {
      */
     private void createConstructor(final ClassVisitor cv) {
         final Class wrapperType = Object.class;
-//                condition.getMethod() == ConditionMethod.MATCH
-//                        ? Condition.class
-//                        : ClassUtils.primitiveToWrapper(property.getType());
         final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(wrapperType));
         final MethodVisitor init = cv.visitMethod(ACC_PUBLIC, "<init>", initDescriptor, null, null);
         init.visitCode();
@@ -173,6 +165,8 @@ class PropertyPatternGenerator<T> {
             match.visitInsn(IRETURN);
             match.visitLabel(matchingNotNull2);
         }
+
+        compGen.beforeCompare(match);
 
         match.visitVarInsn(compGen.load(), localProperty);
 

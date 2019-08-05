@@ -16,9 +16,11 @@ public final class EnumStrategy implements PatternCompilerStrategy {
         this.method = method;
     }
 
-    public static EnumStrategy forMethod(final ConditionMethod method) {
+    public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         if (method == ConditionMethod.EQ || method == ConditionMethod.NEQ) {
             return new EnumStrategy(method);
+        } else if (method == ConditionMethod.IN) {
+            return new ReferenceInStrategy();
         } else {
             throw new CompilerException("Unsupported condition '%s' for Enum type", method);
         }

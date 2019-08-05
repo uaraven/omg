@@ -47,6 +47,7 @@ public final class IntegerStrategy extends IntNumberReferenceTypeStrategy {
             case NEQ: return new IntegerStrategy(Opcodes.IFNE);
             case LT: return new IntegerStrategy(Opcodes.IFLT);
             case GT: return new IntegerStrategy(Opcodes.IFGT);
+            case IN: return new ReferenceInStrategy();
             default: throw new CompilerException("Unsupported condition '%s' for Integer type", method);
         }
     }

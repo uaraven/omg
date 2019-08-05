@@ -48,6 +48,7 @@ public final class DoubleStrategy extends IntNumberReferenceTypeStrategy {
             case NEQ: return new DoubleStrategy(Opcodes.IFNE);
             case LT: return new DoubleStrategy(Opcodes.IFLT);
             case GT: return new DoubleStrategy(Opcodes.IFGT);
+            case IN: return new ReferenceInStrategy();
             default: throw new CompilerException("Unsupported condition '%s' for Integer type", method);
         }
     }
