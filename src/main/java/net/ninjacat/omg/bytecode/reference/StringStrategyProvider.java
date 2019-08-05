@@ -9,7 +9,10 @@ import net.ninjacat.omg.errors.CompilerException;
  *
  * Strings support only EQ, NEQ and REGEX methods
  */
-public class StringStrategyProvider {
+public final class StringStrategyProvider {
+    private StringStrategyProvider() {
+    }
+
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         switch (method) {
             case EQ:

@@ -3,6 +3,7 @@ package net.ninjacat.omg.bytecode.reference;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -31,9 +32,15 @@ public final class ShortStrategy extends IntNumberReferenceTypeStrategy {
     }
 
     @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Short.class));
+    public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
+        return ShortBasePropertyPattern.class;
     }
+
+    @Override
+    public String getMatchingValueDescriptor() {
+        return "()Ljava/lang/Short;";
+    }
+
 
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
         switch (method) {

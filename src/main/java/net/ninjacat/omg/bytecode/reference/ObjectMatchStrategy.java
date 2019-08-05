@@ -47,8 +47,4 @@ public class ObjectMatchStrategy implements PatternCompilerStrategy {
         return true;
     }
 
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-
-    }
 }

@@ -33,6 +33,11 @@ public final class PrimitiveFloatStrategy extends PrimitiveTypeStrategy {
         }
     }
 
+    @Override
+    public String getMatchingValueDescriptor() {
+        return "()" + Type.getDescriptor(float.class);
+    }
+
     public void generateCompareCode(final MethodVisitor mv) {
         final Label matched = new Label();
         final Label exit = new Label();
@@ -59,10 +64,4 @@ public final class PrimitiveFloatStrategy extends PrimitiveTypeStrategy {
         return Opcodes.FLOAD;
     }
 
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        match.visitInsn(Opcodes.POP); //remove matched value
-        match.visitVarInsn(Opcodes.ALOAD, 0);
-        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(FloatBasePropertyPattern.class), "getMatchingValueAsFloat", "()F", false);
-    }
 }

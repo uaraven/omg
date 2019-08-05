@@ -22,37 +22,6 @@ public class IntCompilerTest {
         assertThat(pattern.matches(new IntTest(24)), is(false));
     }
 
-
-    @Test(expected = CompilerException.class)
-    public void shouldFailOnTypeMismatch() {
-        final PropertyCondition<Short> condition = new PropertyCondition<Short>() {
-            @Override
-            public String getProperty() {
-                return "intField";
-            }
-
-            @Override
-            public Short getValue() {
-                return 42;
-            }
-
-            @Override
-            public String repr(final int level) {
-                return "";
-            }
-
-            @Override
-            public ConditionMethod getMethod() {
-                return ConditionMethod.EQ;
-            }
-        };
-
-        final PropertyPattern<IntTest> pattern = AsmPatternCompiler.forClass(IntTest.class).build(condition);
-
-        assertThat(pattern.matches(new IntTest(42)), is(true));
-        assertThat(pattern.matches(new IntTest(24)), is(false));
-    }
-
     @Test
     public void shouldMatchSimpleNeqPattern() {
         final PropertyCondition<Integer> condition = createPropertyCondition(ConditionMethod.NEQ, 42);

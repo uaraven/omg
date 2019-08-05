@@ -37,6 +37,12 @@ public final class PrimitiveLongStrategy extends PrimitiveTypeStrategy {
         }
     }
 
+    @Override
+    public String getMatchingValueDescriptor() {
+        return "()" + Type.getDescriptor(long.class);
+    }
+
+
     public void generateCompareCode(final MethodVisitor mv) {
         final Label matched = new Label();
         final Label exit = new Label();
@@ -68,10 +74,4 @@ public final class PrimitiveLongStrategy extends PrimitiveTypeStrategy {
         return 4;
     }
 
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        match.visitInsn(Opcodes.POP); //remove matched value
-        match.visitVarInsn(Opcodes.ALOAD, 0);
-        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(LongBasePropertyPattern.class), "getMatchingValueAsLong", "()J", false);
-    }
 }

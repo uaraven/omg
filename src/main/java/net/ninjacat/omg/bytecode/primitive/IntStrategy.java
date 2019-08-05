@@ -1,6 +1,5 @@
 package net.ninjacat.omg.bytecode.primitive;
 
-import io.vavr.control.Try;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.errors.CompilerException;
@@ -18,10 +17,14 @@ public final class IntStrategy extends PrimitiveTypeStrategy {
     private static final String CONVERTER_METHOD = "getMatchingValueConverted";
 
     private final int compOpcode;
+    private final String propertyTypeDescriptor;
     private final Class<? extends PropertyPattern> basePropertyClass;
 
-    private IntStrategy(final int compOpcode, final Class<? extends PropertyPattern> basePropertyClass) {
+    private IntStrategy(final int compOpcode,
+                        final String propertyTypeDescriptor,
+                        final Class<? extends PropertyPattern> basePropertyClass) {
         this.compOpcode = compOpcode;
+        this.propertyTypeDescriptor = propertyTypeDescriptor;
         this.basePropertyClass = basePropertyClass;
     }
 
@@ -33,18 +36,15 @@ public final class IntStrategy extends PrimitiveTypeStrategy {
     public static PatternCompilerStrategy forMethod(final ConditionMethod method, final Class propertyType) {
         final Class<? extends PropertyPattern> baseClass = selectBaseClass(propertyType);
 
-        switch (method) {
-            case EQ:
-                return new IntStrategy(Opcodes.IF_ICMPEQ, baseClass);
-            case NEQ:
-                return new IntStrategy(Opcodes.IF_ICMPNE, baseClass);
-            case LT:
-                return new IntStrategy(Opcodes.IF_ICMPLT, baseClass);
-            case GT:
-                return new IntStrategy(Opcodes.IF_ICMPGT, baseClass);
-            default:
-                throw new CompilerException("Unsupported condition '%s' for int type", method);
-        }
+        return Match(method).of(
+                Case($(is(ConditionMethod.EQ)), i -> new IntStrategy(Opcodes.IF_ICMPEQ, Type.getDescriptor(propertyType), baseClass)),
+                Case($(is(ConditionMethod.NEQ)), i -> new IntStrategy(Opcodes.IF_ICMPNE, Type.getDescriptor(propertyType), baseClass)),
+                Case($(is(ConditionMethod.LT)), i -> new IntStrategy(Opcodes.IF_ICMPLT, Type.getDescriptor(propertyType), baseClass)),
+                Case($(is(ConditionMethod.GT)), i -> new IntStrategy(Opcodes.IF_ICMPGT, Type.getDescriptor(propertyType), baseClass)),
+                Case($(), () -> {
+                    throw new CompilerException("Unsupported condition '%s' for '%s' type", method, propertyType.getName());
+                })
+        );
     }
 
     private static Class<? extends PropertyPattern> selectBaseClass(final Class propertyType) {
@@ -82,15 +82,8 @@ public final class IntStrategy extends PrimitiveTypeStrategy {
     }
 
     @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        match.visitInsn(Opcodes.POP); //remove matched value
-        match.visitVarInsn(Opcodes.ALOAD, 0);
-        final String descriptor = Try.of(() -> Type.getMethodDescriptor(basePropertyClass.getDeclaredMethod(CONVERTER_METHOD)))
-                .getOrElseThrow((ex) ->
-                        new CompilerException(ex, "Failed to find converter method '%s' in class '%s",
-                                CONVERTER_METHOD,
-                                basePropertyClass
-                        ));
-        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(basePropertyClass), CONVERTER_METHOD, descriptor, false);
+    public String getMatchingValueDescriptor() {
+        return "()" + propertyTypeDescriptor;
     }
+
 }

@@ -3,7 +3,6 @@ package net.ninjacat.omg.bytecode.reference;
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.bytecode.Property;
 import net.ninjacat.omg.conditions.Condition;
-import net.ninjacat.omg.conditions.ObjectCondition;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.Patterns;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -19,6 +18,7 @@ public abstract class BaseObjectMatchPropertyPattern<T> implements PropertyPatte
 
     protected BaseObjectMatchPropertyPattern(final Property property, final Object condition) {
         this.property = property;
+        //noinspection unchecked
         this.matchingPattern = Patterns.compile(
                 (Condition) condition,
                 AsmPatternCompiler.forClass(property.getType()));

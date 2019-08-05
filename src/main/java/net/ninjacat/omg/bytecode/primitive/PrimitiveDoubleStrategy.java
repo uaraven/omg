@@ -33,6 +33,11 @@ public final class PrimitiveDoubleStrategy extends PrimitiveTypeStrategy {
         }
     }
 
+    @Override
+    public String getMatchingValueDescriptor() {
+        return "()" + Type.getDescriptor(double.class);
+    }
+
     public void generateCompareCode(final MethodVisitor mv) {
         final Label matched = new Label();
         final Label exit = new Label();
@@ -64,10 +69,4 @@ public final class PrimitiveDoubleStrategy extends PrimitiveTypeStrategy {
         return 4;
     }
 
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        match.visitInsn(Opcodes.POP); //remove matched value
-        match.visitVarInsn(Opcodes.ALOAD, 0);
-        match.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(DoubleBasePropertyPattern.class), "getMatchingValueAsDouble", "()D", false);
-    }
 }

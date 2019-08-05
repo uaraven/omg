@@ -22,37 +22,6 @@ public class LongCompilerTest {
         assertThat(pattern.matches(new LongTest(24)), is(false));
     }
 
-
-    @Test(expected = CompilerException.class)
-    public void shouldFailOnTypeMismatch() {
-        final PropertyCondition<Short> condition = new PropertyCondition<Short>() {
-            @Override
-            public String getProperty() {
-                return "longField";
-            }
-
-            @Override
-            public Short getValue() {
-                return 42;
-            }
-
-            @Override
-            public String repr(final int level) {
-                return "";
-            }
-
-            @Override
-            public ConditionMethod getMethod() {
-                return ConditionMethod.EQ;
-            }
-        };
-
-        final PropertyPattern<LongTest> pattern = AsmPatternCompiler.forClass(LongTest.class).build(condition);
-
-        assertThat(pattern.matches(new LongTest(42)), is(true));
-        assertThat(pattern.matches(new LongTest(24)), is(false));
-    }
-
     @Test
     public void shouldMatchSimpleNeqPattern() {
         final PropertyCondition<Long> condition = createPropertyCondition(ConditionMethod.NEQ, 42);

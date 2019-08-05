@@ -10,11 +10,11 @@ import java.util.regex.Pattern;
  * Base class for regex matching property value.
  * @param <T>
  */
-public abstract class BaseRegexPropertyPattern<T> implements PropertyPattern<T> {
+public abstract class RegexBasePropertyPattern<T> implements PropertyPattern<T> {
     private final Property property;
     private final Pattern regex;
 
-    public BaseRegexPropertyPattern(final Property property, final Object matchingValue) {
+    public RegexBasePropertyPattern(final Property property, final Object matchingValue) {
         this.property = property;
         if (matchingValue instanceof String) {
             this.regex = Pattern.compile((String) matchingValue);
