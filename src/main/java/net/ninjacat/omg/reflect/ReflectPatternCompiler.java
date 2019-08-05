@@ -36,11 +36,11 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Match(condition.getMethod()).of(
                 Case($(is(ConditionMethod.EQ)), m -> buildEqPattern(condition)),
                 Case($(is(ConditionMethod.NEQ)), m -> buildNeqPattern(condition)),
-                Case($(is(ConditionMethod.GT)), m -> buildGtPattern(condition)),
-                Case($(is(ConditionMethod.LT)), m -> buildLtPattern(condition)),
+                Case($(is(ConditionMethod.GT)),m -> buildGtPattern(condition)),
+                Case($(is(ConditionMethod.LT)),m -> buildLtPattern(condition)),
                 Case($(is(ConditionMethod.IN)), m -> buildInPattern(condition)),
-                Case($(is(ConditionMethod.REGEX)), m -> buildRegexPattern(condition)),
-                Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition) condition)),
+                Case($(is(ConditionMethod.REGEX)),m -> buildRegexPattern(condition)),
+                Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition)condition)),
                 Case($(), () -> {
                     throw new CompilerException("Cannot build pattern for '%s'", condition);
                 })

@@ -3,6 +3,7 @@ package net.ninjacat.omg.reflect;
 import lombok.Value;
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
+import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -59,17 +60,29 @@ public class IntCompilerTest {
 
         final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, strategy).build(condition);
 
-        assertThat(pattern.matches(new IntTest(42)), is(false));
+        assertThat(pattern.matches(new IntTest(42)), is(true));
         assertThat(pattern.matches(new IntTest(21)), is(true));
+        assertThat(pattern.matches(new IntTest(84)), is(false));
     }
-
 
     // TODO: Convert to Theory to test both reflection and compiled pattern
     @Test
-    public void shouldMatchSimpleInPattern() {
+    public void shouldMatchSimpleInPattern(final CompilerSelectionStrategy strategy) {
         final PropertyCondition<List<Integer>> condition = new InCondition<>(
                 "intField",
                 io.vavr.collection.List.of(21, 42, 11).asJava());
+
+
+        final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, strategy).build(condition);
+
+        assertThat(pattern.matches(new IntTest(42)), is(true));
+        assertThat(pattern.matches(new IntTest(21)), is(true));
+        assertThat(pattern.matches(new IntTest(84)), is(false));
+    }
+
+    @Test(expected = CompilerException.class)
+    public void shouldFailMatchPattern() {
+        final PropertyCondition<Integer> condition = createPropertyCondition(ConditionMethod.MATCH);
 
 
         final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, strategy).build(condition);
