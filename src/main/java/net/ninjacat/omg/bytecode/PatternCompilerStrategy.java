@@ -75,14 +75,7 @@ public interface PatternCompilerStrategy {
     boolean isReference();
 
     /**
-     * Generate code to possibly unbox matching value for comparison
-     *
-     * @param match
-     */
-    void convertMatchingType(final MethodVisitor match);
-
-    /**
-     * Returns method descriptor for {@link BasePropertyPattern#getMatchingValue()}
+     * Returns method descriptor for getMatchingValue() method
      *
      * Default value is ""()Ljava/lang/Object;" and rarely has to be changed
      *
@@ -115,5 +108,4 @@ public interface PatternCompilerStrategy {
         return 3;
     }
 
-    ;
 }

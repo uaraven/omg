@@ -7,31 +7,19 @@ import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import org.junit.Test;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+@RunWith(Theories.class)
 public class StringPatternTest {
 
+    @Theory
     @Test
-    public void testReflection() {
-        testAll(CompilerSelectionStrategy.SAFE);
-    }
-
-    @Test
-    public void testCompiled() {
-        testAll(CompilerSelectionStrategy.FAST);
-    }
-
-    private static void testAll(final CompilerSelectionStrategy strategy) {
-        testSimplePattern(strategy);
-        testOrPattern(strategy);
-        testAndPattern(strategy);
-        testRegexPattern(strategy);
-        testNullPattern(strategy);
-    }
-
-    private static void testSimplePattern(final CompilerSelectionStrategy strategy) {
+    public void testSimplePattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str2").eq("test")
                 .build();
@@ -47,7 +35,9 @@ public class StringPatternTest {
         assertThat(result.get(0), is(new StringTest("string", "test")));
     }
 
-    private static void testOrPattern(final CompilerSelectionStrategy strategy) {
+    @Theory
+    @Test
+    public void testOrPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .or(orCond -> orCond
                         .property("str1").eq("string")
@@ -65,7 +55,9 @@ public class StringPatternTest {
         assertThat(result, contains(new StringTest("whoops", "test"), new StringTest("string", "something")));
     }
 
-    private static void testAndPattern(final CompilerSelectionStrategy strategy) {
+    @Theory
+    @Test
+    public void testAndPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .and(orCond -> orCond
                         .property("str1").eq("string")
@@ -84,7 +76,9 @@ public class StringPatternTest {
         assertThat(result, contains(new StringTest("string", "test")));
     }
 
-    private static void testRegexPattern(final CompilerSelectionStrategy strategy) {
+    @Theory
+    @Test
+    public void testRegexPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str1").regex("st.*[abc]final")
                 .build();
@@ -103,7 +97,9 @@ public class StringPatternTest {
                 new StringTest("stop it afinal", "test")));
     }
 
-    private static void testNullPattern(final CompilerSelectionStrategy strategy) {
+    @Theory
+    @Test
+    public void testNullPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str1").eq(null)
                 .build();

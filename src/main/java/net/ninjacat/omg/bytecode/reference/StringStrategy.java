@@ -2,6 +2,7 @@ package net.ninjacat.omg.bytecode.reference;
 
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -30,6 +31,18 @@ public class StringStrategy implements PatternCompilerStrategy {
         }
     }
 
+
+    @Override
+    public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
+        return StringBasePropertyPattern.class;
+    }
+
+    @Override
+    public String getMatchingValueDescriptor() {
+        return "()Ljava/lang/String;";
+    }
+
+
     @Override
     public int store() {
         return Opcodes.ASTORE;
@@ -45,8 +58,4 @@ public class StringStrategy implements PatternCompilerStrategy {
         return true;
     }
 
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(String.class));
-    }
 }

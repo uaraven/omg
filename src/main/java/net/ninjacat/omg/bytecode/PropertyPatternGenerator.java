@@ -1,8 +1,6 @@
 package net.ninjacat.omg.bytecode;
 
 import io.vavr.control.Try;
-import net.ninjacat.omg.conditions.Condition;
-import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -53,27 +51,19 @@ class PropertyPatternGenerator<T> {
 
         writer.visitEnd();
         return Try.of(() -> {
-//            CompileDebugger.dumpClass("/tmp/" + generateBinaryClassName() + ".class", writer.toByteArray());
+            CompileDebugger.dumpClass("/tmp/" + generateBinaryClassName() + ".class", writer.toByteArray());
+            CompileDebugger.verifyClass(writer.toByteArray());
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
             final Class propType = property.getType().isPrimitive()
                     ? ClassUtils.primitiveToWrapper(property.getType())
                     : property.getType();
-            return condition.getMethod() == ConditionMethod.MATCH
-                    ? instantiateMatchPattern(patternClass)
-                    : instantiatePattern(patternClass, propType);
+            return instantiatePattern(patternClass);
         }).getOrElseThrow((ex) -> new CompilerException(ex, "Failed to generate accessor for '%s'", property));
     }
 
     @SuppressWarnings("unchecked")
-    private PropertyPattern<T> instantiatePattern(final Class<?> patternClass, final Class propType) throws Throwable {
-        final MethodType constructorType = MethodType.methodType(void.class, Property.class, propType);
-        final MethodHandle constructor = MethodHandles.lookup().findConstructor(patternClass, constructorType);
-        return (PropertyPattern<T>) constructor.invoke(property, condition.getValue());
-    }
-
-    @SuppressWarnings("unchecked")
-    private PropertyPattern<T> instantiateMatchPattern(final Class<?> patternClass) throws Throwable {
-        final MethodType constructorType = MethodType.methodType(void.class, Property.class, Condition.class);
+    private PropertyPattern<T> instantiatePattern(final Class<?> patternClass) throws Throwable {
+        final MethodType constructorType = MethodType.methodType(void.class, Property.class, Object.class);
         final MethodHandle constructor = MethodHandles.lookup().findConstructor(patternClass, constructorType);
         return (PropertyPattern<T>) constructor.invoke(property, condition.getValue());
     }
@@ -84,10 +74,10 @@ class PropertyPatternGenerator<T> {
      * @param cv {@link ClassVisitor} for which constructor will be generated
      */
     private void createConstructor(final ClassVisitor cv) {
-        final Class wrapperType =
-                condition.getMethod() == ConditionMethod.MATCH
-                        ? Condition.class
-                        : ClassUtils.primitiveToWrapper(property.getType());
+        final Class wrapperType = Object.class;
+//                condition.getMethod() == ConditionMethod.MATCH
+//                        ? Condition.class
+//                        : ClassUtils.primitiveToWrapper(property.getType());
         final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(wrapperType));
         final MethodVisitor init = cv.visitMethod(ACC_PUBLIC, "<init>", initDescriptor, null, null);
         init.visitCode();
@@ -135,10 +125,10 @@ class PropertyPatternGenerator<T> {
         match.visitLabel(start);
         match.visitVarInsn(ALOAD, 0); // this
         match.visitMethodInsn(INVOKEVIRTUAL,
-                Type.getInternalName(compGen.getParentPropertyPatternClass())
-                , "getMatchingValue", compGen.getMatchingValueDescriptor(), false);
+                Type.getInternalName(compGen.getParentPropertyPatternClass()),
+                "getMatchingValue", compGen.getMatchingValueDescriptor(), false);
         match.visitLabel(localMatchingStart);
-        match.visitVarInsn(ASTORE, localMatching);
+        match.visitVarInsn(compGen.store(), localMatching);
 
         // get property from instance
         match.visitVarInsn(ALOAD, 1); // instance parameter
@@ -152,7 +142,7 @@ class PropertyPatternGenerator<T> {
             match.visitJumpInsn(IFNONNULL, propNotNull);
 
             // property == null, now if matching value == null return true
-            match.visitVarInsn(ALOAD, localMatching);
+            match.visitVarInsn(compGen.load(), localMatching);
             match.visitJumpInsn(IFNONNULL, matchingNotNull);
 
             match.visitInsn(ICONST_1);
@@ -165,18 +155,18 @@ class PropertyPatternGenerator<T> {
             match.visitLabel(propNotNull);
         }
         // at this point if matching value is null, return false
-        match.visitVarInsn(ALOAD, localMatching);
-        match.visitJumpInsn(IFNONNULL, matchingNotNull2);
-        // if it is null, return false
-        match.visitInsn(ICONST_0);
-        match.visitInsn(IRETURN);
+        if (compGen.isReference()) {
+            match.visitVarInsn(compGen.load(), localMatching);
+            match.visitJumpInsn(IFNONNULL, matchingNotNull2);
+            // if it is null, return false
+            match.visitInsn(ICONST_0);
+            match.visitInsn(IRETURN);
+            match.visitLabel(matchingNotNull2);
+        }
 
-        match.visitLabel(matchingNotNull2);
         match.visitVarInsn(compGen.load(), localProperty);
 
-        match.visitVarInsn(ALOAD, localMatching);
-        compGen.convertMatchingType(match);
-
+        match.visitVarInsn(compGen.load(), localMatching);
         compGen.generateCompareCode(match);
 
         match.visitLabel(localMatchingEnd);

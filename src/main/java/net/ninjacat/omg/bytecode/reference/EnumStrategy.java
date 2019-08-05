@@ -3,11 +3,12 @@ package net.ninjacat.omg.bytecode.reference;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class EnumStrategy implements PatternCompilerStrategy {
+public final class EnumStrategy implements PatternCompilerStrategy {
 
     private final ConditionMethod method;
 
@@ -15,13 +16,25 @@ public class EnumStrategy implements PatternCompilerStrategy {
         this.method = method;
     }
 
-    public static EnumStrategy forMethod(ConditionMethod method) {
+    public static EnumStrategy forMethod(final ConditionMethod method) {
         if (method == ConditionMethod.EQ || method == ConditionMethod.NEQ) {
             return new EnumStrategy(method);
         } else {
             throw new CompilerException("Unsupported condition '%s' for Enum type", method);
         }
     }
+
+
+    @Override
+    public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
+        return EnumBasePropertyPattern.class;
+    }
+
+    @Override
+    public String getMatchingValueDescriptor() {
+        return "()Ljava/lang/Enum;";
+    }
+
 
     @Override
     public void generateCompareCode(final MethodVisitor mv) {
@@ -52,8 +65,4 @@ public class EnumStrategy implements PatternCompilerStrategy {
         return true;
     }
 
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-
-    }
 }

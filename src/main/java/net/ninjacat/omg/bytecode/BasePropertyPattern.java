@@ -8,19 +8,13 @@ import net.ninjacat.omg.patterns.PropertyPattern;
  */
 public abstract class BasePropertyPattern<T> implements PropertyPattern<T> {
     private final Property property;
-    private final T matchingValue;
 
-    public BasePropertyPattern(final Property property, final T matchingValue) {
+    public BasePropertyPattern(final Property property) {
         this.property = property;
-        this.matchingValue = matchingValue;
     }
 
     public Property getProperty() {
         return property;
-    }
-
-    public T getMatchingValue() {
-        return matchingValue;
     }
 
     @Override

@@ -11,12 +11,14 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class StringRegexStrategy implements PatternCompilerStrategy {
 
+    private static final String METHOD_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Pattern.class));
+
     StringRegexStrategy() {
     }
 
     @Override
     public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
-        return BaseRegexPropertyPattern.class;
+        return RegexBasePropertyPattern.class;
     }
 
     @Override
@@ -29,6 +31,7 @@ public class StringRegexStrategy implements PatternCompilerStrategy {
                 Type.getInternalName(java.util.regex.Matcher.class),
                 "matches", "()Z", false);
     }
+
 
     @Override
     public int store() {
@@ -46,12 +49,7 @@ public class StringRegexStrategy implements PatternCompilerStrategy {
     }
 
     @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        // TODO: remove if unused after primitive types are implemented
-    }
-
-    @Override
     public String getMatchingValueDescriptor() {
-        return Type.getMethodDescriptor(Type.getType(Pattern.class));
+        return METHOD_DESCRIPTOR;
     }
 }

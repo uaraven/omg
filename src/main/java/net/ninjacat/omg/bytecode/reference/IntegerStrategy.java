@@ -3,6 +3,7 @@ package net.ninjacat.omg.bytecode.reference;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -21,6 +22,16 @@ public final class IntegerStrategy extends IntNumberReferenceTypeStrategy {
     }
 
     @Override
+    public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
+        return IntegerBasePropertyPattern.class;
+    }
+
+    @Override
+    public String getMatchingValueDescriptor() {
+        return "()Ljava/lang/Integer;";
+    }
+
+    @Override
     protected int getCompOpcode() {
         return comparisonOpcode;
     }
@@ -28,11 +39,6 @@ public final class IntegerStrategy extends IntNumberReferenceTypeStrategy {
     @Override
     protected void callCompareTo(final MethodVisitor mv) {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Integer.class), COMPARE, COMPARE_DESC, false);
-    }
-
-    @Override
-    public void convertMatchingType(final MethodVisitor match) {
-        match.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(Integer.class));
     }
 
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {

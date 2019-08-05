@@ -7,6 +7,9 @@ import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import org.junit.Test;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,24 +18,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
+@RunWith(Theories.class)
 public class ObjectPatternTest {
 
     @Test
-    public void testReflection() {
-        testAll(CompilerSelectionStrategy.SAFE);
-    }
-
-    @Test
-    public void testCompiled() {
-        testAll(CompilerSelectionStrategy.FAST);
-    }
-
-    private static void testAll(final CompilerSelectionStrategy strategy) {
-        testSimplePattern(strategy);
-        testComplexPattern(strategy);
-    }
-
-    private static void testSimplePattern(final CompilerSelectionStrategy strategy) {
+    @Theory
+    public void testSimplePattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").match(obj -> obj.property("aString").eq("found it"))
                 .build();
@@ -46,7 +37,9 @@ public class ObjectPatternTest {
         assertThat(match, is(true));
     }
 
-    private static void testComplexPattern(final CompilerSelectionStrategy strategy) {
+    @Test
+    @Theory
+    public void testComplexPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").match(obj ->
                         obj.or(orCond -> orCond
