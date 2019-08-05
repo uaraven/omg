@@ -1,8 +1,8 @@
 package net.ninjacat.omg;
 
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
-import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 import net.ninjacat.omg.reflect.ReflectPatternCompiler;
+import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
 import java.util.function.Function;
 

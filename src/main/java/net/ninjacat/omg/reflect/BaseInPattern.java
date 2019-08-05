@@ -29,8 +29,7 @@ public abstract class BaseInPattern<T, V> implements PropertyPattern<T> {
         if (propertyValue == null || matchingValue.isEmpty()) {
             return false;
         }
-        final boolean matching = matchingValue.stream().anyMatch(propertyValue::equals);
-        return matching;
+        return matchingValue.stream().anyMatch(propertyValue::equals);
     }
 
     private V getPropertyValue(final T instance) {

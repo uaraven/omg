@@ -3,11 +3,11 @@ package net.ninjacat.omg.reflect;
 import lombok.Value;
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
-import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
@@ -64,8 +64,9 @@ public class IntCompilerTest {
     }
 
 
-    @Theory
-    public void shouldMatchSimpleInPattern(final CompilerSelectionStrategy strategy) {
+    // TODO: Convert to Theory to test both reflection and compiled pattern
+    @Test
+    public void shouldMatchSimpleInPattern() {
         final PropertyCondition<List<Integer>> condition = new InCondition<>(
                 "intField",
                 io.vavr.collection.List.of(21, 42, 11).asJava());
@@ -78,18 +79,20 @@ public class IntCompilerTest {
         assertThat(pattern.matches(new IntTest(84)), is(false));
     }
 
+    @Theory
     @Test(expected = CompilerException.class)
-    public void shouldFailMatchPattern() {
+    public void shouldFailMatchPattern(final CompilerSelectionStrategy strategy) {
         final PropertyCondition<Integer> condition = createPropertyCondition(ConditionMethod.MATCH);
 
-        AsmPatternCompiler.forClass(IntTest.class).build(condition);
+        PatternCompiler.forClass(IntTest.class, strategy).build(condition);
     }
 
-    @Test(expected = CompilerException.class)
-    public void shouldFailRegexPattern() {
+    @Theory
+    @Test(expected = OmgException.class)
+    public void shouldFailRegexPattern(final CompilerSelectionStrategy strategy) {
         final PropertyCondition<Integer> condition = createPropertyCondition(ConditionMethod.REGEX);
 
-        AsmPatternCompiler.forClass(IntTest.class).build(condition);
+        PatternCompiler.forClass(IntTest.class, strategy).build(condition);
     }
 
     private static PropertyCondition<Integer> createPropertyCondition(final ConditionMethod method) {
