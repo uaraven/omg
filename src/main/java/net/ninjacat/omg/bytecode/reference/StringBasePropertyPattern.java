@@ -24,8 +24,7 @@ public abstract class StringBasePropertyPattern<T> extends BasePropertyPattern<T
     private String getMatchingValueConverted(final T mv) {
         if (mv == null) {
             return null;
-        }
-        if (mv instanceof String) {
+        } else if (mv instanceof String) {
             return (String) mv;
         } else {
             throw new TypeConversionException(mv.getClass(), mv, String.class);

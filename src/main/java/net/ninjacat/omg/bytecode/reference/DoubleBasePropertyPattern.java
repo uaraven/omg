@@ -24,8 +24,7 @@ public abstract class DoubleBasePropertyPattern<T> extends BasePropertyPattern<T
     private Double getMatchingValueConverted(final T mv) {
         if (mv == null) {
             return null;
-        }
-        if (mv instanceof Number) {
+        } else if (mv instanceof Number) {
             return ((Number) mv).doubleValue();
         } else
             throw new TypeConversionException(mv.getClass(), mv, Double.class);

@@ -24,8 +24,7 @@ public abstract class EnumBasePropertyPattern<T> extends BasePropertyPattern<T> 
     private Enum getMatchingValueConverted(final T mv) {
         if (mv == null) {
             return null;
-        }
-        if (mv instanceof Enum) {
+        } else if (mv instanceof Enum) {
             return (Enum) mv;
         } else {
             throw new TypeConversionException(mv.getClass(), mv, Enum.class);

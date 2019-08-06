@@ -24,8 +24,7 @@ public abstract class FloatBasePropertyPattern<T> extends BasePropertyPattern<T>
     private Float getMatchingValueConverted(final T mv) {
         if (mv == null) {
             return null;
-        }
-        if (mv instanceof Number) {
+        } else if (mv instanceof Number) {
             return ((Number) mv).floatValue();
         } else
             throw new TypeConversionException(mv.getClass(), mv, Float.class);

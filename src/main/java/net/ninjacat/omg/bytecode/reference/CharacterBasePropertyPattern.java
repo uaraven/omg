@@ -24,8 +24,7 @@ public abstract class CharacterBasePropertyPattern<T> extends BasePropertyPatter
     private Character getMatchingValueConverted(final T mv) {
         if (mv == null) {
             return null;
-        }
-        if (mv instanceof Character) {
+        } else if (mv instanceof Character) {
             return (Character) mv;
         }
         if (mv instanceof Number) {

@@ -78,6 +78,61 @@ public class TestTypeConversionError {
         Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
     }
 
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailBoxedIntTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("boxedIntField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailBoxedByteTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("boxedByteField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailTypeBoxedCharConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("boxedCharField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailBoxedDoubleTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("boxedDoubleField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailBoxedLongTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("boxedLongField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailBoxedShortTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("boxedShortField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailBoxedFloatTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("boxedFloatField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
     @Value
     public static class FieldTest {
         int intField;
@@ -88,6 +143,13 @@ public class TestTypeConversionError {
         double doubleField;
         float floatField;
         String stringField;
+        Integer boxedIntField;
+        Long boxedLongField;
+        Short boxedShortField;
+        Byte boxedByteField;
+        Character boxedCharField;
+        Double boxedDoubleField;
+        Float boxedFloatField;
     }
 
 }

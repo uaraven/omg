@@ -24,8 +24,7 @@ public abstract class LongBasePropertyPattern<T> extends BasePropertyPattern<T> 
     private Long getMatchingValueConverted(final T mv) {
         if (mv == null) {
             return null;
-        }
-        if (mv instanceof Number) {
+        } else if (mv instanceof Number) {
             return ((Number) mv).longValue();
         } else {
             throw new TypeConversionException(mv.getClass(), mv, Long.class);

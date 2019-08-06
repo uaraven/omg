@@ -22,7 +22,9 @@ public abstract class IntegerBasePropertyPattern<T> extends BasePropertyPattern<
     }
 
     private Integer getMatchingValueConverted(final T mv) {
-        if (mv instanceof Number) {
+        if (mv == null) {
+            return null;
+        } else if (mv instanceof Number) {
             return ((Number) mv).intValue();
         } else {
             throw new TypeConversionException(mv.getClass(), mv, Integer.class);

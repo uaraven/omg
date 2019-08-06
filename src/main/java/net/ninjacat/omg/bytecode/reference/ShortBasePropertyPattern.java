@@ -24,8 +24,7 @@ public abstract class ShortBasePropertyPattern<T> extends BasePropertyPattern<T>
     private Short getMatchingValueConverted(final T mv) {
         if (mv == null) {
             return null;
-        }
-        if (mv instanceof Number) {
+        } else if (mv instanceof Number) {
             return ((Number) mv).shortValue();
         } else {
             throw new TypeConversionException(mv.getClass(), mv, Short.class);
