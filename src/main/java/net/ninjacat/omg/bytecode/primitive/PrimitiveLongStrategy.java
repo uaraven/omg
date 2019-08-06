@@ -32,6 +32,8 @@ public final class PrimitiveLongStrategy extends PrimitiveTypeStrategy {
                 return new PrimitiveLongStrategy(Opcodes.IFLT);
             case GT:
                 return new PrimitiveLongStrategy(Opcodes.IFGT);
+            case IN:
+                return new PrimitiveLongInStrategy();
             default:
                 throw new CompilerException("Unsupported condition '%s' for int type", method);
         }

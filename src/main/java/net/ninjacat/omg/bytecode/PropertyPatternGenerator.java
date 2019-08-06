@@ -169,8 +169,8 @@ class PropertyPatternGenerator<T> {
         compGen.beforeCompare(match);
 
         match.visitVarInsn(compGen.load(), localProperty);
-
         match.visitVarInsn(compGen.matchingLoad(), localMatching);
+
         compGen.generateCompareCode(match);
 
         match.visitLabel(localMatchingEnd);

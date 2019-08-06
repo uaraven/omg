@@ -11,7 +11,7 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 public abstract class PrimitiveInStrategy implements PatternCompilerStrategy {
-    private static final String IS_IN_LIST_DESC = Type.getMethodDescriptor(
+    protected static final String IS_IN_LIST_DESC = Type.getMethodDescriptor(
             Type.getType(boolean.class),
             Type.getType(List.class),
             Type.getType(Object.class));
