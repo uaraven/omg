@@ -54,7 +54,7 @@ public class ConditionParserTest {
                 .property("testProp").eq(50)
                 .property("nested").match(nested -> nested
                         .property("nestedStr").eq("123")
-                        .property("nestedDbl").gt(12.3)
+                        .property("nestedDbl").lt(12.3)
                         .build()
                 )
                 .build();
