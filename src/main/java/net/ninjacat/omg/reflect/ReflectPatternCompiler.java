@@ -1,4 +1,4 @@
-package net.ninjacat.omg.reflection;
+package net.ninjacat.omg.reflect;
 
 import io.vavr.control.Try;
 import net.jcip.annotations.Immutable;
@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.*;
-import static net.ninjacat.omg.reflection.TypeUtils.convertToBasicType;
+import static net.ninjacat.omg.reflect.TypeUtils.convertToBasicType;
 
 @SuppressWarnings("FeatureEnvy")
 @Immutable

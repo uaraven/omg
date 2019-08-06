@@ -1,4 +1,4 @@
-package net.ninjacat.omg.reflection;
+package net.ninjacat.omg.reflect;
 
 import net.ninjacat.omg.patterns.PropertyPattern;
 

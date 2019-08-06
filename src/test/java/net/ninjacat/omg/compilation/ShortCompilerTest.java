@@ -8,7 +8,7 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
-import net.ninjacat.omg.reflection.ReflectPatternCompiler;
+import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;

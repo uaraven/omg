@@ -1,21 +1,21 @@
-package net.ninjacat.omg.reflection;
+package net.ninjacat.omg.reflect;
 
 import net.jcip.annotations.Immutable;
 
 @Immutable
-public class LongLtPattern<T> extends BaseLongPattern<T> {
+public class LongGtPattern<T> extends BaseLongPattern<T> {
 
-    LongLtPattern(final Property property, final long matchingValue) {
+    LongGtPattern(final Property property, final long matchingValue) {
         super(property, matchingValue);
     }
 
     @Override
     protected boolean compare(final long propertyValue) {
-        return propertyValue < getMatchingValue();
+        return propertyValue > getMatchingValue();
     }
 
     @Override
     protected String getComparatorAsString() {
-        return "<";
+        return ">";
     }
 }

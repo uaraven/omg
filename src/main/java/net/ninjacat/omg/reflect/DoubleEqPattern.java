@@ -1,16 +1,16 @@
-package net.ninjacat.omg.reflection;
+package net.ninjacat.omg.reflect;
 
 import net.jcip.annotations.Immutable;
 
 @Immutable
-public class LongEqPattern<T> extends BaseLongPattern<T> {
+public class DoubleEqPattern<T> extends BaseDoublePattern<T> {
 
-    LongEqPattern(final Property property, final long matchingValue) {
+    DoubleEqPattern(final Property property, final double matchingValue) {
         super(property, matchingValue);
     }
 
     @Override
-    protected boolean compare(final long propertyValue) {
+    protected boolean compare(final double propertyValue) {
         return propertyValue == getMatchingValue();
     }
 

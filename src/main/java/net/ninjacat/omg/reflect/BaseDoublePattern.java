@@ -1,4 +1,4 @@
-package net.ninjacat.omg.reflection;
+package net.ninjacat.omg.reflect;
 
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.MatcherException;
@@ -6,23 +6,23 @@ import net.ninjacat.omg.patterns.PropertyPattern;
 
 import java.lang.invoke.MethodHandle;
 
-public abstract class BaseEnumPattern<T> implements PropertyPattern<T> {
+public abstract class BaseDoublePattern<T> implements PropertyPattern<T> {
     private final Property property;
-    private final Enum matchingValue;
+    private final double matchingValue;
 
-    BaseEnumPattern(final Property property, final Enum matchingValue) {
+    BaseDoublePattern(final Property property, final double matchingValue) {
         this.property = property;
         this.matchingValue = matchingValue;
     }
 
-    public Enum getMatchingValue() {
+    public double getMatchingValue() {
         return matchingValue;
     }
 
     @Override
     public boolean matches(final T instance) {
-        final Enum propValue = getEnumValue(instance);
-        return compare(propValue, matchingValue);
+        final double propValue = getDoubleValue(instance);
+        return compare(propValue);
     }
 
     @Override
@@ -30,14 +30,14 @@ public abstract class BaseEnumPattern<T> implements PropertyPattern<T> {
         return String.format("'%s' %s '%s'", property.toString(), getComparatorAsString(), matchingValue);
     }
 
-    private Enum getEnumValue(final T instance) {
+    private double getDoubleValue(final T instance) {
         final MethodHandle getter = property.getGetterMethod();
         return Try.of(() -> getter.invoke(instance))
-                .map(it -> (Enum)it)
-                .getOrElseThrow(err -> new MatcherException(err, "Failed to match property '%s' in '%s'", property, instance));
+                .map(it -> (Double) TypeUtils.convertToBasicType(it))
+                .getOrElseThrow(err -> new MatcherException(err, "Failed to match property %s in %s", property, instance));
     }
 
-    protected abstract boolean compare(Enum propertyValue, Enum matchingValue);
+    protected abstract boolean compare(double propertyValue);
 
     protected abstract String getComparatorAsString();
 
