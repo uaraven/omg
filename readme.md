@@ -81,4 +81,4 @@ JSON pattern for previous example:
 
 ### Build status
 
-[![Build Status](https://travis-ci.org/uaraven/omg.svg?branch=master)](https://travis-ci.org/uaraven/omg) [![Coverage Status](https://coveralls.io/repos/github/uaraven/omg/badge.svg?branch=feature/json-parsing)](https://coveralls.io/github/uaraven/omg?branch=feature/json-parsing)
+[![Build Status](https://travis-ci.org/uaraven/omg.svg?branch=master)](https://travis-ci.org/uaraven/omg) [![Coverage Status](https://coveralls.io/repos/github/uaraven/omg/badge.svg?branch=master)](https://coveralls.io/github/uaraven/omg?branch=master)
