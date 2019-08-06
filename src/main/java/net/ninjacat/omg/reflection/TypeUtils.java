@@ -1,4 +1,4 @@
-package net.ninjacat.omg.compilation;
+package net.ninjacat.omg.reflection;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;

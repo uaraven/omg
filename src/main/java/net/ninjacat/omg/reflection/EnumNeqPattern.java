@@ -1,4 +1,4 @@
-package net.ninjacat.omg.compilation;
+package net.ninjacat.omg.reflection;
 
 public class EnumNeqPattern<T> extends BaseEnumPattern<T> {
     EnumNeqPattern(final Property property, final Enum matchingValue) {

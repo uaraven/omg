@@ -1,4 +1,4 @@
-package net.ninjacat.omg.compilation;
+package net.ninjacat.omg.reflection;
 
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.MatcherException;
@@ -6,22 +6,22 @@ import net.ninjacat.omg.patterns.PropertyPattern;
 
 import java.lang.invoke.MethodHandle;
 
-public abstract class BaseLongPattern<T> implements PropertyPattern<T> {
+public abstract class BaseDoublePattern<T> implements PropertyPattern<T> {
     private final Property property;
-    private final long matchingValue;
+    private final double matchingValue;
 
-    BaseLongPattern(final Property property, final long matchingValue) {
+    BaseDoublePattern(final Property property, final double matchingValue) {
         this.property = property;
         this.matchingValue = matchingValue;
     }
 
-    public long getMatchingValue() {
+    public double getMatchingValue() {
         return matchingValue;
     }
 
     @Override
     public boolean matches(final T instance) {
-        final long propValue = getLongValue(instance);
+        final double propValue = getDoubleValue(instance);
         return compare(propValue);
     }
 
@@ -30,14 +30,14 @@ public abstract class BaseLongPattern<T> implements PropertyPattern<T> {
         return String.format("'%s' %s '%s'", property.toString(), getComparatorAsString(), matchingValue);
     }
 
-    private long getLongValue(final T instance) {
+    private double getDoubleValue(final T instance) {
         final MethodHandle getter = property.getGetterMethod();
         return Try.of(() -> getter.invoke(instance))
-                .map(it -> (Long) TypeUtils.convertToBasicType(it))
+                .map(it -> (Double) TypeUtils.convertToBasicType(it))
                 .getOrElseThrow(err -> new MatcherException(err, "Failed to match property %s in %s", property, instance));
     }
 
-    protected abstract boolean compare(long propertyValue);
+    protected abstract boolean compare(double propertyValue);
 
     protected abstract String getComparatorAsString();
 

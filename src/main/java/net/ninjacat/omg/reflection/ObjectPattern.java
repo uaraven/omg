@@ -1,4 +1,4 @@
-package net.ninjacat.omg.compilation;
+package net.ninjacat.omg.reflection;
 
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.MatcherException;

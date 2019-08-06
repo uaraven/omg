@@ -1,4 +1,4 @@
-package net.ninjacat.omg.compilation;
+package net.ninjacat.omg.reflection;
 
 import io.vavr.control.Try;
 import net.jcip.annotations.Immutable;
@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.*;
-import static net.ninjacat.omg.compilation.TypeUtils.convertToBasicType;
+import static net.ninjacat.omg.reflection.TypeUtils.convertToBasicType;
 
 @SuppressWarnings("FeatureEnvy")
 @Immutable
@@ -33,14 +33,15 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
 
     @Override
     public <P> PropertyPattern<T> build(final PropertyCondition<P> condition) {
+        //noinspection CastToConcreteClass
         return Match(condition.getMethod()).of(
                 Case($(is(ConditionMethod.EQ)), m -> buildEqPattern(condition)),
                 Case($(is(ConditionMethod.NEQ)), m -> buildNeqPattern(condition)),
-                Case($(is(ConditionMethod.GT)),m -> buildGtPattern(condition)),
-                Case($(is(ConditionMethod.LT)),m -> buildLtPattern(condition)),
+                Case($(is(ConditionMethod.GT)), m -> buildGtPattern(condition)),
+                Case($(is(ConditionMethod.LT)), m -> buildLtPattern(condition)),
                 Case($(is(ConditionMethod.IN)), m -> buildInPattern(condition)),
-                Case($(is(ConditionMethod.REGEX)),m -> buildRegexPattern(condition)),
-                Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition)condition)),
+                Case($(is(ConditionMethod.REGEX)), m -> buildRegexPattern(condition)),
+                Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition) condition)),
                 Case($(), () -> {
                     throw new CompilerException("Cannot build pattern for '%s'", condition);
                 })
@@ -49,7 +50,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
 
     @SuppressWarnings("unchecked")
     private <P> BaseInPattern<T, ?> buildInPattern(final PropertyCondition<P> propCondition) {
-        final InCondition<P> condition = (InCondition<P>) propCondition;
+        @SuppressWarnings("CastToConcreteClass") final InCondition<P> condition = (InCondition<P>) propCondition;
         final Property<T> property = createProperty(condition.getProperty());
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), l -> new LongInPattern<>(property, (List<Long>) condition.getValue())),
