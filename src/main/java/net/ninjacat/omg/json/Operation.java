@@ -13,6 +13,7 @@ public enum Operation {
     NEQ("neq", new NeqProducer()),
     GT("gt", new GtProducer()),
     LT("lt", new LtProducer()),
+    IN("in", new InProducer()),
     REGEX("regex", new RegexProducer()),
     MATCH("match", new MatchProducer());
 
