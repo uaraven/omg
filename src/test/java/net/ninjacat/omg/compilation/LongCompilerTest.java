@@ -32,9 +32,9 @@ public class LongCompilerTest {
         assertThat(pattern.matches(new LongTest(24)), is(false));
     }
 
-    @Test
-    public void shouldMatchSimpleNeqPattern() {
-        final PropertyCondition<Long> condition = createPropertyCondition(ConditionMethod.NEQ, 42);
+    @Theory
+    public void shouldMatchSimpleNeqPattern(final CompilerSelectionStrategy strategy) {
+        final PropertyCondition<Long> condition = createPropertyCondition(ConditionMethod.NEQ);
 
         final PropertyPattern<LongTest> pattern = PatternCompiler.forClass(LongTest.class, strategy).build(condition);
 
