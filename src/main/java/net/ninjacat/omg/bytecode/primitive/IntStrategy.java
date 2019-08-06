@@ -41,6 +41,7 @@ public final class IntStrategy extends PrimitiveTypeStrategy {
                 Case($(is(ConditionMethod.NEQ)), i -> new IntStrategy(Opcodes.IF_ICMPNE, Type.getDescriptor(propertyType), baseClass)),
                 Case($(is(ConditionMethod.LT)), i -> new IntStrategy(Opcodes.IF_ICMPLT, Type.getDescriptor(propertyType), baseClass)),
                 Case($(is(ConditionMethod.GT)), i -> new IntStrategy(Opcodes.IF_ICMPGT, Type.getDescriptor(propertyType), baseClass)),
+                Case($(is(ConditionMethod.IN)), i -> new PrimitiveIntInStrategy()),
                 Case($(), () -> {
                     throw new CompilerException("Unsupported condition '%s' for '%s' type", method, propertyType.getName());
                 })

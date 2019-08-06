@@ -54,7 +54,6 @@ public class StringCompilerTest {
         assertThat(pattern.matches(new StringTest("wilma")), is(false));
     }
 
-
     @Test(expected = CompilerException.class)
     public void shouldFailOnGtPattern() {
         final PropertyCondition<String> condition = createPropertyCondition(ConditionMethod.GT, "gt");

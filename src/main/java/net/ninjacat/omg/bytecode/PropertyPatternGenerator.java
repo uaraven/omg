@@ -130,7 +130,7 @@ class PropertyPatternGenerator<T> {
                 Type.getInternalName(compGen.getParentPropertyPatternClass()),
                 "getMatchingValue", compGen.getMatchingValueDescriptor(), false);
         match.visitLabel(localMatchingStart);
-        match.visitVarInsn(compGen.store(), localMatching);
+        match.visitVarInsn(compGen.matchingStore(), localMatching);
 
         // get property from instance
         match.visitVarInsn(ALOAD, 1); // instance parameter
@@ -144,7 +144,7 @@ class PropertyPatternGenerator<T> {
             match.visitJumpInsn(IFNONNULL, propNotNull);
 
             // property == null, now if matching value == null return true
-            match.visitVarInsn(compGen.load(), localMatching);
+            match.visitVarInsn(compGen.matchingLoad(), localMatching);
             match.visitJumpInsn(IFNONNULL, matchingNotNull);
 
             match.visitInsn(ICONST_1);
@@ -158,7 +158,7 @@ class PropertyPatternGenerator<T> {
         }
         // at this point if matching value is null, return false
         if (compGen.isReference()) {
-            match.visitVarInsn(compGen.load(), localMatching);
+            match.visitVarInsn(compGen.matchingLoad(), localMatching);
             match.visitJumpInsn(IFNONNULL, matchingNotNull2);
             // if it is null, return false
             match.visitInsn(ICONST_0);
@@ -170,7 +170,7 @@ class PropertyPatternGenerator<T> {
 
         match.visitVarInsn(compGen.load(), localProperty);
 
-        match.visitVarInsn(compGen.load(), localMatching);
+        match.visitVarInsn(compGen.matchingLoad(), localMatching);
         compGen.generateCompareCode(match);
 
         match.visitLabel(localMatchingEnd);

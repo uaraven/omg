@@ -1,4 +1,4 @@
-package net.ninjacat.omg.compilation;
+package net.ninjacat.omg.reflect;
 
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
@@ -7,62 +7,56 @@ import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
-import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Theories.class)
 public class ByteCompilerTest {
 
-    @Theory
-    public void shouldMatchSimpleEqPattern(final CompilerSelectionStrategy strategy) {
+    @Test
+    public void shouldMatchSimpleEqPattern() {
         final PropertyCondition<Byte> condition = createPropertyCondition(ConditionMethod.EQ);
 
-        final PropertyPattern<ByteTest> pattern = buildPattern(condition, strategy);
+        final PropertyPattern<ByteTest> pattern = buildPattern(condition);
 
         assertThat(pattern.matches(new ByteTest((byte) 42)), is(true));
         assertThat(pattern.matches(new ByteTest((byte) 24)), is(false));
     }
 
-    @Theory
-    public void shouldMatchSimpleNeqPattern(final CompilerSelectionStrategy strategy) {
+    @Test
+    public void shouldMatchSimpleNeqPattern() {
         final PropertyCondition<Byte> condition = createPropertyCondition(ConditionMethod.NEQ);
 
-        final PropertyPattern<ByteTest> pattern = buildPattern(condition, strategy);
+        final PropertyPattern<ByteTest> pattern = buildPattern(condition);
 
         assertThat(pattern.matches(new ByteTest((byte) 42)), is(false));
         assertThat(pattern.matches(new ByteTest((byte) 24)), is(true));
     }
 
 
-    @Theory
-    public void shouldMatchSimpleGtPattern(final CompilerSelectionStrategy strategy) {
+    @Test
+    public void shouldMatchSimpleGtPattern() {
         final PropertyCondition<Byte> condition = createPropertyCondition(ConditionMethod.GT);
 
-        final PropertyPattern<ByteTest> pattern = buildPattern(condition, strategy);
+        final PropertyPattern<ByteTest> pattern = buildPattern(condition);
 
         assertThat(pattern.matches(new ByteTest((byte) 42)), is(false));
         assertThat(pattern.matches(new ByteTest((byte) 84)), is(true));
     }
 
-    @Theory
-    public void shouldMatchSimpleLtPattern(final CompilerSelectionStrategy strategy) {
+    @Test
+    public void shouldMatchSimpleLtPattern() {
         final PropertyCondition<Byte> condition = createPropertyCondition(ConditionMethod.LT);
 
-        final PropertyPattern<ByteTest> pattern = buildPattern(condition, strategy);
+        final PropertyPattern<ByteTest> pattern = buildPattern(condition);
 
         assertThat(pattern.matches(new ByteTest((byte) 42)), is(false));
         assertThat(pattern.matches(new ByteTest((byte) 21)), is(true));
     }
 
-    // TODO: Convert to Theory to test both reflection and compiled pattern
     @Test
     public void shouldMatchSimpleInPattern() {
         final PropertyCondition<List<Byte>> condition = new InCondition<>(
@@ -77,20 +71,18 @@ public class ByteCompilerTest {
         assertThat(pattern.matches(new ByteTest((byte) 84)), is(false));
     }
 
-    @Theory
     @Test(expected = OmgException.class)
-    public void shouldFailMatchPattern(final CompilerSelectionStrategy strategy) {
+    public void shouldFailMatchPattern() {
         final PropertyCondition<Byte> condition = createPropertyCondition(ConditionMethod.MATCH);
 
-        buildPattern(condition, strategy);
+        buildPattern(condition);
     }
 
-    @Theory
     @Test(expected = OmgException.class)
-    public void shouldFailRegexPattern(final CompilerSelectionStrategy strategy) {
+    public void shouldFailRegexPattern() {
         final PropertyCondition<Byte> condition = createPropertyCondition(ConditionMethod.REGEX);
 
-        buildPattern(condition, strategy);
+        buildPattern(condition);
     }
 
     private static PropertyCondition<Byte> createPropertyCondition(final ConditionMethod method) {
@@ -118,8 +110,8 @@ public class ByteCompilerTest {
         };
     }
 
-    private static PropertyPattern<ByteTest> buildPattern(final PropertyCondition<Byte> condition, final CompilerSelectionStrategy strategy) {
-        return PatternCompiler.forClass(ByteTest.class, strategy).build(condition);
+    private static PropertyPattern<ByteTest> buildPattern(final PropertyCondition<Byte> condition) {
+        return PatternCompiler.forClass(ByteTest.class, CompilerSelectionStrategy.SAFE).build(condition);
     }
 
     public static class ByteTest {

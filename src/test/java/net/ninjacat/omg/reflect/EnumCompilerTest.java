@@ -1,57 +1,49 @@
-package net.ninjacat.omg.compilation;
+package net.ninjacat.omg.reflect;
 
-import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
-import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 import org.junit.Test;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
 
 import java.util.List;
 
+import static net.ninjacat.omg.CompilerSelectionStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Theories.class)
 public class EnumCompilerTest {
 
-    @Theory
-    public void shouldMatchSimpleEqPattern(final CompilerSelectionStrategy strategy) {
+    @Test
+    public void shouldMatchSimpleEqPattern() {
         final PropertyCondition<EnumValues> condition = createPropertyCondition(ConditionMethod.EQ);
 
-        final PropertyPattern<EnumTest> pattern = PatternCompiler.forClass(EnumTest.class, strategy).build(condition);
+        final PropertyPattern<EnumTest> pattern = PatternCompiler.forClass(EnumTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new EnumTest(EnumValues.E1)), is(true));
         assertThat(pattern.matches(new EnumTest(EnumValues.E2)), is(false));
     }
 
-    @Theory
-    public void shouldMatchSimpleNeqPattern(final CompilerSelectionStrategy strategy) {
+    @Test
+    public void shouldMatchSimpleNeqPattern() {
         final PropertyCondition<EnumValues> condition = createPropertyCondition(ConditionMethod.NEQ);
 
-        final PropertyPattern<EnumTest> pattern = PatternCompiler.forClass(EnumTest.class, strategy).build(condition);
+        final PropertyPattern<EnumTest> pattern = PatternCompiler.forClass(EnumTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new EnumTest(EnumValues.E1)), is(false));
         assertThat(pattern.matches(new EnumTest(EnumValues.E2)), is(true));
     }
 
 
-    @Theory
     @Test(expected = OmgException.class)
-    public void shouldMatchSimpleGtPattern(final CompilerSelectionStrategy strategy) {
+    public void shouldMatchSimpleGtPattern() {
         final PropertyCondition<EnumValues> condition = createPropertyCondition(ConditionMethod.GT);
 
-        PatternCompiler.forClass(EnumTest.class, strategy).build(condition);
+        PatternCompiler.forClass(EnumTest.class, SAFE).build(condition);
     }
 
-
-    // TODO: Convert to Theory to test both reflection and compiled pattern
     @Test
     public void shouldMatchSimpleInPattern() {
         final PropertyCondition<List<EnumValues>> condition = new InCondition<>(
@@ -59,27 +51,25 @@ public class EnumCompilerTest {
                 io.vavr.collection.List.of(EnumValues.E1, EnumValues.E2, EnumValues.E4).asJava());
 
 
-        final PropertyPattern<EnumTest> pattern = ReflectPatternCompiler.forClass(EnumTest.class).build(condition);
+        final PropertyPattern<EnumTest> pattern = PatternCompiler.forClass(EnumTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new EnumTest(EnumValues.E1)), is(true));
         assertThat(pattern.matches(new EnumTest(EnumValues.E2)), is(true));
         assertThat(pattern.matches(new EnumTest(EnumValues.E3)), is(false));
     }
 
-    @Theory
     @Test(expected = OmgException.class)
-    public void shouldFailRegexPattern(final CompilerSelectionStrategy strategy) {
+    public void shouldFailRegexPattern() {
         final PropertyCondition<EnumValues> condition = createPropertyCondition(ConditionMethod.REGEX);
 
-        PatternCompiler.forClass(EnumTest.class, strategy).build(condition);
+        PatternCompiler.forClass(EnumTest.class, SAFE).build(condition);
     }
 
-    @Theory
     @Test(expected = OmgException.class)
-    public void shouldFailMatchPattern(final CompilerSelectionStrategy strategy) {
+    public void shouldFailMatchPattern() {
         final PropertyCondition<EnumValues> condition = createPropertyCondition(ConditionMethod.MATCH);
 
-        PatternCompiler.forClass(EnumTest.class, strategy).build(condition);
+        PatternCompiler.forClass(EnumTest.class, SAFE).build(condition);
     }
 
     private static PropertyCondition<EnumValues> createPropertyCondition(final ConditionMethod method) {
