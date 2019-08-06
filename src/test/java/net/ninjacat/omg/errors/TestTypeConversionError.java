@@ -1,0 +1,93 @@
+package net.ninjacat.omg.errors;
+
+import lombok.Value;
+import net.ninjacat.omg.CompilerSelectionStrategy;
+import net.ninjacat.omg.PatternCompiler;
+import net.ninjacat.omg.conditions.Condition;
+import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.patterns.Patterns;
+import org.junit.Test;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
+
+@RunWith(Theories.class)
+public class TestTypeConversionError {
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailIntTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("intField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailByteTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("byteField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailTypeCharConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("charField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailDoubleTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("doubleField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailFloatTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("floatField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailLongTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("longField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailShortTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("shortField").eq("1").build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Theory
+    @Test(expected = TypeConversionException.class)
+    public void shouldFailStringTypeConversion(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher().property("stringField").eq(1).build();
+
+        Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
+    }
+
+    @Value
+    public static class FieldTest {
+        int intField;
+        long longField;
+        short shortField;
+        byte byteField;
+        char charField;
+        double doubleField;
+        float floatField;
+        String stringField;
+    }
+
+}

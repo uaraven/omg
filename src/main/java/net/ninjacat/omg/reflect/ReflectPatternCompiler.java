@@ -1,14 +1,15 @@
 package net.ninjacat.omg.reflect;
 
+import io.vavr.control.Try;
 import net.jcip.annotations.Immutable;
-import net.ninjacat.omg.conditions.*;
-import net.ninjacat.omg.errors.CompilerException;
-import net.ninjacat.omg.errors.MatcherException;
+import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.ObjectCondition;
+import net.ninjacat.omg.conditions.PropertyCondition;
+import net.ninjacat.omg.errors.*;
 import net.ninjacat.omg.patterns.Patterns;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import static io.vavr.API.*;
@@ -33,27 +34,38 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Match(condition.getMethod()).of(
                 Case($(is(ConditionMethod.EQ)), m -> buildEqPattern(condition)),
                 Case($(is(ConditionMethod.NEQ)), m -> buildNeqPattern(condition)),
-                Case($(is(ConditionMethod.GT)),m -> buildGtPattern(condition)),
-                Case($(is(ConditionMethod.LT)),m -> buildLtPattern(condition)),
-                Case($(is(ConditionMethod.REGEX)),m -> buildRegexPattern(condition)),
-                Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition)condition)),
+                Case($(is(ConditionMethod.GT)), m -> buildGtPattern(condition)),
+                Case($(is(ConditionMethod.LT)), m -> buildLtPattern(condition)),
+                Case($(is(ConditionMethod.REGEX)), m -> buildRegexPattern(condition)),
+                Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition) condition)),
                 Case($(), () -> {
                     throw new CompilerException("Cannot build pattern for '%s'", condition);
                 })
         );
     }
 
-    private <P> Predicate<ConditionMethod> isValidCondition(final PropertyCondition<P> condition) {
+    private static <P> Predicate<ConditionMethod> isValidCondition(final PropertyCondition<P> condition) {
         return c -> condition instanceof ObjectCondition;
     }
 
     private <P> PropertyPattern<T> buildEqPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
+        return Try.of(() -> getPattern(condition, property)).getOrElseThrow(
+                err -> Match(err).of(
+                        Case($(instanceOf(ClassCastException.class)),
+                                (ex) -> new TypeConversionException(ex, condition.getValue(), property.getType())),
+                        Case($(instanceOf(OmgException.class)), ex -> ex),
+                        Case($(), (ex) -> new PatternException("Error while building pattern for condition '%s'", condition))
+                )
+        );
+    }
+
+    private <P> PropertyPattern<T> getPattern(final PropertyCondition<P> condition, final Property<T> property) {
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), doubleProp -> new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
-                Case($(is(String.class)), strProp -> new StringEqPattern<>(property, toStringOrNull(condition.getValue()))),
-                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumEqPattern<>(property, toStringOrNull(condition.getValue())))
+                Case($(is(String.class)), strProp -> new StringEqPattern<>(property, forceToString(condition.getValue()))),
+                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumEqPattern<>(property, (Enum) condition.getValue()))
         );
     }
 
@@ -62,8 +74,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Match(property.getWidenedType()).of(
                 Case($(is(Long.class)), longProp -> new LongNeqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), doubleProp -> new DoubleNeqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
-                Case($(is(String.class)), strProp -> new StringNeqPattern<>(property, toStringOrNull(condition.getValue()))),
-                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumNeqPattern<>(property, toStringOrNull(condition.getValue())))
+                Case($(is(String.class)), strProp -> new StringNeqPattern<>(property, forceToString(condition.getValue()))),
+                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumNeqPattern<>(property, (Enum) condition.getValue()))
         );
     }
 
@@ -92,7 +104,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
     private <P> PropertyPattern<T> buildRegexPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
         return Match(property.getWidenedType()).of(
-                Case($(is(String.class)), strProp -> new StringRegexPattern<>(property, toStringOrNull(condition.getValue()))),
+                Case($(is(String.class)), strProp -> new StringRegexPattern<>(property, forceToString(condition.getValue()))),
                 Case($(), () -> {
                     throw new MatcherException("Regex expressions are only supported for 'String' properties. Got property: %s", property);
                 })
@@ -115,8 +127,10 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Property.fromPropertyName(field, cls);
     }
 
-    private static String toStringOrNull(final Object value) {
-        return Optional.ofNullable(value).map(Object::toString).orElse(null);
+    private static String forceToString(final Object value) {
+        return Try
+                .of(() -> (String) value)
+                .getOrElseThrow((err) -> new TypeConversionException(err, value, String.class));
     }
 
     private static boolean isEnum(final Class cls) {

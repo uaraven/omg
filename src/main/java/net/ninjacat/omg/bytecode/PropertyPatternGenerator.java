@@ -3,6 +3,7 @@ package net.ninjacat.omg.bytecode;
 import io.vavr.control.Try;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.*;
@@ -12,6 +13,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.regex.Pattern;
 
+import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -58,7 +61,14 @@ class PropertyPatternGenerator<T> {
                     ? ClassUtils.primitiveToWrapper(property.getType())
                     : property.getType();
             return instantiatePattern(patternClass);
-        }).getOrElseThrow((ex) -> new CompilerException(ex, "Failed to generate accessor for '%s'", property));
+        }).getOrElseThrow(this::wrapException);
+    }
+
+    private RuntimeException wrapException(final Throwable ex) {
+        return Match(ex).of(
+                Case($(instanceOf(OmgException.class)), err -> err),
+                Case($(), err -> new CompilerException(err, "Failed to generate accessor for '%s'", property))
+        );
     }
 
     @SuppressWarnings("unchecked")

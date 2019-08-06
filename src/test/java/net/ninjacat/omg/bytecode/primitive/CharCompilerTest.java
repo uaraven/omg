@@ -16,20 +16,20 @@ public class CharCompilerTest {
     public void shouldMatchSimpleEqPattern() {
         final PropertyCondition<Character> condition = createPropertyCondition(ConditionMethod.EQ);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<CharTest> pattern = AsmPatternCompiler.forClass(CharTest.class).build(condition);
 
-        assertThat(pattern.matches(new ShortTest((char) 42)), is(true));
-        assertThat(pattern.matches(new ShortTest((char) 24)), is(false));
+        assertThat(pattern.matches(new CharTest((char) 42)), is(true));
+        assertThat(pattern.matches(new CharTest((char) 24)), is(false));
     }
 
     @Test
     public void shouldMatchSimpleNeqPattern() {
         final PropertyCondition<Character> condition = createPropertyCondition(ConditionMethod.NEQ);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<CharTest> pattern = AsmPatternCompiler.forClass(CharTest.class).build(condition);
 
-        assertThat(pattern.matches(new ShortTest((char) 42)), is(false));
-        assertThat(pattern.matches(new ShortTest((char) 24)), is(true));
+        assertThat(pattern.matches(new CharTest((char) 42)), is(false));
+        assertThat(pattern.matches(new CharTest((char) 24)), is(true));
     }
 
 
@@ -37,34 +37,34 @@ public class CharCompilerTest {
     public void shouldMatchSimpleGtPattern() {
         final PropertyCondition<Character> condition = createPropertyCondition(ConditionMethod.GT);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<CharTest> pattern = AsmPatternCompiler.forClass(CharTest.class).build(condition);
 
-        assertThat(pattern.matches(new ShortTest((char) 42)), is(false));
-        assertThat(pattern.matches(new ShortTest((char) 84)), is(true));
+        assertThat(pattern.matches(new CharTest((char) 42)), is(false));
+        assertThat(pattern.matches(new CharTest((char) 84)), is(true));
     }
 
     @Test
     public void shouldMatchSimpleLtPattern() {
         final PropertyCondition<Character> condition = createPropertyCondition(ConditionMethod.LT);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<CharTest> pattern = AsmPatternCompiler.forClass(CharTest.class).build(condition);
 
-        assertThat(pattern.matches(new ShortTest((char) 42)), is(false));
-        assertThat(pattern.matches(new ShortTest((char) 21)), is(true));
+        assertThat(pattern.matches(new CharTest((char) 42)), is(false));
+        assertThat(pattern.matches(new CharTest((char) 21)), is(true));
     }
 
     @Test(expected = CompilerException.class)
     public void shouldFailMatchPattern() {
         final PropertyCondition<Character> condition = createPropertyCondition(ConditionMethod.MATCH);
 
-        AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        AsmPatternCompiler.forClass(CharTest.class).build(condition);
     }
 
     @Test(expected = CompilerException.class)
     public void shouldFailRegexPattern() {
         final PropertyCondition<Character> condition = createPropertyCondition(ConditionMethod.REGEX);
 
-        AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        AsmPatternCompiler.forClass(CharTest.class).build(condition);
     }
 
     private static PropertyCondition<Character> createPropertyCondition(final ConditionMethod method) {
@@ -92,10 +92,10 @@ public class CharCompilerTest {
         };
     }
 
-    public static class ShortTest {
+    public static class CharTest {
         private final char charField;
 
-        ShortTest(final char charField) {
+        CharTest(final char charField) {
             this.charField = charField;
         }
 

@@ -1,6 +1,6 @@
 package net.ninjacat.omg.errors;
 
-public class JsonParsingException extends RuntimeException {
+public class JsonParsingException extends OmgException {
 
     public JsonParsingException(final String format, final Object... args) {
         super(String.format(format, args));

@@ -8,23 +8,21 @@ import java.lang.invoke.MethodHandle;
 
 public abstract class BaseEnumPattern<T> implements PropertyPattern<T> {
     private final Property property;
-    private final String matchingValue;
+    private final Enum matchingValue;
 
-    BaseEnumPattern(final Property property, final String matchingValue) {
+    BaseEnumPattern(final Property property, final Enum matchingValue) {
         this.property = property;
         this.matchingValue = matchingValue;
     }
 
-    public String getMatchingValue() {
+    public Enum getMatchingValue() {
         return matchingValue;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean matches(final T instance) {
         final Enum propValue = getEnumValue(instance);
-        final Enum matchingEnumValue = Enum.valueOf(property.getType(), matchingValue);
-        return compare(propValue, matchingEnumValue);
+        return compare(propValue, matchingValue);
     }
 
     @Override
