@@ -1,7 +1,9 @@
 package net.ninjacat.omg.bytecode.primitive;
 
+import io.vavr.collection.List;
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -52,6 +54,18 @@ public class FloatCompilerTest {
 
         assertThat(pattern.matches(new FloatTest(42)), is(false));
         assertThat(pattern.matches(new FloatTest(21)), is(true));
+    }
+
+    @Test
+    public void shouldMatchInPattern() {
+        final PropertyCondition<java.util.List<Float>> condition =
+                new InCondition<>("floatField", List.of(42.0f, 84.0f).asJava());
+
+        final PropertyPattern<FloatTest> pattern =
+                AsmPatternCompiler.forClass(FloatTest.class).build(condition);
+
+        assertThat(pattern.matches(new FloatTest(42.0f)), is(true));
+        assertThat(pattern.matches(new FloatTest(21.0f)), is(false));
     }
 
     @Test(expected = CompilerException.class)

@@ -55,7 +55,6 @@ public class IntCompilerTest {
         assertThat(pattern.matches(new IntTest(21)), is(true));
     }
 
-
     @Test
     public void shouldMatchInPattern() {
         final PropertyCondition<java.util.List<Integer>> condition = new InCondition<>("intField", List.of(42, 84).asJava());

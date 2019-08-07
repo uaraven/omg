@@ -14,8 +14,6 @@ import static io.vavr.Predicates.is;
 
 public final class IntStrategy extends PrimitiveTypeStrategy {
 
-    private static final String CONVERTER_METHOD = "getMatchingValueConverted";
-
     private final int compOpcode;
     private final String propertyTypeDescriptor;
     private final Class<? extends PropertyPattern> basePropertyClass;
@@ -41,10 +39,19 @@ public final class IntStrategy extends PrimitiveTypeStrategy {
                 Case($(is(ConditionMethod.NEQ)), i -> new IntStrategy(Opcodes.IF_ICMPNE, Type.getDescriptor(propertyType), baseClass)),
                 Case($(is(ConditionMethod.LT)), i -> new IntStrategy(Opcodes.IF_ICMPLT, Type.getDescriptor(propertyType), baseClass)),
                 Case($(is(ConditionMethod.GT)), i -> new IntStrategy(Opcodes.IF_ICMPGT, Type.getDescriptor(propertyType), baseClass)),
-                Case($(is(ConditionMethod.IN)), i -> new PrimitiveIntInStrategy()),
+                Case($(is(ConditionMethod.IN)), i -> selectInStrategy(propertyType)),
                 Case($(), () -> {
                     throw new CompilerException("Unsupported condition '%s' for '%s' type", method, propertyType.getName());
                 })
+        );
+    }
+
+    private static PrimitiveInStrategy selectInStrategy(final Class propertyType) {
+        return Match(propertyType).of(
+                Case($(is(int.class)), i -> new PrimitiveIntInStrategy()),
+                Case($(is(byte.class)), i -> new PrimitiveByteInStrategy()),
+                Case($(is(short.class)), i -> new PrimitiveShortInStrategy()),
+                Case($(is(char.class)), i -> new PrimitiveCharInStrategy())
         );
     }
 

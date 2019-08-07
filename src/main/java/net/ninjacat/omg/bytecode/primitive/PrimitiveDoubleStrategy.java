@@ -28,6 +28,8 @@ public final class PrimitiveDoubleStrategy extends PrimitiveTypeStrategy {
             case NEQ: return new PrimitiveDoubleStrategy(Opcodes.IFNE);
             case LT: return new PrimitiveDoubleStrategy(Opcodes.IFLT);
             case GT: return new PrimitiveDoubleStrategy(Opcodes.IFGT);
+            case IN:
+                return new PrimitiveDoubleInStrategy();
             default:
                 throw new CompilerException("Unsupported condition '%s' for 'double' type", method);
         }
