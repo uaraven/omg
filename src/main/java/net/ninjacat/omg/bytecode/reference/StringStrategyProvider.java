@@ -6,7 +6,7 @@ import net.ninjacat.omg.errors.CompilerException;
 
 /**
  * Provider for choosing strategy for string matching based on ConditionMethod
- *
+ * <p>
  * Strings support only EQ, NEQ and REGEX methods
  */
 public final class StringStrategyProvider {
@@ -20,7 +20,10 @@ public final class StringStrategyProvider {
                 return new StringStrategy(method);
             case REGEX:
                 return new StringRegexStrategy();
-            default: throw new CompilerException("Unsupported condition '%s' for String type", method);
+            case IN:
+                return new ReferenceInStrategy();
+            default:
+                throw new CompilerException("Unsupported condition '%s' for String type", method);
         }
     }
 }

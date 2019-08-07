@@ -1,7 +1,9 @@
 package net.ninjacat.omg.bytecode.reference;
 
+import io.vavr.collection.List;
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -53,6 +55,16 @@ public class ByteCompilerTest {
         assertThat(pattern.matches(new ByteTest((byte) 21)), is(true));
     }
 
+    @Test
+    public void shouldMatchInPattern() {
+        final InCondition<Byte> condition = new InCondition<>("byteField", List.of((byte)42, (byte)43).asJava());
+
+        final PropertyPattern<ByteTest> pattern = AsmPatternCompiler.forClass(ByteTest.class).build(condition);
+
+        assertThat(pattern.matches(new ByteTest((byte) 42)), is(true));
+        assertThat(pattern.matches(new ByteTest((byte) 21)), is(false));
+    }
+
     @Test(expected = CompilerException.class)
     public void shouldFailMatchPattern() {
         final PropertyCondition<Byte> condition = createPropertyCondition(ConditionMethod.MATCH, (byte) 42);
@@ -95,8 +107,8 @@ public class ByteCompilerTest {
     public static class ByteTest {
         private final Byte byteField;
 
-        ByteTest(final Byte ByteField) {
-            this.byteField = ByteField;
+        ByteTest(final byte byteField) {
+            this.byteField = byteField;
         }
 
         public Byte getByteField() {

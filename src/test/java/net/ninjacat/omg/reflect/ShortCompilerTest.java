@@ -1,12 +1,17 @@
 package net.ninjacat.omg.reflect;
 
-import net.ninjacat.omg.bytecode.AsmPatternCompiler;
+import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
+import java.util.List;
+
+import static net.ninjacat.omg.CompilerSelectionStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -16,7 +21,7 @@ public class ShortCompilerTest {
     public void shouldMatchSimpleEqPattern() {
         final PropertyCondition<Short> condition = createPropertyCondition(ConditionMethod.EQ);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<ShortTest> pattern = PatternCompiler.forClass(ShortTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new ShortTest((short) 42)), is(true));
         assertThat(pattern.matches(new ShortTest((short) 24)), is(false));
@@ -26,7 +31,7 @@ public class ShortCompilerTest {
     public void shouldMatchSimpleNeqPattern() {
         final PropertyCondition<Short> condition = createPropertyCondition(ConditionMethod.NEQ);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<ShortTest> pattern = PatternCompiler.forClass(ShortTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new ShortTest((short) 42)), is(false));
         assertThat(pattern.matches(new ShortTest((short) 24)), is(true));
@@ -37,7 +42,7 @@ public class ShortCompilerTest {
     public void shouldMatchSimpleGtPattern() {
         final PropertyCondition<Short> condition = createPropertyCondition(ConditionMethod.GT);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<ShortTest> pattern = PatternCompiler.forClass(ShortTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new ShortTest((short) 42)), is(false));
         assertThat(pattern.matches(new ShortTest((short) 84)), is(true));
@@ -47,24 +52,39 @@ public class ShortCompilerTest {
     public void shouldMatchSimpleLtPattern() {
         final PropertyCondition<Short> condition = createPropertyCondition(ConditionMethod.LT);
 
-        final PropertyPattern<ShortTest> pattern = AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        final PropertyPattern<ShortTest> pattern = PatternCompiler.forClass(ShortTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new ShortTest((short) 42)), is(false));
         assertThat(pattern.matches(new ShortTest((short) 21)), is(true));
+    }
+
+    // TODO: Convert to Theory to test both reflection and compiled pattern
+    @Test
+    public void shouldMatchSimpleInPattern() {
+        final PropertyCondition<List<Short>> condition = new InCondition<>(
+                "shortField",
+                io.vavr.collection.List.of((short) 21, (short) 42, (short) 11).asJava());
+
+
+        final PropertyPattern<ShortTest> pattern = ReflectPatternCompiler.forClass(ShortTest.class).build(condition);
+
+        assertThat(pattern.matches(new ShortTest((short) 42)), is(true));
+        assertThat(pattern.matches(new ShortTest((short) 21)), is(true));
+        assertThat(pattern.matches(new ShortTest((short) 84)), is(false));
     }
 
     @Test(expected = CompilerException.class)
     public void shouldFailMatchPattern() {
         final PropertyCondition<Short> condition = createPropertyCondition(ConditionMethod.MATCH);
 
-        AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        PatternCompiler.forClass(ShortTest.class, SAFE).build(condition);
     }
 
-    @Test(expected = CompilerException.class)
+    @Test(expected = OmgException.class)
     public void shouldFailRegexPattern() {
         final PropertyCondition<Short> condition = createPropertyCondition(ConditionMethod.REGEX);
 
-        AsmPatternCompiler.forClass(ShortTest.class).build(condition);
+        PatternCompiler.forClass(ShortTest.class, SAFE).build(condition);
     }
 
     private static PropertyCondition<Short> createPropertyCondition(final ConditionMethod method) {

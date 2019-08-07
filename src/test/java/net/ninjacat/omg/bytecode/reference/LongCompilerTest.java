@@ -1,7 +1,10 @@
 package net.ninjacat.omg.bytecode.reference;
 
+import io.vavr.collection.List;
+import lombok.Value;
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -18,8 +21,8 @@ public class LongCompilerTest {
 
         final PropertyPattern<LongTest> pattern = AsmPatternCompiler.forClass(LongTest.class).build(condition);
 
-        assertThat(pattern.matches(new LongTest(42)), is(true));
-        assertThat(pattern.matches(new LongTest(24)), is(false));
+        assertThat(pattern.matches(new LongTest(42L)), is(true));
+        assertThat(pattern.matches(new LongTest(24L)), is(false));
     }
 
     @Test
@@ -28,8 +31,8 @@ public class LongCompilerTest {
 
         final PropertyPattern<LongTest> pattern = AsmPatternCompiler.forClass(LongTest.class).build(condition);
 
-        assertThat(pattern.matches(new LongTest(42)), is(false));
-        assertThat(pattern.matches(new LongTest(24)), is(true));
+        assertThat(pattern.matches(new LongTest(42L)), is(false));
+        assertThat(pattern.matches(new LongTest(24L)), is(true));
     }
 
 
@@ -39,8 +42,8 @@ public class LongCompilerTest {
 
         final PropertyPattern<LongTest> pattern = AsmPatternCompiler.forClass(LongTest.class).build(condition);
 
-        assertThat(pattern.matches(new LongTest(42)), is(false));
-        assertThat(pattern.matches(new LongTest(84)), is(true));
+        assertThat(pattern.matches(new LongTest(42L)), is(false));
+        assertThat(pattern.matches(new LongTest(84L)), is(true));
     }
 
     @Test
@@ -49,8 +52,19 @@ public class LongCompilerTest {
 
         final PropertyPattern<LongTest> pattern = AsmPatternCompiler.forClass(LongTest.class).build(condition);
 
-        assertThat(pattern.matches(new LongTest(42)), is(false));
-        assertThat(pattern.matches(new LongTest(21)), is(true));
+        assertThat(pattern.matches(new LongTest(42L)), is(false));
+        assertThat(pattern.matches(new LongTest(21L)), is(true));
+    }
+
+
+    @Test
+    public void shouldMatchInPattern() {
+        final InCondition<Long> condition = new InCondition<>("longField", List.of(42L, 43L).asJava());
+
+        final PropertyPattern<LongTest> pattern = AsmPatternCompiler.forClass(LongTest.class).build(condition);
+
+        assertThat(pattern.matches(new LongTest(42L)), is(true));
+        assertThat(pattern.matches(new LongTest(21L)), is(false));
     }
 
     @Test(expected = CompilerException.class)
@@ -92,15 +106,8 @@ public class LongCompilerTest {
         };
     }
 
+    @Value
     public static class LongTest {
-        private final Long longField;
-
-        LongTest(final long longField) {
-            this.longField = longField;
-        }
-
-        public Long getLongField() {
-            return longField;
-        }
+        Long longField;
     }
 }

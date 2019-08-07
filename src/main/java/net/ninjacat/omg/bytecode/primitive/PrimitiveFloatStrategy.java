@@ -28,6 +28,8 @@ public final class PrimitiveFloatStrategy extends PrimitiveTypeStrategy {
             case NEQ: return new PrimitiveFloatStrategy(Opcodes.IFNE);
             case LT: return new PrimitiveFloatStrategy(Opcodes.IFLT);
             case GT: return new PrimitiveFloatStrategy(Opcodes.IFGT);
+            case IN:
+                return new PrimitiveFloatInStrategy();
             default:
                 throw new CompilerException("Unsupported condition '%s' for 'double' type", method);
         }

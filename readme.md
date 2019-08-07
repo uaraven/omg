@@ -12,6 +12,10 @@ Supports matching properties of types:
 - Enums
 - Arbitrary objects 
 
+Types not supported:
+- collections
+- arrays
+
 `OMG` generates property-specific matchers and compiles them to bytecode to minimize performance penalty. 
 Reflection-based matchers are also available.
 

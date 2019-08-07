@@ -1,0 +1,5 @@
+{
+  "op": "in",
+  "property": "testProp",
+  "value": [50, 60, 70]
+}

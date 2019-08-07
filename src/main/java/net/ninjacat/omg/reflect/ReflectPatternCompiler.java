@@ -3,6 +3,7 @@ package net.ninjacat.omg.reflect;
 import io.vavr.control.Try;
 import net.jcip.annotations.Immutable;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.ObjectCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.*;
@@ -10,6 +11,7 @@ import net.ninjacat.omg.patterns.Patterns;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import static io.vavr.API.*;
@@ -31,15 +33,32 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
 
     @Override
     public <P> PropertyPattern<T> build(final PropertyCondition<P> condition) {
+        //noinspection CastToConcreteClass
         return Match(condition.getMethod()).of(
                 Case($(is(ConditionMethod.EQ)), m -> buildEqPattern(condition)),
                 Case($(is(ConditionMethod.NEQ)), m -> buildNeqPattern(condition)),
                 Case($(is(ConditionMethod.GT)), m -> buildGtPattern(condition)),
                 Case($(is(ConditionMethod.LT)), m -> buildLtPattern(condition)),
+                Case($(is(ConditionMethod.IN)), m -> buildInPattern(condition)),
                 Case($(is(ConditionMethod.REGEX)), m -> buildRegexPattern(condition)),
                 Case($(allOf(is(ConditionMethod.MATCH), isValidCondition(condition))), m -> buildObjectPattern((ObjectCondition) condition)),
                 Case($(), () -> {
                     throw new CompilerException("Cannot build pattern for '%s'", condition);
+                })
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P> BaseInPattern<T, ?> buildInPattern(final PropertyCondition<P> propCondition) {
+        @SuppressWarnings("CastToConcreteClass") final InCondition<P> condition = (InCondition<P>) propCondition;
+        final Property<T> property = createProperty(condition.getProperty());
+        return Match(property.getWidenedType()).of(
+                Case($(is(Long.class)), l -> new LongInPattern<>(property, (List<Long>) condition.getValue())),
+                Case($(is(Double.class)), d -> new DoubleInPattern<>(property, (List<Double>) condition.getValue())),
+                Case($(is(String.class)), s -> new StringInPattern<>(property, (List<String>) condition.getValue())),
+                Case($(ReflectPatternCompiler::isEnum), e -> new EnumInPattern<>(property, (List<Enum>) condition.getValue())),
+                Case($(), () -> {
+                    throw new CompilerException("Object fields are not supported for IN condition '%s", propCondition);
                 })
         );
     }

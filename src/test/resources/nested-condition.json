@@ -14,7 +14,7 @@
         "value": "123"
       },
       {
-        "op": "gt",
+        "op": "lt",
         "property": "nestedDbl",
         "value": 12.3
       }

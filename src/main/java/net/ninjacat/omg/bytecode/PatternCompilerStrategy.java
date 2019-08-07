@@ -108,4 +108,44 @@ public interface PatternCompilerStrategy {
         return 3;
     }
 
+    /**
+     * Called before comparision code is generated, specifically before
+     * <b>*load</b>s for matching value and property value are executed
+     * @param match Method visitor
+     */
+    default void beforeCompare(final MethodVisitor match) {
+    }
+
+    /**
+     * Opcode for storing matching value to local variable. For most cases default implementation, which matches
+     * {@link #store()} is fine. The only exception currently is IN condition for primitive types, where matching value
+     * is list and property value is primitive type.
+     *
+     * @return
+     */
+    default int matchingStore() {
+        return store();
+    }
+
+    /**
+     * Opcode for loading matching value from local variable. For most cases default implementation, which matches
+     * {@link #load()} is fine. The only exception currently is IN condition for primitive types, where matching value
+     * is list and property value is primitive type.
+     *
+     * @return
+     */
+    default int matchingLoad() {
+        return load();
+    }
+
+    /**
+     * Returns order in which operands will be pushed to stack for compare operation.
+     * <p>
+     * Default ordering is {@link CompareOrdering#PROPERTY_THEN_MATCHING}
+     *
+     * @return {@link CompareOrdering}
+     */
+    default CompareOrdering compareOrdering() {
+        return CompareOrdering.PROPERTY_THEN_MATCHING;
+    }
 }

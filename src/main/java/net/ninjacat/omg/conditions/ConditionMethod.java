@@ -5,6 +5,7 @@ public enum ConditionMethod {
     NEQ,
     GT,
     LT,
+    IN,
     REGEX,
     MATCH,
     LOGIC

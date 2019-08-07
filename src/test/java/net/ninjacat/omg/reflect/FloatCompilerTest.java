@@ -1,12 +1,17 @@
 package net.ninjacat.omg.reflect;
 
-import net.ninjacat.omg.bytecode.AsmPatternCompiler;
+import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
+import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
+import java.util.List;
+
+import static net.ninjacat.omg.CompilerSelectionStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -14,9 +19,9 @@ public class FloatCompilerTest {
 
     @Test
     public void shouldMatchSimpleEqPattern() {
-        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.EQ, 42);
+        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.EQ);
 
-        final PropertyPattern<FloatTest> pattern = AsmPatternCompiler.forClass(FloatTest.class).build(condition);
+        final PropertyPattern<FloatTest> pattern = PatternCompiler.forClass(FloatTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new FloatTest(42)), is(true));
         assertThat(pattern.matches(new FloatTest(24)), is(false));
@@ -25,9 +30,9 @@ public class FloatCompilerTest {
 
     @Test
     public void shouldMatchSimpleNeqPattern() {
-        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.NEQ, 42);
+        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.NEQ);
 
-        final PropertyPattern<FloatTest> pattern = AsmPatternCompiler.forClass(FloatTest.class).build(condition);
+        final PropertyPattern<FloatTest> pattern = PatternCompiler.forClass(FloatTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new FloatTest(42)), is(false));
         assertThat(pattern.matches(new FloatTest(24)), is(true));
@@ -36,9 +41,9 @@ public class FloatCompilerTest {
 
     @Test
     public void shouldMatchSimpleGtPattern() {
-        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.GT, 42);
+        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.GT);
 
-        final PropertyPattern<FloatTest> pattern = AsmPatternCompiler.forClass(FloatTest.class).build(condition);
+        final PropertyPattern<FloatTest> pattern = PatternCompiler.forClass(FloatTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new FloatTest(42)), is(false));
         assertThat(pattern.matches(new FloatTest(84)), is(true));
@@ -46,29 +51,43 @@ public class FloatCompilerTest {
 
     @Test
     public void shouldMatchSimpleLtPattern() {
-        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.LT, 42);
+        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.LT);
 
-        final PropertyPattern<FloatTest> pattern = AsmPatternCompiler.forClass(FloatTest.class).build(condition);
+        final PropertyPattern<FloatTest> pattern = PatternCompiler.forClass(FloatTest.class, SAFE).build(condition);
 
         assertThat(pattern.matches(new FloatTest(42)), is(false));
         assertThat(pattern.matches(new FloatTest(21)), is(true));
     }
 
+    // TODO: Convert to Theory to test both reflection and compiled pattern
+    @Test
+    public void shouldMatchSimpleInPattern() {
+        final PropertyCondition<List<Float>> condition = new InCondition<>(
+                "floatField",
+                io.vavr.collection.List.of(21.0f, 42.0f, 11.5f).asJava());
+
+        final PropertyPattern<FloatTest> pattern = PatternCompiler.forClass(FloatTest.class, SAFE).build(condition);
+
+        assertThat(pattern.matches(new FloatTest(42.0f)), is(true));
+        assertThat(pattern.matches(new FloatTest(21.0f)), is(true));
+        assertThat(pattern.matches(new FloatTest(84.0f)), is(false));
+    }
+
     @Test(expected = CompilerException.class)
     public void shouldFailMatchPattern() {
-        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.MATCH, 42);
+        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.MATCH);
 
-        AsmPatternCompiler.forClass(FloatTest.class).build(condition);
+        PatternCompiler.forClass(FloatTest.class, SAFE).build(condition);
     }
 
-    @Test(expected = CompilerException.class)
+    @Test(expected = OmgException.class)
     public void shouldFailRegexPattern() {
-        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.REGEX, 42);
+        final PropertyCondition<Float> condition = createPropertyCondition(ConditionMethod.REGEX);
 
-        AsmPatternCompiler.forClass(FloatTest.class).build(condition);
+        PatternCompiler.forClass(FloatTest.class, SAFE).build(condition);
     }
 
-    private static PropertyCondition<Float> createPropertyCondition(final ConditionMethod method, final double value) {
+    private static PropertyCondition<Float> createPropertyCondition(final ConditionMethod method) {
         return new PropertyCondition<Float>() {
 
             @Override
@@ -88,7 +107,7 @@ public class FloatCompilerTest {
 
             @Override
             public Float getValue() {
-                return (float)value;
+                return 42f;
             }
         };
     }

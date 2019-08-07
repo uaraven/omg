@@ -48,6 +48,7 @@ public final class FloatStrategy extends IntNumberReferenceTypeStrategy {
             case NEQ: return new FloatStrategy(Opcodes.IFNE);
             case LT: return new FloatStrategy(Opcodes.IFLT);
             case GT: return new FloatStrategy(Opcodes.IFGT);
+            case IN: return new ReferenceInStrategy();
             default: throw new CompilerException("Unsupported condition '%s' for Integer type", method);
         }
     }
