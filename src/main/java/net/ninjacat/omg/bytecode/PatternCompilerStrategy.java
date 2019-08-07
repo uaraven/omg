@@ -137,4 +137,15 @@ public interface PatternCompilerStrategy {
     default int matchingLoad() {
         return load();
     }
+
+    /**
+     * Returns order in which operands will be pushed to stack for compare operation.
+     * <p>
+     * Default ordering is {@link CompareOrdering#PROPERTY_THEN_MATCHING}
+     *
+     * @return {@link CompareOrdering}
+     */
+    default CompareOrdering compareOrdering() {
+        return CompareOrdering.PROPERTY_THEN_MATCHING;
+    }
 }

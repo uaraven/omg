@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
+import static net.ninjacat.omg.bytecode.CompareOrdering.PROPERTY_THEN_MATCHING;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -168,8 +169,13 @@ class PropertyPatternGenerator<T> {
 
         compGen.beforeCompare(match);
 
-        match.visitVarInsn(compGen.load(), localProperty);
-        match.visitVarInsn(compGen.matchingLoad(), localMatching);
+        if (compGen.compareOrdering() == PROPERTY_THEN_MATCHING) {
+            match.visitVarInsn(compGen.load(), localProperty);
+            match.visitVarInsn(compGen.matchingLoad(), localMatching);
+        } else {
+            match.visitVarInsn(compGen.matchingLoad(), localMatching);
+            match.visitVarInsn(compGen.load(), localProperty);
+        }
 
         compGen.generateCompareCode(match);
 

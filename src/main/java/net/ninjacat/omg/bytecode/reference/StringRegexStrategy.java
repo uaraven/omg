@@ -1,5 +1,6 @@
 package net.ninjacat.omg.bytecode.reference;
 
+import net.ninjacat.omg.bytecode.CompareOrdering;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.MethodVisitor;
@@ -22,8 +23,12 @@ public class StringRegexStrategy implements PatternCompilerStrategy {
     }
 
     @Override
+    public CompareOrdering compareOrdering() {
+        return CompareOrdering.MATCHING_THEN_PROPERTY;
+    }
+
+    @Override
     public void generateCompareCode(final MethodVisitor mv) {
-        mv.visitInsn(SWAP); // pattern should be first on stack
         mv.visitMethodInsn(INVOKEVIRTUAL,
                 Type.getInternalName(java.util.regex.Pattern.class),
                 "matcher", "(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;", false);

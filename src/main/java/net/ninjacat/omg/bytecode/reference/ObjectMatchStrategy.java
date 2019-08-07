@@ -1,5 +1,6 @@
 package net.ninjacat.omg.bytecode.reference;
 
+import net.ninjacat.omg.bytecode.CompareOrdering;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.PropertyPattern;
@@ -21,8 +22,12 @@ public class ObjectMatchStrategy implements PatternCompilerStrategy {
     }
 
     @Override
+    public CompareOrdering compareOrdering() {
+        return CompareOrdering.MATCHING_THEN_PROPERTY;
+    }
+
+    @Override
     public void generateCompareCode(final MethodVisitor mv) {
-        mv.visitInsn(SWAP);
         mv.visitMethodInsn(
                 INVOKEINTERFACE,
                 Type.getInternalName(Pattern.class),

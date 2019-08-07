@@ -1,5 +1,6 @@
 package net.ninjacat.omg.bytecode.primitive;
 
+import net.ninjacat.omg.bytecode.CompareOrdering;
 import net.ninjacat.omg.bytecode.PatternCompilerStrategy;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.MethodVisitor;
@@ -23,8 +24,12 @@ public abstract class PrimitiveInStrategy implements PatternCompilerStrategy {
     }
 
     @Override
+    public CompareOrdering compareOrdering() {
+        return CompareOrdering.MATCHING_THEN_PROPERTY;
+    }
+
+    @Override
     public void generateCompareCode(final MethodVisitor mv) {
-        mv.visitInsn(SWAP); // swap property and list
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, getBoxedType(), "valueOf", getValueOfDescriptor(), false); // box property value
         mv.visitMethodInsn(
                 INVOKEVIRTUAL,

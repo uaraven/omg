@@ -1,10 +1,12 @@
 package net.ninjacat.omg.bytecode.primitive;
 
+import net.ninjacat.omg.bytecode.CompareOrdering;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public class PrimitiveLongInStrategy extends PrimitiveInStrategy {
 
@@ -37,13 +39,13 @@ public class PrimitiveLongInStrategy extends PrimitiveInStrategy {
     }
 
     @Override
+    public CompareOrdering compareOrdering() {
+        return CompareOrdering.MATCHING_THEN_PROPERTY;
+    }
+
+    @Override
     public void generateCompareCode(final MethodVisitor mv) {
-        mv.visitInsn(POP);
-        mv.visitInsn(POP2);
-        mv.visitVarInsn(load(), getPropertyLocalIndex());
         mv.visitMethodInsn(INVOKESTATIC, getBoxedType(), "valueOf", getValueOfDescriptor(), false); // box property value
-        mv.visitVarInsn(matchingLoad(), getMatchingLocalIndex());
-        mv.visitInsn(SWAP);
         mv.visitMethodInsn(
                 INVOKEVIRTUAL,
                 Type.getInternalName(getParentPropertyPatternClass()),
