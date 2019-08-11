@@ -1,11 +1,11 @@
 package net.ninjacat.omg.errors;
 
-import lombok.Value;
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Patterns;
+import org.immutables.value.Value;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -78,6 +78,7 @@ public class TestTypeConversionError {
         Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
     }
 
+
     @Theory
     @Test(expected = TypeConversionException.class)
     public void shouldFailBoxedIntTypeConversion(final CompilerSelectionStrategy strategy) {
@@ -85,6 +86,7 @@ public class TestTypeConversionError {
 
         Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
     }
+
     @Theory
     @Test(expected = TypeConversionException.class)
     public void shouldFailBoxedByteTypeConversion(final CompilerSelectionStrategy strategy) {
@@ -133,23 +135,37 @@ public class TestTypeConversionError {
         Patterns.compile(condition, PatternCompiler.forClass(FieldTest.class, strategy));
     }
 
-    @Value
-    public static class FieldTest {
-        int intField;
-        long longField;
-        short shortField;
-        byte byteField;
-        char charField;
-        double doubleField;
-        float floatField;
-        String stringField;
-        Integer boxedIntField;
-        Long boxedLongField;
-        Short boxedShortField;
-        Byte boxedByteField;
-        Character boxedCharField;
-        Double boxedDoubleField;
-        Float boxedFloatField;
+    @Value.Immutable
+    public interface FieldTest {
+        int getIntField();
+
+        long getLongField();
+
+        short getShortField();
+
+        byte getByteField();
+
+        char getCharField();
+
+        double getDoubleField();
+
+        float getFloatField();
+
+        String getStringField();
+
+        Integer getBoxedIntField();
+
+        Long getBoxedLongField();
+
+        Short getBoxedShortField();
+
+        Byte getBoxedByteField();
+
+        Character getBoxedCharField();
+
+        Double getBoxedDoubleField();
+
+        Float getBoxedFloatField();
     }
 
 }
