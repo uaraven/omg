@@ -62,7 +62,7 @@ public class AccessorsTest {
 
     public static class TestMethod {
         public int otherValue() {
-            return 21;
+            return 42;
         }
     }
 

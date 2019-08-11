@@ -7,6 +7,7 @@ import net.ninjacat.omg.errors.PatternException;
 import org.objectweb.asm.commons.Method;
 
 import java.util.Locale;
+import java.util.Optional;
 
 @Value
 @Immutable
@@ -17,10 +18,18 @@ public class Property<T> {
     final Method method;
 
     static <T> Property<T> fromPropertyName(final String propertyName, final Class<T> cls) {
-        final java.lang.reflect.Method getter = findGetter(cls, propertyName);
+        final java.lang.reflect.Method getter = findMethod(cls, propertyName).orElseGet(() -> findGetter(cls, propertyName));
         final Method method = Method.getMethod(getter);
         final Class propertyType = getter.getReturnType();
         return new Property<>(cls, propertyName, propertyType, method);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private static Optional<java.lang.reflect.Method> findMethod(final Class cls, final String propertyName) {
+        return Try
+                .of(() -> cls.getMethod(propertyName))
+                .filter(m -> !m.getReturnType().equals(Void.class) && m.getParameterCount() == 0).toJavaOptional();
     }
 
     @SuppressWarnings("unchecked")

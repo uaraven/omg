@@ -10,6 +10,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Optional;
 
 @Value
 @Immutable
@@ -22,7 +23,7 @@ public class Property<T> {
 
 
     static <T> Property<T> fromPropertyName(final String propertyName, final Class<T> cls) {
-        final Method getter = findGetter(cls, propertyName);
+        final Method getter = findMethod(cls, propertyName).orElseGet(() -> findGetter(cls, propertyName));
         final Class propertyType = getter.getReturnType();
         final Class widenedType = TypeUtils.widen(propertyType);
         final MethodType methodType = MethodType.methodType(getter.getReturnType());
@@ -32,6 +33,13 @@ public class Property<T> {
                         "Failed to get handle for accessor method for property '%s' in class '%s'",
                         propertyName, cls.getName()));
         return new Property<>(cls, propertyName, propertyType, widenedType, handle);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Optional<Method> findMethod(final Class cls, final String propertyName) {
+        return Try
+                .of(() -> cls.getMethod(propertyName))
+                .filter(m -> !m.getReturnType().equals(Void.class) && m.getParameterCount() == 0).toJavaOptional();
     }
 
     @SuppressWarnings("unchecked")
