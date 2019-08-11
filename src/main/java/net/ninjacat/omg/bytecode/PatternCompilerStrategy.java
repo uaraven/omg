@@ -32,11 +32,11 @@ public interface PatternCompilerStrategy {
         final String internalName = Type.getInternalName(property.getOwner());
         mv.visitTypeInsn(Opcodes.CHECKCAST, internalName);
         mv.visitMethodInsn(
-                Opcodes.INVOKEVIRTUAL,
+                property.isInterface() ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL,
                 internalName,
                 property.getMethod().getName(),
                 property.getMethod().getDescriptor(),
-                false);
+                property.isInterface());
     }
 
     /**
