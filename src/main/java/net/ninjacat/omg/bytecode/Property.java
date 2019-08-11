@@ -13,6 +13,7 @@ import java.util.Optional;
 @Immutable
 public class Property<T> {
     final Class<T> owner;
+    final boolean isInterface;
     final String propertyName;
     final Class type;
     final Method method;
@@ -21,7 +22,7 @@ public class Property<T> {
         final java.lang.reflect.Method getter = findMethod(cls, propertyName).orElseGet(() -> findGetter(cls, propertyName));
         final Method method = Method.getMethod(getter);
         final Class propertyType = getter.getReturnType();
-        return new Property<>(cls, propertyName, propertyType, method);
+        return new Property<>(cls, cls.isInterface(), propertyName, propertyType, method);
     }
 
 

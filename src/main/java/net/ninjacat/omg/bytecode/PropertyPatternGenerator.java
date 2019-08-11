@@ -85,9 +85,6 @@ class PropertyPatternGenerator<T> {
      */
     private void createConstructor(final ClassVisitor cv) {
         final Class wrapperType = Object.class;
-//                condition.getMethod() == ConditionMethod.MATCH
-//                        ? Condition.class
-//                        : ClassUtils.primitiveToWrapper(property.getType());
         final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(wrapperType));
         final MethodVisitor init = cv.visitMethod(ACC_PUBLIC, "<init>", initDescriptor, null, null);
         init.visitCode();
