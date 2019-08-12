@@ -60,8 +60,6 @@ dependencies {
 
     testCompileOnly 'org.immutables:value:2.7.4'
     testAnnotationProcessor 'org.immutables:value:2.7.4'
-    testCompileOnly 'org.projectlombok:lombok:1.18.8'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
 
     testImplementation 'org.hamcrest:hamcrest:2.1'
     testImplementation group: 'junit', name: 'junit', version: '4.12'

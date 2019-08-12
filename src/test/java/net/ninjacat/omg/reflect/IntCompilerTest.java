@@ -1,6 +1,5 @@
 package net.ninjacat.omg.reflect;
 
-import lombok.Value;
 import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
@@ -8,6 +7,7 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.PropertyPattern;
+import org.immutables.value.Value;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.runner.RunWith;
@@ -27,8 +27,8 @@ public class IntCompilerTest {
 
         final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, SAFE).build(condition);
 
-        assertThat(pattern.matches(new IntTest(42)), is(true));
-        assertThat(pattern.matches(new IntTest(24)), is(false));
+        assertThat(pattern.matches(getTest(42)), is(true));
+        assertThat(pattern.matches(getTest(24)), is(false));
     }
 
     @Test
@@ -37,8 +37,8 @@ public class IntCompilerTest {
 
         final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, SAFE).build(condition);
 
-        assertThat(pattern.matches(new IntTest(42)), is(false));
-        assertThat(pattern.matches(new IntTest(24)), is(true));
+        assertThat(pattern.matches(getTest(42)), is(false));
+        assertThat(pattern.matches(getTest(24)), is(true));
     }
 
 
@@ -48,8 +48,8 @@ public class IntCompilerTest {
 
         final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, SAFE).build(condition);
 
-        assertThat(pattern.matches(new IntTest(42)), is(false));
-        assertThat(pattern.matches(new IntTest(84)), is(true));
+        assertThat(pattern.matches(getTest(42)), is(false));
+        assertThat(pattern.matches(getTest(84)), is(true));
     }
 
     @Test
@@ -58,9 +58,9 @@ public class IntCompilerTest {
 
         final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, SAFE).build(condition);
 
-        assertThat(pattern.matches(new IntTest(42)), is(false));
-        assertThat(pattern.matches(new IntTest(21)), is(true));
-        assertThat(pattern.matches(new IntTest(84)), is(false));
+        assertThat(pattern.matches(getTest(42)), is(false));
+        assertThat(pattern.matches(getTest(21)), is(true));
+        assertThat(pattern.matches(getTest(84)), is(false));
     }
 
     @Test
@@ -72,9 +72,9 @@ public class IntCompilerTest {
 
         final PropertyPattern<IntTest> pattern = PatternCompiler.forClass(IntTest.class, SAFE).build(condition);
 
-        assertThat(pattern.matches(new IntTest(42)), is(true));
-        assertThat(pattern.matches(new IntTest(21)), is(true));
-        assertThat(pattern.matches(new IntTest(84)), is(false));
+        assertThat(pattern.matches(getTest(42)), is(true));
+        assertThat(pattern.matches(getTest(21)), is(true));
+        assertThat(pattern.matches(getTest(84)), is(false));
     }
 
     @Test(expected = CompilerException.class)
@@ -116,8 +116,14 @@ public class IntCompilerTest {
         };
     }
 
-    @Value
-    public static class IntTest {
-        int intField;
+    private static IntTest getTest(final int i) {
+        return ImmutableIntTest.of(i);
+    }
+
+    @Value.Immutable
+    @Value.Style(allParameters = true)
+    public interface IntTest {
+
+        int getIntField();
     }
 }

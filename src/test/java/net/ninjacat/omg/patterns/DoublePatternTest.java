@@ -1,11 +1,11 @@
 package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
-import lombok.Value;
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import org.immutables.value.Value;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -24,15 +24,15 @@ public class DoublePatternTest {
                 .property("doubleField").eq(42.0)
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<DoublePattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(DoublePattern.class, strategy));
 
-        final List<TestClass> tests = List.of(new TestClass(0f, 42.0),
-                new TestClass(0f, 41.0));
+        final List<DoublePattern> tests = List.of(getTestPattern(0f, 42.0),
+                getTestPattern(0f, 41.0));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<DoublePattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, hasSize(1));
-        assertThat(result.get(0), is(new TestClass(0f, 42.0)));
+        assertThat(result.get(0), is(getTestPattern(0f, 42.0)));
     }
 
     @Test
@@ -44,19 +44,19 @@ public class DoublePatternTest {
                         .property("doubleField").gt(10.0))
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<DoublePattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(DoublePattern.class, strategy));
 
-        final List<TestClass> tests = List.of(new TestClass(0, 2.0),
-                new TestClass(1.0f, -10.0),
-                new TestClass(1f, 12.0),
-                new TestClass(0, 30.0));
+        final List<DoublePattern> tests = List.of(getTestPattern(0, 2.0),
+                getTestPattern(1.0f, -10.0),
+                getTestPattern(1f, 12.0),
+                getTestPattern(0, 30.0));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<DoublePattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, contains(
-                new TestClass(1, -10.0),
-                new TestClass(1, 12.0),
-                new TestClass(0, 30.0)));
+                getTestPattern(1, -10.0),
+                getTestPattern(1, 12.0),
+                getTestPattern(0, 30.0)));
 
     }
 
@@ -69,17 +69,17 @@ public class DoublePatternTest {
                         .property("doubleField").gt(10.0))
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<DoublePattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(DoublePattern.class, strategy));
 
-        final List<TestClass> tests = List.of(
-                new TestClass(0, 2.0),
-                new TestClass(1, -10.0),
-                new TestClass(1, 12.0),
-                new TestClass(0, 30.0));
+        final List<DoublePattern> tests = List.of(
+                getTestPattern(0, 2.0),
+                getTestPattern(1, -10.0),
+                getTestPattern(1, 12.0),
+                getTestPattern(0, 30.0));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<DoublePattern> result = tests.filter(pattern).asJava();
 
-        assertThat(result, contains(new TestClass(1, 12.0)));
+        assertThat(result, contains(getTestPattern(1, 12.0)));
     }
 
 
@@ -90,21 +90,27 @@ public class DoublePatternTest {
                 .property("doubleField").eq(42f)
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<DoublePattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(DoublePattern.class, strategy));
 
-        final List<TestClass> tests = List.of(
-                new TestClass(0, 42.0),
-                new TestClass(0, 41.0));
+        final List<DoublePattern> tests = List.of(
+                getTestPattern(0, 42.0),
+                getTestPattern(0, 41.0));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<DoublePattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, hasSize(1));
-        assertThat(result.get(0), is(new TestClass(0, 42.0)));
+        assertThat(result.get(0), is(getTestPattern(0, 42.0)));
     }
 
-    @Value
-    public static class TestClass {
-        private float floatField;
-        private double doubleField;
+    private static DoublePattern getTestPattern(final float i, final double v) {
+        return ImmutableDoublePattern.of(i, v);
+    }
+
+    @Value.Immutable
+    @Value.Style(allParameters = true)
+    public interface DoublePattern {
+        float getFloatField();
+
+        double getDoubleField();
     }
 }
