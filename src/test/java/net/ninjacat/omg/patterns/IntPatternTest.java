@@ -1,11 +1,11 @@
 package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
-import lombok.Value;
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import org.immutables.value.Value;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -24,15 +24,15 @@ public class IntPatternTest {
                 .property("longField").eq(42L)
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<IntPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(IntPattern.class, strategy));
 
-        final List<TestClass> tests = List.of(new TestClass(0, (short) 0, 42L),
-                new TestClass(0, (short) 0, 41L));
+        final List<IntPattern> tests = List.of(getTestClass(0, (short) 0, 42L),
+                getTestClass(0, (short) 0, 41L));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<IntPattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, hasSize(1));
-        assertThat(result.get(0), is(new TestClass(0, (short) 0, 42L)));
+        assertThat(result.get(0), is(getTestClass(0, (short) 0, 42L)));
     }
 
 
@@ -43,16 +43,16 @@ public class IntPatternTest {
                 .property("longField").eq(42)
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<IntPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(IntPattern.class, strategy));
 
-        final List<TestClass> tests = List.of(
-                new TestClass(0, (short) 0, 42L),
-                new TestClass(0, (short) 0, 41L));
+        final List<IntPattern> tests = List.of(
+                getTestClass(0, (short) 0, 42L),
+                getTestClass(0, (short) 0, 41L));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<IntPattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, hasSize(1));
-        assertThat(result.get(0), is(new TestClass(0, (short) 0, 42L)));
+        assertThat(result.get(0), is(getTestClass(0, (short) 0, 42L)));
     }
 
     @Test
@@ -64,19 +64,19 @@ public class IntPatternTest {
                         .property("longField").gt(10L))
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<IntPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(IntPattern.class, strategy));
 
-        final List<TestClass> tests = List.of(new TestClass(0, (short) 0, 2L),
-                new TestClass(1, (short) 0, -10L),
-                new TestClass(1, (short) 0, 12L),
-                new TestClass(0, (short) 0, 30L));
+        final List<IntPattern> tests = List.of(getTestClass(0, (short) 0, 2L),
+                getTestClass(1, (short) 0, -10L),
+                getTestClass(1, (short) 0, 12L),
+                getTestClass(0, (short) 0, 30L));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<IntPattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, contains(
-                new TestClass(1, (short) 0, -10L),
-                new TestClass(1, (short) 0, 12L),
-                new TestClass(0, (short) 0, 30L)));
+                getTestClass(1, (short) 0, -10L),
+                getTestClass(1, (short) 0, 12L),
+                getTestClass(0, (short) 0, 30L)));
 
     }
 
@@ -90,16 +90,16 @@ public class IntPatternTest {
                         .property("longField").gt(10L))
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<IntPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(IntPattern.class, strategy));
 
-        final List<TestClass> tests = List.of(new TestClass(0, (short) 0, 2L),
-                new TestClass(1, (short) 0, -10L),
-                new TestClass(1, (short) 0, 12L),
-                new TestClass(0, (short) 0, 30L));
+        final List<IntPattern> tests = List.of(getTestClass(0, (short) 0, 2L),
+                getTestClass(1, (short) 0, -10L),
+                getTestClass(1, (short) 0, 12L),
+                getTestClass(0, (short) 0, 30L));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<IntPattern> result = tests.filter(pattern).asJava();
 
-        assertThat(result, contains(new TestClass(1, (short) 0, 12L)));
+        assertThat(result, contains(getTestClass(1, (short) 0, 12L)));
 
     }
 
@@ -118,26 +118,35 @@ public class IntPatternTest {
                 )
                 .build();
 
-        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+        final Pattern<IntPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(IntPattern.class, strategy));
 
-        final List<TestClass> tests = List.of(
-                new TestClass(1, (short) 100, 10L),
-                new TestClass(1, (short) 0, 2L),
-                new TestClass(1, (short) 0, 20L),
-                new TestClass(1, (short) 0, 10L),
-                new TestClass(0, (short) 0, 10L));
+        final List<IntPattern> tests = List.of(
+                getTestClass(1, (short) 100, 10L),
+                getTestClass(1, (short) 0, 2L),
+                getTestClass(1, (short) 0, 20L),
+                getTestClass(1, (short) 0, 10L),
+                getTestClass(0, (short) 0, 10L));
 
-        final java.util.List<TestClass> result = tests.filter(pattern).asJava();
+        final java.util.List<IntPattern> result = tests.filter(pattern).asJava();
 
-        assertThat(result, contains(new TestClass(1, (short) 0, 20L),
-                new TestClass(1, (short) 0, 10L)));
+        assertThat(result, contains(getTestClass(1, (short) 0, 20L),
+                getTestClass(1, (short) 0, 10L)));
 
     }
 
-    @Value
-    public static class TestClass {
-        private int intField;
-        private short shortField;
-        private long longField;
+    private static IntPattern getTestClass(final int i, final short i2, final long l) {
+        return ImmutableIntPattern.of(i, i2, l);
+    }
+
+    @Value.Immutable
+    public interface IntPattern {
+        @Value.Parameter
+        int getIntField();
+
+        @Value.Parameter
+        short getShortField();
+
+        @Value.Parameter
+        long getLongField();
     }
 }

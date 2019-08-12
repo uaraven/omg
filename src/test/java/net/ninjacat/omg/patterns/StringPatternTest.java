@@ -1,11 +1,11 @@
 package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
-import lombok.Value;
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import org.immutables.value.Value;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -24,15 +24,15 @@ public class StringPatternTest {
                 .property("str2").eq("test")
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
+        final Pattern<StringPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringPattern.class, strategy));
 
-        final List<StringTest> tests = List.of(new StringTest("string", "test"),
-                new StringTest("string", "something"));
+        final List<StringPattern> tests = List.of(getStringTest("string", "test"),
+                getStringTest("string", "something"));
 
-        final java.util.List<StringTest> result = tests.filter(pattern).asJava();
+        final java.util.List<StringPattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, hasSize(1));
-        assertThat(result.get(0), is(new StringTest("string", "test")));
+        assertThat(result.get(0), is(getStringTest("string", "test")));
     }
 
     @Theory
@@ -44,15 +44,15 @@ public class StringPatternTest {
                         .property("str2").eq("test"))
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
+        final Pattern<StringPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringPattern.class, strategy));
 
-        final List<StringTest> tests = List.of(new StringTest("whoops", "test"),
-                new StringTest("string", "something"),
-                new StringTest("not", "matching"));
+        final List<StringPattern> tests = List.of(getStringTest("whoops", "test"),
+                getStringTest("string", "something"),
+                getStringTest("not", "matching"));
 
-        final java.util.List<StringTest> result = tests.filter(pattern).asJava();
+        final java.util.List<StringPattern> result = tests.filter(pattern).asJava();
 
-        assertThat(result, contains(new StringTest("whoops", "test"), new StringTest("string", "something")));
+        assertThat(result, contains(getStringTest("whoops", "test"), getStringTest("string", "something")));
     }
 
     @Theory
@@ -64,16 +64,16 @@ public class StringPatternTest {
                         .property("str2").eq("test"))
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
+        final Pattern<StringPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringPattern.class, strategy));
 
-        final List<StringTest> tests = List.of(new StringTest("whoops", "test"),
-                new StringTest("string", "something"),
-                new StringTest("string", "test"),
-                new StringTest("not", "matching"));
+        final List<StringPattern> tests = List.of(getStringTest("whoops", "test"),
+                getStringTest("string", "something"),
+                getStringTest("string", "test"),
+                getStringTest("not", "matching"));
 
-        final java.util.List<StringTest> result = tests.filter(pattern).asJava();
+        final java.util.List<StringPattern> result = tests.filter(pattern).asJava();
 
-        assertThat(result, contains(new StringTest("string", "test")));
+        assertThat(result, contains(getStringTest("string", "test")));
     }
 
     @Theory
@@ -83,18 +83,18 @@ public class StringPatternTest {
                 .property("str1").regex("st.*[abc]final")
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
+        final Pattern<StringPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringPattern.class, strategy));
 
-        final List<StringTest> tests = List.of(new StringTest("st12final", "test"),
-                new StringTest("stringcfinal", "something"),
-                new StringTest("stop it afinal", "test"),
-                new StringTest("stringisinfinal", ""));
+        final List<StringPattern> tests = List.of(getStringTest("st12final", "test"),
+                getStringTest("stringcfinal", "something"),
+                getStringTest("stop it afinal", "test"),
+                getStringTest("stringisinfinal", ""));
 
-        final java.util.List<StringTest> result = tests.filter(pattern).asJava();
+        final java.util.List<StringPattern> result = tests.filter(pattern).asJava();
 
         assertThat(result, contains(
-                new StringTest("stringcfinal", "something"),
-                new StringTest("stop it afinal", "test")));
+                getStringTest("stringcfinal", "something"),
+                getStringTest("stop it afinal", "test")));
     }
 
     @Theory
@@ -104,21 +104,28 @@ public class StringPatternTest {
                 .property("str1").eq(null)
                 .build();
 
-        final Pattern<StringTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringTest.class, strategy));
+        final Pattern<StringPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringPattern.class, strategy));
 
-        final List<StringTest> tests = List.of(new StringTest("st12final", "test"),
-                new StringTest(null, "something"),
-                new StringTest("stop it afinal", "test"));
+        final List<StringPattern> tests = List.of(getStringTest("st12final", "test"),
+                getStringTest(null, "something"),
+                getStringTest("stop it afinal", "test"));
 
-        final java.util.List<StringTest> result = tests.filter(pattern).asJava();
+        final java.util.List<StringPattern> result = tests.filter(pattern).asJava();
 
-        assertThat(result, contains(new StringTest(null, "something")));
+        assertThat(result, contains(getStringTest(null, "something")));
+    }
+
+    private static StringPattern getStringTest(final String s1, final String s2) {
+        return ImmutableStringPattern.of(s1, s2);
     }
 
 
-    @Value
-    public static class StringTest {
-        private String str1;
-        private String str2;
+    @Value.Immutable
+    @Value.Style(allParameters = true)
+    public interface StringPattern {
+        @Nullable
+        String getStr1();
+
+        String getStr2();
     }
 }

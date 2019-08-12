@@ -1,6 +1,5 @@
 package net.ninjacat.omg.patterns;
 
-import lombok.Value;
 import net.jcip.annotations.Immutable;
 import net.ninjacat.omg.CompilerSelectionStrategy;
 import net.ninjacat.omg.PatternCompiler;
@@ -12,6 +11,7 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -67,16 +67,69 @@ public class ObjectPatternTest {
         ));
     }
 
-    @Value
     @Immutable
     public static class InnerClass {
-        int anInt;
-        String aString;
+        private final int anInt;
+        private final String aString;
+
+        InnerClass(final int anInt, final String aString) {
+            this.anInt = anInt;
+            this.aString = aString;
+        }
+
+        public int getAnInt() {
+            return anInt;
+        }
+
+        public String getAString() {
+            return aString;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final InnerClass that = (InnerClass) o;
+            return anInt == that.anInt &&
+                    Objects.equals(aString, that.aString);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(anInt, aString);
+        }
     }
 
-    @Value
+
     public static class TestClass {
-        private InnerClass inner;
-        String name;
+        private final InnerClass inner;
+        private final String name;
+
+        TestClass(final InnerClass inner, final String name) {
+            this.inner = inner;
+            this.name = name;
+        }
+
+        public InnerClass getInner() {
+            return inner;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final TestClass testClass = (TestClass) o;
+            return Objects.equals(inner, testClass.inner) &&
+                    Objects.equals(name, testClass.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(inner, name);
+        }
     }
 }

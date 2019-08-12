@@ -122,7 +122,9 @@ public final class Conditions {
             if (getConditions().size() == 1) {
                 return getConditions().get(0).build();
             } else {
-                return new AndCondition(getConditions().stream().map(ConditionBuilder::build).collect(Collectors.toList()));
+                return ImmutableAndCondition.builder()
+                        .children((getConditions().stream().map(ConditionBuilder::build).collect(Collectors.toList())))
+                        .build();
             }
         }
     }
@@ -139,7 +141,9 @@ public final class Conditions {
         public Condition build() {
             final Condition condition = getConditions().size() == 1
                     ? getConditions().get(0).build()
-                    : new AndCondition(getConditions().stream().map(ConditionBuilder::build).collect(Collectors.toList()));
+                    : ImmutableAndCondition.builder()
+                    .children(getConditions().stream().map(ConditionBuilder::build).collect(Collectors.toList()))
+                    .build();
 
             return new ObjectCondition(propertyName, condition);
         }
@@ -155,7 +159,9 @@ public final class Conditions {
             if (getConditions().size() == 1) {
                 return getConditions().get(0).build();
             } else {
-                return new OrCondition(getConditions().stream().map(ConditionBuilder::build).collect(Collectors.toList()));
+                return ImmutableOrCondition.builder()
+                        .children(getConditions().stream().map(ConditionBuilder::build).collect(Collectors.toList()))
+                        .build();
             }
         }
     }
