@@ -53,6 +53,10 @@ public final class Conditions {
             return this;
         }
 
+        public NotConditionBuilder not() {
+
+        }
+
         public List<ConditionBuilder> getConditions() {
             return io.vavr.collection.List.ofAll(conditions).asJava();
         }
