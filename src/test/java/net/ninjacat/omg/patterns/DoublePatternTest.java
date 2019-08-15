@@ -37,6 +37,26 @@ public class DoublePatternTest {
 
     @Test
     @Theory
+    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher()
+                .not(n -> n.property("doubleField").eq(42.0))
+                .build();
+
+
+        final Pattern<DoublePattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(DoublePattern.class, strategy));
+
+        final List<DoublePattern> tests = List.of(getTestPattern(0f, 42.0),
+                getTestPattern(0f, 41.0));
+
+        final java.util.List<DoublePattern> result = tests.filter(pattern).asJava();
+
+        assertThat(result, hasSize(1));
+        assertThat(result.get(0), is(getTestPattern(0f, 41.0)));
+    }
+
+
+    @Test
+    @Theory
     public void testOrPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .or(cond -> cond

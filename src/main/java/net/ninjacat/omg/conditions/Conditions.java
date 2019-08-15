@@ -1,5 +1,7 @@
 package net.ninjacat.omg.conditions;
 
+import net.ninjacat.omg.errors.ConditionException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -53,8 +55,11 @@ public final class Conditions {
             return this;
         }
 
-        public NotConditionBuilder not() {
-
+        public ConditionBuilder not(final Consumer<LogicalConditionBuilder> nested) {
+            final LogicalConditionBuilder builder = new NotConditionBuilder(this);
+            nested.accept(builder);
+            addCondition(builder);
+            return this;
         }
 
         public List<ConditionBuilder> getConditions() {
@@ -169,4 +174,21 @@ public final class Conditions {
             }
         }
     }
+
+    public static final class NotConditionBuilder extends LogicalConditionBuilder {
+        NotConditionBuilder(final LogicalConditionBuilder parentBuilder) {
+            super();
+        }
+
+        @Override
+        public Condition build() {
+            if (getConditions().size() == 1) {
+                return ImmutableNotCondition.builder().child(getConditions().get(0).build()).build();
+            } else {
+                throw new ConditionException("NOT must have exactly one child condition");
+            }
+        }
+    }
+
+
 }

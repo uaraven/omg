@@ -39,6 +39,22 @@ public class ObjectPatternTest {
 
     @Test
     @Theory
+    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher()
+                .not(n -> n.property("inner").match(obj -> obj.property("aString").eq("found it")))
+                .build();
+
+        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+
+        final TestClass testObj = new TestClass(new InnerClass(1, "found it"), "Waldo");
+
+        final boolean match = pattern.matches(testObj);
+
+        assertThat(match, is(false));
+    }
+
+    @Test
+    @Theory
     public void testComplexPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").match(obj ->

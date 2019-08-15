@@ -1,0 +1,8 @@
+{
+  "op": "not",
+  "value": {
+    "op": "eq",
+    "property": "testProp",
+    "value": 50
+  }
+}

@@ -7,7 +7,7 @@ import net.ninjacat.omg.errors.JsonParsingException;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class ConditionParserTest {
 
@@ -16,6 +16,15 @@ public class ConditionParserTest {
         final String json = Utils.getJson("simple-condition.json");
         final Condition parsed = ConditionParser.parse(json);
         final Condition prop = Conditions.matcher().property("testProp").eq(50).build();
+
+        assertThat(parsed, is(prop));
+    }
+
+    @Test
+    public void shouldParseNotCondition() {
+        final String json = Utils.getJson("simple-not-condition.json");
+        final Condition parsed = ConditionParser.parse(json);
+        final Condition prop = Conditions.matcher().not(n -> n.property("testProp").eq(50)).build();
 
         assertThat(parsed, is(prop));
     }
@@ -81,6 +90,18 @@ public class ConditionParserTest {
     @Test(expected = JsonParsingException.class)
     public void shouldFailOnTypeMismatch() {
         final String json = Utils.getJson("invalid-condition-2.json");
+        ConditionParser.parse(json);
+    }
+
+    @Test(expected = JsonParsingException.class)
+    public void shouldFailOnNonArrayInLogical() {
+        final String json = Utils.getJson("invalid-condition-3.json");
+        ConditionParser.parse(json);
+    }
+
+    @Test(expected = JsonParsingException.class)
+    public void shouldFailOnMultiConditionInNot() {
+        final String json = Utils.getJson("invalid-condition-4.json");
         ConditionParser.parse(json);
     }
 }
