@@ -35,6 +35,23 @@ public class IntPatternTest {
         assertThat(result.get(0), is(getTestClass(0, (short) 0, 42L)));
     }
 
+    @Test
+    @Theory
+    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher()
+                .not(n -> n.property("longField").eq(42L))
+                .build();
+
+        final Pattern<IntPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(IntPattern.class, strategy));
+
+        final List<IntPattern> tests = List.of(getTestClass(0, (short) 0, 42L),
+                getTestClass(0, (short) 0, 41L));
+
+        final java.util.List<IntPattern> result = tests.filter(pattern).asJava();
+
+        assertThat(result, hasSize(1));
+        assertThat(result.get(0), is(getTestClass(0, (short) 0, 41L)));
+    }
 
     @Test
     @Theory

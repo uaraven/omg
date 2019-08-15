@@ -1,9 +1,6 @@
 package net.ninjacat.omg.patterns;
 
-import net.ninjacat.omg.conditions.AndCondition;
-import net.ninjacat.omg.conditions.Condition;
-import net.ninjacat.omg.conditions.OrCondition;
-import net.ninjacat.omg.conditions.PropertyCondition;
+import net.ninjacat.omg.conditions.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +22,7 @@ public final class Patterns {
         return Match(condition).of(
                 Case($(instanceOf(AndCondition.class)), andCondition -> processAndCondition(andCondition, propBuilder)),
                 Case($(instanceOf(OrCondition.class)), orCondition -> processOrCondition(orCondition, propBuilder)),
+                Case($(instanceOf(NotCondition.class)), notCondition -> processNotCondition(notCondition, propBuilder)),
                 Case($(instanceOf(PropertyCondition.class)), propCondition -> processPropertyCondition(propCondition, propBuilder)),
                 Case($(), o -> {
                     throw new IllegalStateException("Unexpected condition: " + o.toString());
@@ -44,5 +42,9 @@ public final class Patterns {
     private static <T> Pattern<T> processOrCondition(final OrCondition condition, final PropertyPatternCompiler<T> propBuilder) {
         final List<Pattern<T>> patterns = condition.getChildren().stream().map(cond -> processCondition(cond, propBuilder)).collect(Collectors.toList());
         return new OrPattern<>(patterns);
+    }
+
+    private static <T> Pattern<T> processNotCondition(final NotCondition condition, final PropertyPatternCompiler<T> propBuilder) {
+        return new NotPattern<>(processCondition(condition.getChild(), propBuilder));
     }
 }

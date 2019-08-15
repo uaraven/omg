@@ -38,6 +38,25 @@ public class EnumPatternTest {
         assertThat(result.get(0), is(new EnumTest(Enum1.VALUE1)));
     }
 
+    @Test
+    @Theory
+    public void testNotePattern(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher()
+                .not(n -> n.property("e1").eq(Enum1.VALUE1))
+                .build();
+
+        final Pattern<EnumTest> pattern = Patterns.compile(condition, PatternCompiler.forClass(EnumTest.class, strategy));
+
+        final List<EnumTest> tests = List.of(
+                new EnumTest(Enum1.VALUE1),
+                new EnumTest(Enum1.VALUE2));
+
+        final java.util.List<EnumTest> result = tests.filter(pattern).asJava();
+
+        assertThat(result, hasSize(1));
+        assertThat(result.get(0), is(new EnumTest(Enum1.VALUE2)));
+    }
+
     public enum Enum1 {
         VALUE1,
         VALUE2

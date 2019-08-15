@@ -99,6 +99,28 @@ public class StringPatternTest {
 
     @Theory
     @Test
+    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher()
+                .not(n -> n.property("str1").regex("st.*[abc]final"))
+                .build();
+
+        final Pattern<StringPattern> pattern = Patterns.compile(condition, PatternCompiler.forClass(StringPattern.class, strategy));
+
+        final List<StringPattern> tests = List.of(getStringTest("st12final", "test"),
+                getStringTest("stringcfinal", "something"),
+                getStringTest("stop it afinal", "test"),
+                getStringTest("stringisinfinal", ""));
+
+        final java.util.List<StringPattern> result = tests.filter(pattern).asJava();
+
+        assertThat(result, contains(
+                getStringTest("st12final", "test"),
+                getStringTest("stringisinfinal", "")));
+    }
+
+
+    @Theory
+    @Test
     public void testNullPattern(final CompilerSelectionStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str1").eq(null)

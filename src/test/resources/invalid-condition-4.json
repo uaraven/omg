@@ -1,0 +1,15 @@
+{
+  "op": "not",
+  "value": [
+    {
+      "op": "eq",
+      "property": "testProp",
+      "value": 50
+    },
+    {
+      "op": "regex",
+      "property": "strProp",
+      "value": ".*"
+    }
+  ]
+}

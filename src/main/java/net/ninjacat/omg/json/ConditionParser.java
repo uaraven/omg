@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
@@ -55,21 +54,37 @@ public final class ConditionParser {
 
     private void parseLogicalNode(final Conditions.LogicalConditionBuilder builder, final String operation, final ObjectNode node) {
         final JsonNode value = node.get("value");
-        if (!value.isArray()) {
-            throw new JsonParsingException("'value' must be an array in '%s' object", operation);
-        }
+
         switch (operation.toLowerCase(Locale.US)) {
             case "and":
+                ensureArray(value, operation);
                 parseAnd(builder, (ArrayNode) value);
                 break;
             case "or":
+                ensureArray(value, operation);
                 parseOr(builder, (ArrayNode) value);
                 break;
+            case "not":
+                ensureObject(value, operation);
+                parseNot(builder, (ObjectNode) value);
+        }
+    }
+
+    private void ensureArray(final JsonNode value, final String operation) {
+        if (!value.isArray()) {
+            throw new JsonParsingException("'value' must be an array in '%s' object", operation);
+        }
+    }
+
+    private void ensureObject(final JsonNode value, final String operation) {
+        if (!value.isObject()) {
+            throw new JsonParsingException("'value' must be an object in '%s' condition", operation);
         }
     }
 
     private boolean isLogical(final String operation) {
-        return operation.equalsIgnoreCase("and") || operation.equalsIgnoreCase("or");
+        return operation.equalsIgnoreCase("and") || operation.equalsIgnoreCase("or") ||
+                operation.equalsIgnoreCase("not");
     }
 
     private void parsePropertyNode(final Conditions.LogicalConditionBuilder builder, final ObjectNode root) {
@@ -97,6 +112,11 @@ public final class ConditionParser {
                         .map(node -> (ObjectNode) node)
                         .forEach(node -> parseNode(cond, node))
         );
+    }
+
+
+    private void parseNot(final Conditions.LogicalConditionBuilder builder, final ObjectNode node) {
+        builder.not(cond -> parseNode(cond, node));
     }
 
     private void parseOr(final Conditions.LogicalConditionBuilder builder, final ArrayNode root) {
