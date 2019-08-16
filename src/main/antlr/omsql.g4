@@ -1,11 +1,11 @@
 grammar omsql;
 
 @header {
-   package net.ninjacat.omg.sql
+   package net.ninjacat.omg.sql;
 }
 
 filter
- : ( sql_stmt | error )* EOF
+ :  sql_stmt EOF
  ;
 
 error
@@ -19,11 +19,26 @@ sql_stmt
  : select ';'*
  ;
 
+simple_operator
+ : '<'
+ | '<='
+ | '>'
+ | '>='
+ | '=='
+ | '!='
+ ;
+
+complex_operator
+ : '~='
+ | K_IN
+ | K_MATCH
+ ;
+
 expr
  : literal_value
  | signed_number
- | field_name ( '<' | '<=' | '>' | '>=' ) expr
- | field_name ( '==' | '!=' | '<>' | K_IN | K_MATCH | K_REGEX ) expr
+ | field_name simple_operator expr
+ | field_name complex_operator expr
  | expr K_AND expr
  | expr K_OR expr
  | K_NOT expr
@@ -32,7 +47,7 @@ expr
 
 result_field
  : '*'
- | expr ( K_AS? column_alias )?
+ | field_name ( K_AS? column_alias )?
  ;
 
 select
@@ -54,21 +69,6 @@ literal_value
 column_alias
  : IDENTIFIER
  | STRING_LITERAL
- ;
-
-keyword
- : K_AND
- | K_AS
- | K_BETWEEN
- | K_FROM
- | K_IN
- | K_MATCH
- | K_NOT
- | K_NULL
- | K_OR
- | K_REGEX
- | K_SELECT
- | K_WHERE
  ;
 
 source_name
@@ -103,6 +103,8 @@ NUMERIC_LITERAL
 
 STRING_LITERAL
  : '\'' ( ~'\'' | '\'\'' )* '\''
+ | '"' ( ~'"' | '""' )* '"'
+
  ;
 
 SINGLE_LINE_COMMENT

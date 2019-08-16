@@ -58,7 +58,7 @@ dependencies {
     implementation 'io.vavr:vavr:1.0.0-alpha-3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
 
-    implementation 'org.antlr:antlr4:4.7.2'
+    antlr 'org.antlr:antlr4:4.7.2'
 
     testCompileOnly 'org.immutables:value:2.7.4'
     testAnnotationProcessor 'org.immutables:value:2.7.4'
