@@ -128,6 +128,9 @@ public final class Conditions {
 
         @Override
         public Condition build() {
+            if (getConditions().isEmpty()) {
+                throw new ConditionException("AND must have at least one child condition");
+            }
             if (getConditions().size() == 1) {
                 return getConditions().get(0).build();
             } else {
@@ -165,6 +168,9 @@ public final class Conditions {
 
         @Override
         public Condition build() {
+            if (getConditions().isEmpty()) {
+                throw new ConditionException("OR must have at least one child condition");
+            }
             if (getConditions().size() == 1) {
                 return getConditions().get(0).build();
             } else {

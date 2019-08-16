@@ -3,6 +3,7 @@ package net.ninjacat.omg.json;
 import io.vavr.collection.List;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.errors.ConditionException;
 import net.ninjacat.omg.errors.JsonParsingException;
 import org.junit.Test;
 
@@ -102,6 +103,18 @@ public class ConditionParserTest {
     @Test(expected = JsonParsingException.class)
     public void shouldFailOnMultiConditionInNot() {
         final String json = Utils.getJson("invalid-condition-4.json");
+        ConditionParser.parse(json);
+    }
+
+    @Test(expected = ConditionException.class)
+    public void shouldFailOnNoChildrenInAnd() {
+        final String json = Utils.getJson("invalid-condition-and-no-children.json");
+        ConditionParser.parse(json);
+    }
+
+    @Test(expected = ConditionException.class)
+    public void shouldFailOnNoChildrenInOr() {
+        final String json = Utils.getJson("invalid-condition-or-no-children.json");
         ConditionParser.parse(json);
     }
 }
