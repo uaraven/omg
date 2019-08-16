@@ -1,7 +1,7 @@
-grammar omsql;
+grammar OmSql;
 
 @header {
-   package net.ninjacat.omg.sql;
+   package net.ninjacat.omg.sql.parser;
 }
 
 filter
@@ -19,30 +19,27 @@ sql_stmt
  : select ';'*
  ;
 
-simple_operator
+operator
  : '<'
  | '<='
  | '>'
  | '>='
- | '=='
+ | '='
  | '!='
- ;
-
-complex_operator
- : '~='
+ | '<>'
+ | '~='
  | K_IN
  | K_MATCH
  ;
 
 expr
- : literal_value
- | signed_number
- | field_name simple_operator expr
- | field_name complex_operator expr
- | expr K_AND expr
- | expr K_OR expr
- | K_NOT expr
- | '(' expr ')'
+ : literal_value #literal
+ | signed_number #number
+ | field_name operator expr #condition
+ | expr K_AND expr #andExpr
+ | expr K_OR expr #orExpr
+ | K_NOT expr #notExpr
+ | '(' expr ')' # parensExpr
  ;
 
 result_field
@@ -50,10 +47,14 @@ result_field
  | field_name ( K_AS? column_alias )?
  ;
 
+where
+ : K_WHERE expr
+ ;
+
 select
  : K_SELECT result_field ( ',' result_field )*
    ( K_FROM source_name )?
-   ( K_WHERE expr )?
+   where?
  ;
 
 signed_number
