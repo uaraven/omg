@@ -81,9 +81,9 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
 
     private <P> PropertyPattern<T> getPattern(final PropertyCondition<P> condition, final Property<T> property) {
         return Match(property.getWidenedType()).of(
-                Case($(is(Long.class)), longProp -> new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
-                Case($(is(Double.class)), doubleProp -> new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
-                Case($(is(String.class)), strProp -> new StringEqPattern<>(property, forceToString(condition.getValue()))),
+                Case($(is(Long.class)), $_ -> new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
+                Case($(is(Double.class)), $_ -> new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
+                Case($(is(String.class)), $_ -> new StringEqPattern<>(property, forceToString(condition.getValue()))),
                 Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumEqPattern<>(property, (Enum) condition.getValue()))
         );
     }
@@ -101,8 +101,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
     private <P> PropertyPattern<T> buildGtPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
         return Match(property.getWidenedType()).of(
-                Case($(is(Long.class)), longProp -> new LongGtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
-                Case($(is(Double.class)), doubleProp -> new DoubleGtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
+                Case($(is(Long.class)), $_ -> new LongGtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
+                Case($(is(Double.class)), $_ -> new DoubleGtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(), () -> {
                     throw new MatcherException("Greater-than expressions are only supported for numeric properties. Got property: %s", property);
                 })
@@ -112,8 +112,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
     private <P> PropertyPattern<T> buildLtPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
         return Match(property.getWidenedType()).of(
-                Case($(is(Long.class)), longProp -> new LongLtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
-                Case($(is(Double.class)), doubleProp -> new DoubleLtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
+                Case($(is(Long.class)), $_ -> new LongLtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
+                Case($(is(Double.class)), $_ -> new DoubleLtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(), () -> {
                     throw new MatcherException("Less-than expressions are only supported for numeric properties. Got property: %s", property);
                 })
@@ -123,7 +123,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
     private <P> PropertyPattern<T> buildRegexPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
         return Match(property.getWidenedType()).of(
-                Case($(is(String.class)), strProp -> new StringRegexPattern<>(property, forceToString(condition.getValue()))),
+                Case($(is(String.class)), $_ -> new StringRegexPattern<>(property, forceToString(condition.getValue()))),
                 Case($(), () -> {
                     throw new MatcherException("Regex expressions are only supported for 'String' properties. Got property: %s", property);
                 })
