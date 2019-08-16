@@ -6,5 +6,4 @@ import org.immutables.value.Value;
 public interface Job {
     String name();
     int experience();
-    double rating();
 }
