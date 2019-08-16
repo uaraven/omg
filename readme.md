@@ -34,6 +34,7 @@ Example:
             .property("lastName").regex("Smith.*"))
         .property("firstName").neq("Mary")
         .property("age").gt(21)
+        .not(n -> n.property("friends").lt(1))
         .build();
 
 
@@ -78,12 +79,24 @@ JSON pattern for previous example:
     "op": "gt",
     "property": "age",
     "value": 21
-  } 
+  },
+  {
+    "op": "not",
+    "value": {
+      "op": "lt",
+      "property": "friends",
+      "value": 1
+    }
+  }
 ]  
 
 ```
 
 ### Benchmark
+
+Compiled patterns are 5-25% faster than reflection-based, depending on complexity of patterns and many other factors (as you may have guessed). This shows that JVM is actually pretty good at optimizing reflective calls.
+
+Following benchmarks were executed with JMH version 1.21 and JDK 1.8.0_222, OpenJDK 64-Bit Server VM, 25.222-b10 on Ubuntu.
 
 | Invocation Mode  | Ops/s                    | Speed |
 |:-----------------|:-------------------------|------:|
