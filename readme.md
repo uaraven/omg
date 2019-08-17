@@ -100,10 +100,11 @@ Following benchmarks were executed with JMH version 1.21 and JDK 1.8.0_222, Open
 
 | Invocation Mode  | Ops/s                    | Speed |
 |:-----------------|:-------------------------|------:|
-| Bytecode A       | 3933886.521 ± 146567.294 | 115%  |
-| Bytecode B       | 5675514.429 ± 225816.952 | 128%  |
 | Reflection A     | 3413630.079 ±  52150.917 | 100%  |
+| Bytecode A       | 3933886.521 ± 146567.294 | 115%  |
 | Reflection B     | 4401189.267 ±  15632.381 | 100%  |
+| Bytecode B       | 5675514.429 ± 225816.952 | 128%  |
+
 
 Invocation mode A - using new object with different field values every time.
 
