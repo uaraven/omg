@@ -5,10 +5,9 @@ import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.SqlParsingException;
 import net.ninjacat.omg.sql.parser.OmSqlLexer;
 import net.ninjacat.omg.sql.parser.OmSqlParser;
-import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.TokenStream;
 
 import java.util.Optional;
 
@@ -20,9 +19,9 @@ public class SqlParser {
 
     public SqlParser(final String filter) {
         final OmSqlLexer lexer = new OmSqlLexer(CharStreams.fromString(filter));
-        final TokenStream tokenStream = new BufferedTokenStream(lexer);
-        final OmSqlParser parser = new OmSqlParser(tokenStream);
-        this.where = parser.filter().sql_stmt().select().where();
+        final OmSqlParser parser = new OmSqlParser(new CommonTokenStream(lexer));
+        final OmSqlParser.FilterContext tree = parser.filter();
+        this.where = tree.sql_stmt().select().where();
     }
 
     public Condition getCondition() {

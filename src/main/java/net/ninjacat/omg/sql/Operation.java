@@ -1,7 +1,6 @@
 package net.ninjacat.omg.sql;
 
 import io.vavr.control.Option;
-import net.ninjacat.omg.json.*;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -14,10 +13,10 @@ public enum Operation {
     GT(">", new GtProducer()),
     LT("<", new LtProducer()),
     GTE(">=", new GteProducer()),
-    LTE("<=", new LteProducer()),
-    IN("in", new InProducer()),
-    REGEX("regex", new RegexProducer()),
-    MATCH("match", new MatchProducer());
+    LTE("<=", new LteProducer());
+//    IN("in", new InProducer()),
+//    REGEX("regex", new RegexProducer()),
+//    MATCH("match", new MatchProducer());
 
     private final String opCode;
     private final SqlConditionProducer producer;

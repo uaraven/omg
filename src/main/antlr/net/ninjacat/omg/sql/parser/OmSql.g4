@@ -8,13 +8,6 @@ filter
  :  sql_stmt EOF
  ;
 
-error
- : UNEXPECTED_CHAR
-   {
-     throw new RuntimeException("UNEXPECTED_CHAR=" + $UNEXPECTED_CHAR.text);
-   }
- ;
-
 sql_stmt
  : select ';'*
  ;
