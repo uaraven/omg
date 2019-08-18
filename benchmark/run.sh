@@ -2,7 +2,7 @@
 
 cd ..
 ./gradlew clean jar
-cd benchmark
+cd benchmark || exit
 
 ./gradlew clean shadowJar
 

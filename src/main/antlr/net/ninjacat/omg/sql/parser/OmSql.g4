@@ -33,9 +33,7 @@ operator
  ;
 
 expr
- : literal_value #literal
- | signed_number #number
- | field_name operator expr #condition
+ : field_name operator literal_value #condition
  | expr K_AND expr #andExpr
  | expr K_OR expr #orExpr
  | K_NOT expr #notExpr
@@ -62,7 +60,7 @@ signed_number
  ;
 
 literal_value
- : NUMERIC_LITERAL
+ : signed_number
  | STRING_LITERAL
  | K_NULL
  ;
