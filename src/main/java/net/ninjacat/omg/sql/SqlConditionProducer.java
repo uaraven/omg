@@ -1,6 +1,7 @@
 package net.ninjacat.omg.sql;
 
 import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.errors.SqlParsingException;
 
 import static io.vavr.API.*;
 
@@ -21,7 +22,10 @@ public interface SqlConditionProducer {
                 Case($(SqlTypeConversion::isInteger), Integer::parseInt),
                 Case($(SqlTypeConversion::isLong), Long::parseLong),
                 Case($(SqlTypeConversion::isDouble), Double::parseDouble),
-                Case($(), s -> s)
+                Case($(SqlTypeConversion::isString), SqlTypeConversion::extractString),
+                Case($(), s -> {
+                    throw new SqlParsingException("Unsuppoted value: %s", value);
+                })
         );
     }
 
