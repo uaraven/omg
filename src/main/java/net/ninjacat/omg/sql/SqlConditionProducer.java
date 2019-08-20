@@ -2,12 +2,13 @@ package net.ninjacat.omg.sql;
 
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.SqlParsingException;
+import net.ninjacat.omg.sql.parser.OmSqlParser;
 
 import static io.vavr.API.*;
 
 @FunctionalInterface
-public interface SqlConditionProducer {
-    void create(Conditions.LogicalConditionBuilder builder, String property, String value);
+public interface SqlConditionProducer<T extends OmSqlParser.ExprContext> {
+    void create(Conditions.LogicalConditionBuilder builder, String property, T value);
 
     /**
      * Makes a best guess on a value type.

@@ -67,4 +67,46 @@ public class SqlParserTest {
         assertThat(condition, is(expected));
     }
 
+    @Test
+    public void shouldConvertMultiAndQuery() {
+        final SqlParser sqlParser = new SqlParser("select name, age from data where age > 25 and name = 'Iñigo' and status=\"Searching\"");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .and(c -> c
+                        .and(a -> a
+                                .property("age").gt(25)
+                                .property("name").eq("Iñigo")
+                        )
+                        .property("status").eq("Searching")
+                )
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldConvertSimpleRegexQuery() {
+        final SqlParser sqlParser = new SqlParser("select name, age from data where name ~= '^Iñigo.*'");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("name").regex("^Iñigo.*")
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldConvertInQuery() {
+        final SqlParser sqlParser = new SqlParser("select name, age from data where age in (1,2,3)");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("age").in(io.vavr.collection.List.of(1, 2, 3).asJava())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
 }

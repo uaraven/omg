@@ -38,8 +38,17 @@ public class SqlParser {
                 Case($(instanceOf(OmSqlParser.ConditionContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
                 Case($(instanceOf(OmSqlParser.AndExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
                 Case($(instanceOf(OmSqlParser.OrExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                Case($(instanceOf(OmSqlParser.NotExprContext.class)), ctx -> run(() -> processExpression(ctx, builder)))
+                Case($(instanceOf(OmSqlParser.NotExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                Case($(instanceOf(OmSqlParser.InExprContext.class)), ctx -> run(() -> processExpression(ctx, builder)))
         );
+    }
+
+    private void processExpression(final OmSqlParser.InExprContext expr, final Conditions.LogicalConditionBuilder builder) {
+        final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
+
+        final Operation conditionOperation = Operation.byOpCode("in")
+                .getOrElseThrow(() -> new SqlParsingException("Unsupported operation 'IN'"));
+        conditionOperation.getProducer().create(builder, property, expr);
     }
 
     private void processExpression(final OmSqlParser.AndExprContext expr, final Conditions.LogicalConditionBuilder builder) {
@@ -68,9 +77,8 @@ public class SqlParser {
     private void processExpression(final OmSqlParser.ConditionContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String operation = Optional.ofNullable(expr.operator()).map(RuleContext::getText).orElse(null);
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
-        final String value = expr.literal_value().getText();
         final Operation conditionOperation = Operation.byOpCode(operation)
                 .getOrElseThrow(() -> new SqlParsingException("Unsupported operation '%s'", operation));
-        conditionOperation.getProducer().create(builder, property, value);
+        conditionOperation.getProducer().create(builder, property, expr);
     }
 }

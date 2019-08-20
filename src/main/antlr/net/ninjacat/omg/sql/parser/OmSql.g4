@@ -25,12 +25,17 @@ operator
  | K_MATCH
  ;
 
+list
+ : '(' literal_value (',' literal_value)* ')'
+ ;
+
 expr
  : field_name operator literal_value #condition
  | expr K_AND expr #andExpr
  | expr K_OR expr #orExpr
  | K_NOT expr #notExpr
  | '(' expr ')' # parensExpr
+ | field_name K_IN list # inExpr
  ;
 
 result_field

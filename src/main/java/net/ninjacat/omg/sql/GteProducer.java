@@ -1,14 +1,16 @@
 package net.ninjacat.omg.sql;
 
 import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.sql.parser.OmSqlParser;
 
-public class GteProducer implements SqlConditionProducer {
+public class GteProducer implements SqlConditionProducer<OmSqlParser.ConditionContext> {
 
     @Override
-    public void create(final Conditions.LogicalConditionBuilder builder, final String property, final String value) {
+    public void create(final Conditions.LogicalConditionBuilder builder, final String property, final OmSqlParser.ConditionContext value) {
+        final String text = value.literal_value().getText();
         builder.or(cond -> cond
-                .property(property).gt(toJavaType(value))
-                .property(property).eq(toJavaType(value))
+                .property(property).gt(toJavaType(text))
+                .property(property).eq(toJavaType(text))
         );
     }
 }

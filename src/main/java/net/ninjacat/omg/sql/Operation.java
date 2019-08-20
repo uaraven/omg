@@ -13,9 +13,9 @@ public enum Operation {
     GT(">", new GtProducer()),
     LT("<", new LtProducer()),
     GTE(">=", new GteProducer()),
-    LTE("<=", new LteProducer());
-//    IN("in", new InProducer()),
-//    REGEX("regex", new RegexProducer()),
+    LTE("<=", new LteProducer()),
+    REGEX("~=", new RegexProducer()),
+    IN("in", new InProducer());
 //    MATCH("match", new MatchProducer());
 
     private final String opCode;
