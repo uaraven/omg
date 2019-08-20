@@ -23,7 +23,7 @@ plugins {
 
 jacoco {
     toolVersion = "0.8.4"
-    //reportsDir = file("$buildDir/jacocoReportDir")
+    excludes += ['**sql/parser/**']
 }
 
 jacocoTestReport {
