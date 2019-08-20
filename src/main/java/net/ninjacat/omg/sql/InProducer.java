@@ -12,6 +12,7 @@ public class InProducer implements SqlConditionProducer<OmSqlParser.InExprContex
 
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder, final String property, final OmSqlParser.InExprContext value) {
+        AntlrTools.assertError(value.list().children);
         final List<Object> values = value.list().literal_value().stream().map(it -> toJavaType(it.getText())).collect(Collectors.toList());
         if (values.isEmpty()) {
             builder.property(property).in(Collections.emptyList());

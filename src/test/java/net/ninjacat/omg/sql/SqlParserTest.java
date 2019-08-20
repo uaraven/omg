@@ -2,6 +2,7 @@ package net.ninjacat.omg.sql;
 
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.errors.SqlParsingException;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,13 +23,68 @@ public class SqlParserTest {
     }
 
     @Test
+    public void shouldConvertGteQuery() {
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age >= 25");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .or(c -> c
+                        .property("age").gt(25)
+                        .property("age").eq(25)
+                )
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldConvertLteQuery() {
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age <= 25");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .or(c -> c
+                        .property("age").lt(25)
+                        .property("age").eq(25)
+                )
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldConvertNeqQuery1() {
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age <> 25");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("age").neq(25)
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldConvertNeqQuery2() {
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age != 25");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("age").neq(25)
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+
+    @Test
     public void shouldConvertSimpleAndQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from data where age > 25 and name = 'Iñigo'");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age < 25 and name = 'Iñigo'");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .and(c -> c
-                        .property("age").gt(25)
+                        .property("age").lt(25)
                         .property("name").eq("Iñigo"))
                 .build();
 
@@ -122,4 +178,39 @@ public class SqlParserTest {
         assertThat(condition, is(expected));
     }
 
+    @Test(expected = SqlParsingException.class)
+    public void shouldFailToParseQuery() {
+        final SqlParser sqlParser = SqlParser.of("select * from employee where friend is unlike others");
+        sqlParser.getCondition();
+    }
+
+    @Test(expected = SqlParsingException.class)
+    public void shouldFailWhenInContainsDifferentTypes() {
+        final SqlParser sqlParser = SqlParser.of("select * from employee where age in (21, 22, 'old enough')");
+        sqlParser.getCondition();
+    }
+
+    @Test(expected = SqlParsingException.class)
+    public void shouldFailWhenRegexOnNonString() {
+        final SqlParser sqlParser = SqlParser.of("select * from employee where age ~= 20");
+        sqlParser.getCondition();
+    }
+
+    @Test(expected = SqlParsingException.class)
+    public void shouldFailOnSyntaxError1() {
+        final SqlParser sqlParser = SqlParser.of("select * from employee where name = 'jack");
+        sqlParser.getCondition();
+    }
+
+    @Test(expected = SqlParsingException.class)
+    public void shouldFailOnSyntaxError2() {
+        final SqlParser sqlParser = SqlParser.of("select * from employee where name in ('jack', 'john'");
+        sqlParser.getCondition();
+    }
+
+    @Test(expected = SqlParsingException.class)
+    public void shouldFailOnSyntaxError3() {
+        final SqlParser sqlParser = SqlParser.of("select * from employee where name in (not a list or subquery)");
+        sqlParser.getCondition();
+    }
 }

@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
 
 public enum Operation {
     EQ("=", new EqProducer()),
-    NEQ("!=", new NeqProducer()),
+    NEQ1("!=", Constants.NEQ_PRODUCER),
+    NEQ2("<>", Constants.NEQ_PRODUCER),
     GT(">", new GtProducer()),
     LT("<", new LtProducer()),
     GTE(">=", new GteProducer()),
@@ -42,5 +43,9 @@ public enum Operation {
 
     public static Option<Operation> byOpCode(final String opCode) {
         return Option.of(opCodeMap.get(opCode));
+    }
+
+    private static class Constants {
+        private static final NeqProducer NEQ_PRODUCER = new NeqProducer();
     }
 }

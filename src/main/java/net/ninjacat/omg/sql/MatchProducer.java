@@ -9,6 +9,7 @@ public class MatchProducer implements SqlConditionProducer<OmSqlParser.MatchExpr
     public void create(final Conditions.LogicalConditionBuilder builder,
                        final String property,
                        final OmSqlParser.MatchExprContext value) {
+        AntlrTools.assertError(value.select().children);
         final SqlParser parser = SqlParser.ofParsed(value.select());
         builder.property(property).match(parser.getCondition());
     }
