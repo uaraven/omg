@@ -23,7 +23,12 @@ plugins {
 
 jacoco {
     toolVersion = "0.8.4"
-    excludes += ['**sql/parser/**']
+}
+
+test {
+    jacoco {
+        excludes += ['**sql/parser/**']
+    }
 }
 
 jacocoTestReport {
