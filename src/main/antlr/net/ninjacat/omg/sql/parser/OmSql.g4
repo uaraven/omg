@@ -22,7 +22,6 @@ operator
  | '<>'
  | '~='
  | K_IN
- | K_MATCH
  ;
 
 list
@@ -36,6 +35,7 @@ expr
  | K_NOT expr #notExpr
  | '(' expr ')' # parensExpr
  | field_name K_IN list # inExpr
+ | field_name K_IN '(' select ')' # matchExpr
  ;
 
 result_field
@@ -81,7 +81,6 @@ K_AS : A S;
 K_BETWEEN : B E T W E E N;
 K_FROM: F R O M;
 K_IN: I N;
-K_MATCH: M A T C H;
 K_NOT: N O T;
 K_NULL: N U L L;
 K_OR: O R;

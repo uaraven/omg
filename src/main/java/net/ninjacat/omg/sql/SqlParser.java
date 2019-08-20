@@ -17,11 +17,20 @@ import static io.vavr.Predicates.instanceOf;
 public class SqlParser {
     private final OmSqlParser.WhereContext where;
 
-    public SqlParser(final String filter) {
-        final OmSqlLexer lexer = new OmSqlLexer(CharStreams.fromString(filter));
+    public static SqlParser of(final String query) {
+        final OmSqlLexer lexer = new OmSqlLexer(CharStreams.fromString(query));
         final OmSqlParser parser = new OmSqlParser(new CommonTokenStream(lexer));
         final OmSqlParser.FilterContext tree = parser.filter();
-        this.where = tree.sql_stmt().select().where();
+
+        return new SqlParser(tree.sql_stmt().select().where());
+    }
+
+    static SqlParser ofParsed(OmSqlParser.SelectContext select) {
+        return new SqlParser(select.where());
+    }
+
+    private SqlParser(final OmSqlParser.WhereContext where) {
+        this.where = where;
     }
 
     public Condition getCondition() {
@@ -39,7 +48,11 @@ public class SqlParser {
                 Case($(instanceOf(OmSqlParser.AndExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
                 Case($(instanceOf(OmSqlParser.OrExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
                 Case($(instanceOf(OmSqlParser.NotExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                Case($(instanceOf(OmSqlParser.InExprContext.class)), ctx -> run(() -> processExpression(ctx, builder)))
+                Case($(instanceOf(OmSqlParser.InExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                Case($(instanceOf(OmSqlParser.MatchExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                Case($(), () -> {
+                    throw new SqlParsingException("Unsupported expression: %s", expr.getText());
+                })
         );
     }
 
@@ -48,6 +61,15 @@ public class SqlParser {
 
         final Operation conditionOperation = Operation.byOpCode("in")
                 .getOrElseThrow(() -> new SqlParsingException("Unsupported operation 'IN'"));
+        conditionOperation.getProducer().create(builder, property, expr);
+    }
+
+
+    private void processExpression(final OmSqlParser.MatchExprContext expr, final Conditions.LogicalConditionBuilder builder) {
+        final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
+
+        final Operation conditionOperation = Operation.byOpCode("match")
+                .getOrElseThrow(() -> new SqlParsingException("Unsupported operation 'IN SELECT'"));
         conditionOperation.getProducer().create(builder, property, expr);
     }
 

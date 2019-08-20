@@ -15,8 +15,8 @@ public enum Operation {
     GTE(">=", new GteProducer()),
     LTE("<=", new LteProducer()),
     REGEX("~=", new RegexProducer()),
-    IN("in", new InProducer());
-//    MATCH("match", new MatchProducer());
+    IN("in", new InProducer()),
+    MATCH("match", new MatchProducer());
 
     private final String opCode;
     private final SqlConditionProducer producer;

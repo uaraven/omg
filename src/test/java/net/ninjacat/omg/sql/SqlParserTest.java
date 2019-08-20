@@ -11,7 +11,7 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleQuery() {
-        final SqlParser sqlParser = new SqlParser("select name, age from data where age > 25");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age > 25");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -23,7 +23,7 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleAndQuery() {
-        final SqlParser sqlParser = new SqlParser("select name, age from data where age > 25 and name = 'Iñigo'");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age > 25 and name = 'Iñigo'");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -37,7 +37,7 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleOrQuery() {
-        final SqlParser sqlParser = new SqlParser("select name, age from data where age > 25 or name = 'Iñigo'");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age > 25 or name = 'Iñigo'");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -51,7 +51,7 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleAndOrQuery() {
-        final SqlParser sqlParser = new SqlParser("select name, age from data where age > 25 or name = 'Iñigo' and status=\"Searching\"");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age > 25 or name = 'Iñigo' and status=\"Searching\"");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -69,7 +69,7 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertMultiAndQuery() {
-        final SqlParser sqlParser = new SqlParser("select name, age from data where age > 25 and name = 'Iñigo' and status=\"Searching\"");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age > 25 and name = 'Iñigo' and status=\"Searching\"");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -87,7 +87,7 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleRegexQuery() {
-        final SqlParser sqlParser = new SqlParser("select name, age from data where name ~= '^Iñigo.*'");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where name ~= '^Iñigo.*'");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -99,11 +99,24 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertInQuery() {
-        final SqlParser sqlParser = new SqlParser("select name, age from data where age in (1,2,3)");
+        final SqlParser sqlParser = SqlParser.of("select name, age from data where age in (1,2,3)");
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("age").in(io.vavr.collection.List.of(1, 2, 3).asJava())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldConvertSubQuery() {
+        final SqlParser sqlParser = SqlParser.of("select * from employee where friend in (select * from people where age > 18)");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("friend").match(m -> m
+                        .property("age").gt(18))
                 .build();
 
         assertThat(condition, is(expected));
