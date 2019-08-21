@@ -84,7 +84,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
                 Case($(is(Long.class)), $_ -> new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), $_ -> new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(is(String.class)), $_ -> new StringEqPattern<>(property, forceToString(condition.getValue()))),
-                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumEqPattern<>(property, (Enum) condition.getValue()))
+                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumEqPattern<>(property, (Enum) condition.getValue())),
+                Case($(ReflectPatternCompiler::isObject), $_ -> new ObjectEqPattern<>(property, condition.getValue()))
         );
     }
 
@@ -94,7 +95,8 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
                 Case($(is(Long.class)), longProp -> new LongNeqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), doubleProp -> new DoubleNeqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(is(String.class)), strProp -> new StringNeqPattern<>(property, forceToString(condition.getValue()))),
-                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumNeqPattern<>(property, (Enum) condition.getValue()))
+                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumNeqPattern<>(property, (Enum) condition.getValue())),
+                Case($(ReflectPatternCompiler::isObject), $_ -> new ObjectNeqPattern<>(property, condition.getValue()))
         );
     }
 
@@ -147,13 +149,16 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
     }
 
     private static String forceToString(final Object value) {
-        return Try
-                .of(() -> (String) value)
+        return Try.of(() -> (String) value)
                 .getOrElseThrow((err) -> new TypeConversionException(err, value, String.class));
     }
 
     private static boolean isEnum(final Class cls) {
         return Enum.class.isAssignableFrom(cls);
+    }
+
+    private static boolean isObject(final Class cls) {
+        return true;
     }
 
     private static boolean isBasicType(final Class cls) {
