@@ -8,17 +8,23 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class StringStrategy implements PatternCompilerStrategy {
+public class ObjectStrategy implements PatternCompilerStrategy {
 
     private final ConditionMethod conditionMethod;
 
-    StringStrategy(final ConditionMethod method) {
+    ObjectStrategy(final ConditionMethod method) {
         conditionMethod = method;
     }
 
     @Override
-    public void generateCompareCode(final MethodVisitor mv) {
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(String.class), "equals", "(Ljava/lang/Object;)Z", false);
+    public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
+        return ObjectBasePropertyPattern.class;
+    }
+
+    @Override
+    public void generateCompareCode(MethodVisitor mv) {
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(Object.class), "equals", "(Ljava/lang/Object;)Z", false);
         if (conditionMethod == ConditionMethod.NEQ) { // invert result
             final Label ifTrue = new Label();
             final Label endIf = new Label();
@@ -30,18 +36,6 @@ public class StringStrategy implements PatternCompilerStrategy {
             mv.visitLabel(endIf);
         }
     }
-
-
-    @Override
-    public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
-        return StringBasePropertyPattern.class;
-    }
-
-    @Override
-    public String getMatchingValueDescriptor() {
-        return "()Ljava/lang/String;";
-    }
-
 
     @Override
     public int store() {
@@ -57,5 +51,4 @@ public class StringStrategy implements PatternCompilerStrategy {
     public boolean isReference() {
         return true;
     }
-
 }
