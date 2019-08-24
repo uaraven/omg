@@ -36,7 +36,9 @@ jacocoTestReport {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it,
                     excludes: [
-                            '**/sql/parser/**'
+                            '**/sql/parser/**',
+                            '**/Immutable*Condition.class',
+                            '**/CompileDebugger.class'
                     ])
         })
     }

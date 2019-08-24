@@ -6,6 +6,7 @@ import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.OmgException;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -16,8 +17,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 @RunWith(Theories.class)
 public class ObjectPatternTest {
@@ -37,6 +37,30 @@ public class ObjectPatternTest {
 
         assertThat(match, is(true));
     }
+
+    @Test
+    @Theory
+    public void testObjectNonEquality(final CompilerSelectionStrategy strategy) {
+        final Condition condition = Conditions.matcher()
+                .property("inner").neq(new InnerClass(1, "found it"))
+                .build();
+
+        final Pattern<TestClass> pattern = Patterns.compile(condition, PatternCompiler.forClass(TestClass.class, strategy));
+
+        TestClass test1 = new TestClass(new InnerClass(1, "found it"), "Waldo");
+        TestClass test2 = new TestClass(new InnerClass(2, "found it"), "Albert Einstein");
+        final List<TestClass> testObj =
+                io.vavr.collection.List.of(
+                        test1,
+                        test2
+                ).asJava();
+
+        final List<TestClass> matched = testObj.stream().filter(pattern::matches).collect(Collectors.toList());
+
+        assertThat(matched, Matchers.hasSize(1));
+        assertThat(matched, contains(test2));
+    }
+
 
     @Test
     @Theory
