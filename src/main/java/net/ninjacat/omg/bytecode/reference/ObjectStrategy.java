@@ -22,7 +22,7 @@ public class ObjectStrategy implements PatternCompilerStrategy {
     }
 
     @Override
-    public void generateCompareCode(MethodVisitor mv) {
+    public void generateCompareCode(final MethodVisitor mv) {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(Object.class), "equals", "(Ljava/lang/Object;)Z", false);
         if (conditionMethod == ConditionMethod.NEQ) { // invert result

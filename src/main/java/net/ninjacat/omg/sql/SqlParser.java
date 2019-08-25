@@ -14,7 +14,7 @@ import java.util.Optional;
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
 
-public class SqlParser {
+public final class SqlParser {
     private final OmSqlParser.WhereContext where;
 
     public static SqlParser of(final String query) {
@@ -25,7 +25,7 @@ public class SqlParser {
         return new SqlParser(tree.sql_stmt().select().where());
     }
 
-    static SqlParser ofParsed(OmSqlParser.SelectContext select) {
+    static SqlParser ofParsed(final OmSqlParser.SelectContext select) {
         return new SqlParser(select.where());
     }
 
