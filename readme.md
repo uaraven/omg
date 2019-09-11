@@ -98,12 +98,20 @@ Limited support for SQL-like queries is provided.
 Previous examples written in SQL syntax will look like
 
 ```sql
-SELECT * FROM Anything WHERE 
+SELECT * FROM com.example.Person WHERE 
     lastName ~= "John.*on" OR lastName ~= "Smith" 
     AND firstName <> "Mary" AND age > 21 AND NOT friends < 1
 ```
 
-List of fields in `SELECT` clause is ignored as well as `FROM` clause. In fact `FROM` can be dropped entirely.
+List of fields in `SELECT` clause is ignored. `FROM` clause is optional. 
+
+If `FROM` is used it should contain fully-qualified class name and in this case conditions will be
+type-checked to validate that values can be used with the given properties. For example condition `age = "50"` 
+will throw `TypeConversionException` during query parsing.
+
+If `FROM` is not used then no type-checking will be performed and matching can fail if there are any
+type incompatibilities in conditions.
+ 
 Supported operations include:
 
 - `=`, `!=`, `<>`, `>`, `<`, `>=`, `<=` - standard comparison operations

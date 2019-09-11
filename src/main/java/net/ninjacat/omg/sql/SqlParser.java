@@ -25,16 +25,20 @@ public final class SqlParser {
         final OmSqlParser parser = new OmSqlParser(new CommonTokenStream(lexer));
         final OmSqlParser.FilterContext tree = parser.filter();
 
-        return new SqlParser(tree.sql_stmt().select().source_name().getText(), tree.sql_stmt().select().where());
+        return new SqlParser(getSource(tree.sql_stmt().select()), tree.sql_stmt().select().where());
+    }
+
+    private static String getSource(OmSqlParser.SelectContext select) {
+        return select.source_name() == null ? null : select.source_name().getText();
     }
 
     static SqlParser ofParsed(final OmSqlParser.SelectContext select) {
-        return new SqlParser(select.source_name().getText(), select.where());
+        return new SqlParser(getSource(select), select.where());
     }
 
     private SqlParser(final String className, final OmSqlParser.WhereContext where) {
-        this.typeValidator = Optional.ofNullable(className).flatMap(
-                cls -> Try.<TypeValidator>of(() -> new ClassValidator(Class.forName(cls))).toJavaOptional())
+        this.typeValidator = Optional.ofNullable(className).map(
+                cls -> Try.<TypeValidator>of(() -> new ClassValidator(Class.forName(cls))).getOrElseThrow(() -> new SqlParsingException("Class " + cls + " not found")))
                 .orElseGet(FakeValidator::new);
 
         this.where = where;

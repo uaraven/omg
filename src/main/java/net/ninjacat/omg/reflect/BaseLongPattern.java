@@ -3,6 +3,7 @@ package net.ninjacat.omg.reflect;
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.MatcherException;
 import net.ninjacat.omg.patterns.PropertyPattern;
+import net.ninjacat.omg.utils.TypeUtils;
 
 import java.lang.invoke.MethodHandle;
 

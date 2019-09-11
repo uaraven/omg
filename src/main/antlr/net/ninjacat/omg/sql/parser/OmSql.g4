@@ -69,7 +69,7 @@ column_alias
  ;
 
 source_name
- : IDENTIFIER
+ : CLASS_IDENTIFIER
  ;
 
 field_name
@@ -91,6 +91,10 @@ K_WHERE : W H E R E;
 IDENTIFIER
  : [a-zA-Z_$] [a-zA-Z_0-9$]*
  ;
+
+CLASS_IDENTIFIER
+ : [a-zA-Z_$] [a-zA-Z_0-9$.]*
+  ;
 
 NUMERIC_LITERAL
  : DIGIT+ ( '.' DIGIT* )? ( E [-+]? DIGIT+ )?

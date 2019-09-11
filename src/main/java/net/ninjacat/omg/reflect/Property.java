@@ -4,6 +4,7 @@ import io.vavr.control.Try;
 import net.jcip.annotations.Immutable;
 import net.ninjacat.omg.errors.PatternException;
 import net.ninjacat.omg.utils.Reflect;
+import net.ninjacat.omg.utils.TypeUtils;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
