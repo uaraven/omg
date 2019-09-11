@@ -11,9 +11,15 @@ import java.util.stream.Collectors;
 public class InProducer implements SqlConditionProducer<OmSqlParser.InExprContext> {
 
     @Override
-    public void create(final Conditions.LogicalConditionBuilder builder, final String property, final OmSqlParser.InExprContext value) {
+    public void create(final Conditions.LogicalConditionBuilder builder,
+                       final String property,
+                       final TypeValidator validator,
+                       final OmSqlParser.InExprContext value) {
         AntlrTools.assertError(value.list().children);
-        final List<Object> values = value.list().literal_value().stream().map(it -> toJavaType(it.getText())).collect(Collectors.toList());
+        final List<Object> values = value.list().literal_value().stream().map(it -> {
+            validator.validate(property, it.getText());
+            return toJavaType(it.getText());
+        }).collect(Collectors.toList());
         if (values.isEmpty()) {
             builder.property(property).in(Collections.emptyList());
         } else {

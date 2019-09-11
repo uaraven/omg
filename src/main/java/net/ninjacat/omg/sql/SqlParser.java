@@ -1,5 +1,6 @@
 package net.ninjacat.omg.sql;
 
+import io.vavr.control.Try;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.SqlParsingException;
@@ -14,22 +15,28 @@ import java.util.Optional;
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
 
+@SuppressWarnings("OverlyCoupledClass")
 public final class SqlParser {
     private final OmSqlParser.WhereContext where;
+    private final TypeValidator typeValidator;
 
     public static SqlParser of(final String query) {
         final OmSqlLexer lexer = new OmSqlLexer(CharStreams.fromString(query));
         final OmSqlParser parser = new OmSqlParser(new CommonTokenStream(lexer));
         final OmSqlParser.FilterContext tree = parser.filter();
 
-        return new SqlParser(tree.sql_stmt().select().where());
+        return new SqlParser(tree.sql_stmt().select().source_name().getText(), tree.sql_stmt().select().where());
     }
 
     static SqlParser ofParsed(final OmSqlParser.SelectContext select) {
-        return new SqlParser(select.where());
+        return new SqlParser(select.source_name().getText(), select.where());
     }
 
-    private SqlParser(final OmSqlParser.WhereContext where) {
+    private SqlParser(final String className, final OmSqlParser.WhereContext where) {
+        this.typeValidator = Optional.ofNullable(className).flatMap(
+                cls -> Try.<TypeValidator>of(() -> new ClassValidator(Class.forName(cls))).toJavaOptional())
+                .orElseGet(FakeValidator::new);
+
         this.where = where;
     }
 
@@ -61,7 +68,7 @@ public final class SqlParser {
 
         final Operation conditionOperation = Operation.byOpCode("in")
                 .getOrElseThrow(() -> new SqlParsingException("Unsupported operation 'IN'"));
-        conditionOperation.getProducer().create(builder, property, expr);
+        conditionOperation.getProducer().create(builder, property, typeValidator, expr);
     }
 
 
@@ -70,7 +77,7 @@ public final class SqlParser {
 
         final Operation conditionOperation = Operation.byOpCode("match")
                 .getOrElseThrow(() -> new SqlParsingException("Unsupported operation 'IN SELECT'"));
-        conditionOperation.getProducer().create(builder, property, expr);
+        conditionOperation.getProducer().create(builder, property, typeValidator, expr);
     }
 
     private void processExpression(final OmSqlParser.AndExprContext expr, final Conditions.LogicalConditionBuilder builder) {
@@ -101,6 +108,6 @@ public final class SqlParser {
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
         final Operation conditionOperation = Operation.byOpCode(operation)
                 .getOrElseThrow(() -> new SqlParsingException("Unsupported operation '%s'", operation));
-        conditionOperation.getProducer().create(builder, property, expr);
+        conditionOperation.getProducer().create(builder, property, typeValidator, expr);
     }
 }
