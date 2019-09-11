@@ -12,7 +12,7 @@ public class RegexProducer implements SqlConditionProducer<OmSqlParser.Condition
                        final OmSqlParser.ConditionContext value) {
         final Object converted = toJavaType(value.literal_value().getText());
         if (converted instanceof String) {
-            validator.validate(property, (String) converted);
+            validator.validate(property, converted);
             builder.property(property).regex((String) converted);
         } else {
             throw new SqlParsingException("Regex operation is only supported for strings");

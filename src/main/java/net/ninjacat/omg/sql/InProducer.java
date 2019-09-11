@@ -17,8 +17,9 @@ public class InProducer implements SqlConditionProducer<OmSqlParser.InExprContex
                        final OmSqlParser.InExprContext value) {
         AntlrTools.assertError(value.list().children);
         final List<Object> values = value.list().literal_value().stream().map(it -> {
-            validator.validate(property, it.getText());
-            return toJavaType(it.getText());
+            final Object typed = toJavaType(it.getText());
+            validator.validate(property, typed);
+            return typed;
         }).collect(Collectors.toList());
         if (values.isEmpty()) {
             builder.property(property).in(Collections.emptyList());
@@ -27,7 +28,7 @@ public class InProducer implements SqlConditionProducer<OmSqlParser.InExprContex
             if (!values.stream().allMatch(it -> firstClass.isAssignableFrom(it.getClass()))) {
                 throw new SqlParsingException("All elements of IN operation should be of same type");
             }
-            final List<Object> items = values.stream().map(it -> firstClass.cast(it)).collect(Collectors.toList());
+            final List<Object> items = values.stream().map(firstClass::cast).collect(Collectors.toList());
             builder.property(property).in(items);
         }
     }

@@ -4,7 +4,7 @@ import net.ninjacat.omg.errors.TypeConversionException;
 
 public class FakeValidator implements TypeValidator {
     @Override
-    public void validate(final String fieldName, final String value) throws TypeConversionException {
+    public <T> void validate(final String fieldName, final T value) throws TypeConversionException {
         // accept every value
     }
 }

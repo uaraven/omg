@@ -7,15 +7,21 @@ import java.lang.reflect.Method;
 
 public class ClassValidator implements TypeValidator {
 
-    private Class<?> clazz;
+    private final Class<?> clazz;
 
     ClassValidator(final Class<?> clazz) {
         this.clazz = clazz;
     }
 
     @Override
-    public void validate(final String fieldName, final String value) throws TypeConversionException {
+    public <T> void validate(final String fieldName, final T value) throws TypeConversionException {
         final Method callable = Reflect.getCallable(fieldName, clazz);
-        callable.getReturnType();
+        final Class<?> propertyType = callable.getReturnType();
+
+        failIfNotAssignable(value, propertyType);
+    }
+
+    private <T> void failIfNotAssignable(T value, Class<?> propertyType) {
+
     }
 }

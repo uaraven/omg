@@ -10,11 +10,13 @@ public class GteProducer implements SqlConditionProducer<OmSqlParser.ConditionCo
                        final String property,
                        final TypeValidator validator,
                        final OmSqlParser.ConditionContext value) {
-        final String text = value.literal_value().getText();
-        validator.validate(property, text);
-        builder.or(cond -> cond
-                .property(property).gt(toJavaType(text))
-                .property(property).eq(toJavaType(text))
+        final Object typed = toJavaType(value.literal_value().getText());
+        validator.validate(property, typed);
+        builder.or(cond -> {
+                    cond
+                            .property(property).gt(typed)
+                            .property(property).eq(typed);
+                }
         );
     }
 }
