@@ -14,4 +14,5 @@ public final class Strings {
             else return String.format("%" + indent + "s", "") + input;
         }).collect(Collectors.joining("\n"));
     }
+
 }

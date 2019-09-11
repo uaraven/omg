@@ -1,6 +1,7 @@
 package net.ninjacat.omg.reflect;
 
 import net.ninjacat.omg.patterns.PropertyPattern;
+import net.ninjacat.omg.utils.TypeUtils;
 
 import java.util.List;
 

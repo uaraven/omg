@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.*;
-import static net.ninjacat.omg.reflect.TypeUtils.convertToBasicType;
+import static net.ninjacat.omg.utils.TypeUtils.convertToBasicType;
 
 @SuppressWarnings("FeatureEnvy")
 @Immutable

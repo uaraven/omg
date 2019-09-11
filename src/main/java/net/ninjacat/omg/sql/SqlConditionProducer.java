@@ -8,7 +8,7 @@ import static io.vavr.API.*;
 
 @FunctionalInterface
 public interface SqlConditionProducer<T extends OmSqlParser.ExprContext> {
-    void create(Conditions.LogicalConditionBuilder builder, String property, T value);
+    void create(Conditions.LogicalConditionBuilder builder, String property, TypeValidator validator, T value);
 
     /**
      * Makes a best guess on a value type.
@@ -25,7 +25,7 @@ public interface SqlConditionProducer<T extends OmSqlParser.ExprContext> {
                 Case($(SqlTypeConversion::isDouble), Double::parseDouble),
                 Case($(SqlTypeConversion::isString), SqlTypeConversion::extractString),
                 Case($(), s -> {
-                    throw new SqlParsingException("Unsuppoted value: %s", value);
+                    throw new SqlParsingException("Unsupported value: %s", value);
                 })
         );
     }

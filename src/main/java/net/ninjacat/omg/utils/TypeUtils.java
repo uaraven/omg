@@ -1,9 +1,10 @@
-package net.ninjacat.omg.reflect;
+package net.ninjacat.omg.utils;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.MatcherException;
+import net.ninjacat.omg.reflect.Property;
 
 import java.lang.invoke.MethodHandle;
 import java.util.function.Function;
@@ -13,7 +14,7 @@ import static io.vavr.API.*;
 /**
  * Basic type conversions
  */
-final class TypeUtils {
+public final class TypeUtils {
     private TypeUtils() {
     }
 
@@ -49,7 +50,7 @@ final class TypeUtils {
      * @param aClass Type to widen
      * @return Widened type
      */
-    static Class widen(final Class<?> aClass) {
+    public static Class widen(final Class<?> aClass) {
         if (INT_CLASSES.contains(aClass)) {
             return Long.class;
         } else if (FLOAT_CLASSES.contains(aClass)) {
@@ -67,7 +68,7 @@ final class TypeUtils {
      * @param value Value to convert to basic type
      * @return Value converted to basic type, if possible, otherwise original value
      */
-    static Object convertToBasicType(final Object value) {
+    public static Object convertToBasicType(final Object value) {
         return Match(value).of(
                 Case($(TypeUtils::isInteger), i -> (long) (int) i),
                 Case($(TypeUtils::isShort), i -> (long) (short) i),
@@ -78,7 +79,7 @@ final class TypeUtils {
         );
     }
 
-    static <T, R> R getAsType(final T instance, final Property<T> property, final Class<? extends R> valueType) {
+    public static <T, R> R getAsType(final T instance, final Property<T> property, final Class<? extends R> valueType) {
         final MethodHandle getter = property.getGetterMethod();
         return Try.of(() -> getter.invoke(instance))
                 .map(it -> valueType.cast(TypeUtils.convertToBasicType(it)))
