@@ -28,7 +28,7 @@ public final class SqlParser {
         return new SqlParser(getSource(tree.sql_stmt().select()), tree.sql_stmt().select().where());
     }
 
-    private static String getSource(OmSqlParser.SelectContext select) {
+    private static String getSource(final OmSqlParser.SelectContext select) {
         return select.source_name() == null ? null : select.source_name().getText();
     }
 

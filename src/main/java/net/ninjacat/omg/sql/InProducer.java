@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Producer for SQL condition IN (list)
+ */
 public class InProducer implements SqlConditionProducer<OmSqlParser.InExprContext> {
 
     @Override

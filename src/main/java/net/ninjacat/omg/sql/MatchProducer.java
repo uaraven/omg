@@ -3,6 +3,9 @@ package net.ninjacat.omg.sql;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.sql.parser.OmSqlParser;
 
+/**
+ * Producer for SQL condition IN (subquery)
+ */
 public class MatchProducer implements SqlConditionProducer<OmSqlParser.MatchExprContext> {
 
     @Override
