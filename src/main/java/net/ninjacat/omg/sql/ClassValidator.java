@@ -25,6 +25,9 @@ public class ClassValidator implements TypeValidator {
     private <T> void failIfNotAssignable(final T value, final Class<?> propertyType) {
         final Class<?> widenedPropertyType = TypeUtils.widen(propertyType);
         final Class<?> widenedValueType = TypeUtils.widen(value.getClass());
+        if (!widenedPropertyType.isPrimitive() && widenedValueType.equals(String.class)) {
+            return;
+        }
         if (!(widenedPropertyType.equals(Double.class) && widenedValueType.equals(Long.class))) {
             // Allow int to double checks, but not vice versa
             if (!widenedPropertyType.isAssignableFrom(widenedValueType)) {

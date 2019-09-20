@@ -1,6 +1,9 @@
 package net.ninjacat.omg.sql;
 
 import io.vavr.control.Try;
+import net.ninjacat.omg.errors.SqlParsingException;
+
+import static io.vavr.API.*;
 
 final class SqlTypeConversion {
     private SqlTypeConversion() {
@@ -31,5 +34,20 @@ final class SqlTypeConversion {
 
     static String extractString(final String s) {
         return s.substring(1, s.length() - 1);
+    }
+
+    static boolean isNumber(final Class cls) {
+        return cls.isAssignableFrom(Number.class);
+    }
+
+    static Number parseNumeric(final String value) {
+        return Match(value).of(
+                Case($(SqlTypeConversion::isInteger), Integer::parseInt),
+                Case($(SqlTypeConversion::isLong), Long::parseLong),
+                Case($(SqlTypeConversion::isDouble), Double::parseDouble),
+                Case($(), s -> {
+                    throw new SqlParsingException("Cannot parse value '%s' as number", value);
+                })
+        );
     }
 }

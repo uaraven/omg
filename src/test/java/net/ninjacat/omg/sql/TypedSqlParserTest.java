@@ -59,6 +59,18 @@ public class TypedSqlParserTest {
         assertThat(condition, is(expected));
     }
 
+    @Test
+    public void shouldAllowEnums() {
+        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where e ='E1'");
+        final Condition condition = sqlParser.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("e").eq("E1")
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToInt() {
         final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where id > 25.1");
@@ -84,17 +96,24 @@ public class TypedSqlParserTest {
         sqlParser.getCondition();
     }
 
+    public static enum E {
+        E1,
+        E2;
+    }
+
     public static class Data {
         private final int id;
         private final double height;
         private final Short age;
         private final String name;
+        private final E e;
 
-        public Data(final int id, final double height, final String name, final short age) {
+        public Data(final int id, final double height, final String name, final short age, final E e) {
             this.id = id;
             this.height = height;
             this.name = name;
             this.age = age;
+            this.e = e;
         }
 
         public int getId() {
@@ -111,6 +130,10 @@ public class TypedSqlParserTest {
 
         public Short getAge() {
             return age;
+        }
+
+        public E getE() {
+            return e;
         }
     }
 }

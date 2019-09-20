@@ -4,7 +4,7 @@ import net.ninjacat.omg.patterns.PropertyPattern;
 
 /**
  * Base class for matching property value.
- * @param <T>
+ * @param <T> Type of object containing the property
  */
 public abstract class BasePropertyPattern<T> implements PropertyPattern<T> {
     private final Property property;
