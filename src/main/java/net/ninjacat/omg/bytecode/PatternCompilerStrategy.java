@@ -25,7 +25,7 @@ public interface PatternCompilerStrategy {
      * At the moment of call, instance reference will be on JVM stack. Generated code must leave property value on stack.
      *
      * @param mv       {@link MethodVisitor} to generate code
-     * @param property
+     * @param property Reference to a {@link Property}
      */
     @SuppressWarnings("FeatureEnvy")
     default void generatePropertyGet(final MethodVisitor mv, final Property property) {

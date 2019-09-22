@@ -19,11 +19,10 @@ public class InProducer implements SqlConditionProducer<OmSqlParser.InExprContex
                        final TypeValidator validator,
                        final OmSqlParser.InExprContext value) {
         AntlrTools.assertError(value.list().children);
-        final List<Object> values = value.list().literal_value().stream().map(it -> {
-            final Object typed = toJavaType(it.getText());
-            validator.validate(property, typed);
-            return typed;
-        }).collect(Collectors.toList());
+        final List<Object> values = value.list().literal_value().stream()
+                .map(it -> validator.validate(property, it.getText()))
+                .collect(Collectors.toList());
+
         if (values.isEmpty()) {
             builder.property(property).in(Collections.emptyList());
         } else {

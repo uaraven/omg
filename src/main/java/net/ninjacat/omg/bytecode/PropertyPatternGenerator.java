@@ -54,6 +54,7 @@ class PropertyPatternGenerator<T> {
         writer.visitEnd();
         return Try.of(() -> {
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(), writer.toByteArray());
+            CompileDebugger.dumpClass("/tmp/dump.class", writer.toByteArray());
             return instantiatePattern(patternClass);
         }).getOrElseThrow(this::wrapException);
     }

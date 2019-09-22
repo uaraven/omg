@@ -14,7 +14,7 @@ public final class ObjectStrategyProvider {
     }
 
 
-    public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
+    public static PatternCompilerStrategy forMethod(final Class<?> cls, final ConditionMethod method) {
         switch (method) {
             case EQ:
             case NEQ:
@@ -23,6 +23,8 @@ public final class ObjectStrategyProvider {
                 return new ObjectMatchStrategy();
             case IN:
                 return new ReferenceInStrategy();
+            case REGEX:
+                return new ObjectRegexStrategy();
             default:
                 throw new CompilerException("Unsupported condition '%s' for Object type", method);
         }

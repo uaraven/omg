@@ -41,9 +41,9 @@ public final class TypeUtils {
     /**
      * Widens type to one supported by matcher.
      * <p>
-     * int, short, byte, char -> long
+     * int, short, byte, char -&gt; long
      * <p>
-     * float -> double
+     * float -&gt; double
      * <p>
      * All other types remain unchanged.
      *

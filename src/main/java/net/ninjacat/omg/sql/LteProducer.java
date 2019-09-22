@@ -10,8 +10,7 @@ public class LteProducer implements SqlConditionProducer<OmSqlParser.ConditionCo
                        final String property,
                        final TypeValidator validator,
                        final OmSqlParser.ConditionContext value) {
-        final Object typedValue = toJavaType(value.literal_value().getText());
-        validator.validate(property, typedValue);
+        final Object typedValue = validator.validate(property, value.literal_value().getText());
         builder.or(cond -> cond
                 .property(property).lt(typedValue)
                 .property(property).eq(typedValue)

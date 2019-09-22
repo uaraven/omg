@@ -38,7 +38,8 @@ public final class SqlParser {
 
     private SqlParser(final String className, final OmSqlParser.WhereContext where) {
         this.typeValidator = Optional.ofNullable(className).map(
-                cls -> Try.<TypeValidator>of(() -> new ClassValidator(Class.forName(cls))).getOrElseThrow(() -> new SqlParsingException("Class " + cls + " not found")))
+                cls -> Try.<TypeValidator>of(() -> new ClassValidator(Class.forName(cls)))
+                        .getOrElseThrow(() -> new SqlParsingException("Class " + cls + " not found")))
                 .orElseGet(FakeValidator::new);
 
         this.where = where;

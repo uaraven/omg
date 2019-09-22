@@ -7,7 +7,7 @@ import net.ninjacat.omg.errors.TypeConversionException;
 /**
  * Base class for {@link net.ninjacat.omg.patterns.PropertyPattern}s for long properties
  *
- * @param <T>
+ * @param <T> Type of object containing the property
  */
 public abstract class LongBasePropertyPattern<T> extends BasePropertyPattern<T> {
     private final long matchingValue;

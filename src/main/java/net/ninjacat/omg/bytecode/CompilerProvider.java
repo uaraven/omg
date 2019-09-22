@@ -42,7 +42,7 @@ final class CompilerProvider {
                 Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
                 Case($(is(String.class)), s -> StringStrategyProvider.forMethod(method)),
                 Case($((Predicate<Class>) Enum.class::isAssignableFrom), e -> EnumStrategy.forMethod(method)),
-                Case($(), $_ -> ObjectStrategyProvider.forMethod(method))
+                Case($(), $_ -> ObjectStrategyProvider.forMethod(cls, method))
         );
     }
 
