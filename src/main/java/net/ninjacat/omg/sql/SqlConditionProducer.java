@@ -4,6 +4,8 @@ import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.SqlParsingException;
 import net.ninjacat.omg.sql.parser.OmSqlParser;
 
+import java.util.function.Predicate;
+
 import static io.vavr.API.*;
 import static io.vavr.Predicates.is;
 
@@ -32,7 +34,7 @@ public interface SqlConditionProducer<T extends OmSqlParser.ExprContext> {
     }
 
     /**
-     * Makes a best guess on a value type.
+     * Converts string value into Java object of suitable type
      * <p>
      * Can distinguish between int, long, double and string.
      *
@@ -40,12 +42,14 @@ public interface SqlConditionProducer<T extends OmSqlParser.ExprContext> {
      * @param value      String containing a value
      * @return Value of correct type
      */
-    default Object toJavaType(final Class targetType, final String value) {
+    @SuppressWarnings("unchecked")
+    default Object toJavaTypeStrict(final Class targetType, final String value) {
         return Match(targetType).of(
                 Case($(is(null)), s -> toJavaType(value)),
                 Case($(SqlTypeConversion::isNumber), s -> SqlTypeConversion.parseNumeric(value)),
-                Case($(is(String.class)), s -> SqlTypeConversion.extractString(value)),
+                Case($(is(String.class)), s -> SqlTypeConversion.extractStringChecked(value)),
                 Case($(Class::isEnum), s -> Enum.valueOf(targetType, value)),
+                Case($((Predicate<Class>) Object.class::isAssignableFrom), s -> value),
                 Case($(), s -> {
                     throw new SqlParsingException("Cannot handle type %s", targetType);
                 })

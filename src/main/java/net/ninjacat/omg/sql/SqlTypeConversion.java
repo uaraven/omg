@@ -36,8 +36,21 @@ final class SqlTypeConversion {
         return s.substring(1, s.length() - 1);
     }
 
-    static boolean isNumber(final Class cls) {
-        return cls.isAssignableFrom(Number.class);
+    static String extractStringChecked(final String s) {
+        if (isString(s)) {
+            return s.substring(1, s.length() - 1);
+        } else {
+            throw new SqlParsingException("Invalid string: " + s);
+        }
+    }
+
+
+    static <T> boolean isNumber(final Class<T> cls) {
+        return Number.class.isAssignableFrom(cls);
+    }
+
+    static <T> boolean isObject(final Class<T> cls) {
+        return Object.class.isAssignableFrom(cls);
     }
 
     static Number parseNumeric(final String value) {

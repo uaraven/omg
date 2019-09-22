@@ -7,8 +7,9 @@ public class EqProducer implements SqlConditionProducer<OmSqlParser.ConditionCon
 
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder, final String property, final TypeValidator validator, final OmSqlParser.ConditionContext value) {
-        final Object typed = toJavaType(value.literal_value().getText());
-        validator.validate(property, typed);
+        String text = value.literal_value().getText();
+        validator.validate(property, text);
+        final Object typed = toJavaType(text);
         builder.property(property).eq(typed);
     }
 }
