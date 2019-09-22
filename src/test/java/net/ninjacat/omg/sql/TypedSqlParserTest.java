@@ -65,16 +65,10 @@ public class TypedSqlParserTest {
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
-                .property("e").eq("E1")
+                .property("e").eq(E.E1)
                 .build();
 
         assertThat(condition, is(expected));
-    }
-
-    @Test(expected = TypeConversionException.class)
-    public void shouldFailDoubleToInt() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where id > 25.1");
-        sqlParser.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
