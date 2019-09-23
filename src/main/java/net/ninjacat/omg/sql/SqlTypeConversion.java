@@ -3,6 +3,7 @@ package net.ninjacat.omg.sql;
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.SqlParsingException;
 import net.ninjacat.omg.errors.TypeConversionException;
+import net.ninjacat.omg.utils.TypeUtils;
 
 import java.util.function.Predicate;
 
@@ -46,7 +47,7 @@ final class SqlTypeConversion {
     static Object toJavaTypeStrict(final Class targetType, final String value) {
         return Try.of(() -> Match(targetType).of(
                 Case($(is(null)), s -> toJavaType(value)),
-                Case($(SqlTypeConversion::isNumber), s -> SqlTypeConversion.parseNumeric(value)),
+                Case($(SqlTypeConversion::isNumber), s -> SqlTypeConversion.parseIntoNumeric(targetType, value)),
                 Case($(is(String.class)), s -> SqlTypeConversion.extractStringChecked(value)),
                 Case($(Class::isEnum), s -> Enum.valueOf(targetType, SqlTypeConversion.extractStringChecked(value))),
                 Case($((Predicate<Class>) Object.class::isAssignableFrom), s -> value),
@@ -91,37 +92,12 @@ final class SqlTypeConversion {
         }
     }
 
-
     private static <T> boolean isNumber(final Class<T> cls) {
-        if (cls.isPrimitive()) {
-            return Number.class.isAssignableFrom(getBoxedType(cls));
-        } else {
-            return Number.class.isAssignableFrom(cls);
-        }
+        return TypeUtils.isIntegerType(cls) || TypeUtils.isFloatType(cls);
     }
 
-    static <T> boolean isObject(final Class<T> cls) {
-        return Object.class.isAssignableFrom(cls);
-    }
-
-    private static Class getBoxedType(final Class primitive) {
-        return Match(primitive).of(
-                Case($(is(int.class)), s -> Integer.class),
-                Case($(is(long.class)), s -> Long.class),
-                Case($(is(byte.class)), s -> Byte.class),
-                Case($(is(short.class)), s -> Short.class),
-                Case($(is(char.class)), s -> Character.class),
-                Case($(is(boolean.class)), s -> Boolean.class),
-                Case($(is(float.class)), s -> Float.class),
-                Case($(is(double.class)), s -> Double.class),
-                Case($(), s -> {
-                    throw new SqlParsingException(String.format("Type '%s' is not primitive", primitive));
-                })
-        );
-    }
-
-    private static Number parseNumeric(final String value) {
-        return Match(value).of(
+    private static <T> Number parseIntoNumeric(final Class<T> target, final String value) {
+        final Number number = Match(value).of(
                 Case($(SqlTypeConversion::isInteger), Integer::parseInt),
                 Case($(SqlTypeConversion::isLong), Long::parseLong),
                 Case($(SqlTypeConversion::isDouble), Double::parseDouble),
@@ -129,5 +105,7 @@ final class SqlTypeConversion {
                     throw new SqlParsingException("Cannot parse value '%s' as number", value);
                 })
         );
+        return TypeUtils.ensureNumericType(target, number);
     }
+
 }

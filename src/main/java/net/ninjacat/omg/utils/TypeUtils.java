@@ -1,9 +1,11 @@
 package net.ninjacat.omg.utils;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.MatcherException;
+import net.ninjacat.omg.errors.TypeConversionException;
 import net.ninjacat.omg.reflect.Property;
 
 import java.lang.invoke.MethodHandle;
@@ -37,6 +39,14 @@ public final class TypeUtils {
             double.class
     );
 
+    private static final HashMap<Function<Class<?>, Boolean>, Function<Number, Number>> NUMBER_CONVERTER = HashMap.of(
+            TypeUtils::isByteClass, Number::byteValue,
+            TypeUtils::isIntClass, Number::intValue,
+            TypeUtils::isShortClass, Number::shortValue,
+            TypeUtils::isLongClass, Number::longValue,
+            TypeUtils::isFloatClass, Number::floatValue,
+            TypeUtils::isDoubleClass, Number::doubleValue
+    );
 
     /**
      * Widens type to one supported by matcher.
@@ -104,5 +114,71 @@ public final class TypeUtils {
 
     private static boolean isFloat(final Object o) {
         return o instanceof Float || o.getClass().equals(float.class);
+    }
+
+    private static <T> boolean isIntClass(final Class<T> o) {
+        return o.equals(Integer.class) || o.equals(int.class);
+    }
+
+    private static <T> boolean isLongClass(final Class<T> o) {
+        return o.equals(Long.class) || o.equals(long.class);
+    }
+
+    private static <T> boolean isShortClass(final Class<T> o) {
+        return o.equals(Short.class) || o.equals(short.class);
+    }
+
+    private static <T> boolean isByteClass(final Class<T> o) {
+        return o.equals(Byte.class) || o.equals(byte.class);
+    }
+
+    private static <T> boolean isCharClass(final Class<T> o) {
+        return o.equals(Character.class) || o.equals(char.class);
+    }
+
+    private static <T> boolean isFloatClass(final Class<T> o) {
+        return o.equals(Float.class) || o.equals(float.class);
+    }
+
+    private static <T> boolean isDoubleClass(final Class<T> o) {
+        return o.equals(Double.class) || o.equals(double.class);
+    }
+
+    /**
+     * Converts {@link Number} value into requested numeric type
+     *
+     * @param type  Requested type
+     * @param value Value to convert
+     * @param <T>   Type parameter
+     * @return {@link Number} converted into requested type
+     */
+    public static <T> Number ensureNumericType(final Class<T> type, final Number value) {
+        if (isCharClass(type)) {
+            throw new TypeConversionException(value.getClass(), value, type);
+        } else {
+            return NUMBER_CONVERTER.find(k -> k._1().apply(type)).get()._2().apply(value);
+        }
+    }
+
+    /**
+     * Checks whether class is an integer number (i.e. int, short, byte, long, char or corresponding boxed type)
+     *
+     * @param cls Class to test
+     * @param <T> Class parameter
+     * @return true if class is integer number
+     */
+    public static <T> boolean isIntegerType(final Class<T> cls) {
+        return INT_CLASSES.contains(cls);
+    }
+
+    /**
+     * Checks whether class is an floating point number (i.e. float, double or corresponding boxed type)
+     *
+     * @param cls Class to test
+     * @param <T> Class parameter
+     * @return true if class is floating point number
+     */
+    public static <T> boolean isFloatType(final Class<T> cls) {
+        return FLOAT_CLASSES.contains(cls);
     }
 }

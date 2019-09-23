@@ -45,4 +45,41 @@ public class SqlTypeConversionTest {
     public void shouldFailToExtractStringWithUnmatchedQuotes() {
         SqlTypeConversion.extractStringChecked("\"value'");
     }
+
+    @Test
+    public void shouldConvertStringToInteger() {
+        final Object result = SqlTypeConversion.toJavaTypeStrict(Integer.class, "42");
+        assertThat(result, is(42));
+    }
+
+    @Test
+    public void shouldConvertStringToInt() {
+        final Object result = SqlTypeConversion.toJavaTypeStrict(int.class, "42");
+        assertThat(result, is(42));
+    }
+
+    @Test
+    public void shouldConvertStringToLong() {
+        final Object result = SqlTypeConversion.toJavaTypeStrict(long.class, "42");
+        assertThat(result, is(42L));
+    }
+
+
+    @Test
+    public void shouldConvertStringToShort() {
+        final Object result = SqlTypeConversion.toJavaTypeStrict(short.class, "42");
+        assertThat(result, is((short) 42));
+    }
+
+    @Test
+    public void shouldConvertStringToDouble() {
+        final Object result = SqlTypeConversion.toJavaTypeStrict(Double.class, "42.42");
+        assertThat(result, is(42.42));
+    }
+
+    @Test
+    public void shouldConvertStringToPrimitiveDouble() {
+        final Object result = SqlTypeConversion.toJavaTypeStrict(double.class, "42");
+        assertThat(result, is(42.0));
+    }
 }

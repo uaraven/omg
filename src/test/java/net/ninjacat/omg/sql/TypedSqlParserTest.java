@@ -17,7 +17,7 @@ public class TypedSqlParserTest {
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
-                .property("age").in(io.vavr.collection.List.of(25, 35, 45).asJava())
+                .property("age").in(io.vavr.collection.List.of((short) 25, (short) 35, (short) 45).asJava())
                 .build();
 
         assertThat(condition, is(expected));
@@ -53,7 +53,7 @@ public class TypedSqlParserTest {
         final Condition condition = sqlParser.getCondition();
 
         final Condition expected = Conditions.matcher()
-                .property("height").gt(25)
+                .property("height").gt(25.0)
                 .build();
 
         assertThat(condition, is(expected));
