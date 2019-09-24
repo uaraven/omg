@@ -17,17 +17,18 @@ public final class EnumStrategy implements PatternCompilerStrategy {
     }
 
     public static PatternCompilerStrategy forMethod(final ConditionMethod method) {
-        if (method == ConditionMethod.EQ || method == ConditionMethod.NEQ) {
-            return new EnumStrategy(method);
-        } else if (method == ConditionMethod.IN) {
-            return new ReferenceInStrategy();
-        } else if (method == ConditionMethod.REGEX) {
-            return new ObjectRegexStrategy();
-        } else {
-            throw new CompilerException("Unsupported condition '%s' for Enum type", method);
+        switch (method) {
+            case EQ:
+            case NEQ:
+                return new EnumStrategy(method);
+            case IN:
+                return new ReferenceInStrategy();
+            case REGEX:
+                return new ObjectRegexStrategy();
+            default:
+                throw new CompilerException("Unsupported condition '%s' for Enum type", method);
         }
     }
-
 
     @Override
     public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
@@ -38,7 +39,6 @@ public final class EnumStrategy implements PatternCompilerStrategy {
     public String getMatchingValueDescriptor() {
         return "()Ljava/lang/Enum;";
     }
-
 
     @Override
     public void generateCompareCode(final MethodVisitor mv) {

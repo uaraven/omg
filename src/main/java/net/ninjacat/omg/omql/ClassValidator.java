@@ -1,11 +1,11 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.errors.TypeConversionException;
 import net.ninjacat.omg.utils.Reflect;
 
 import java.lang.reflect.Method;
 
-import static net.ninjacat.omg.sql.SqlTypeConversion.toJavaTypeStrict;
+import static net.ninjacat.omg.omql.OmqlTypeConversion.toJavaTypeStrict;
 
 public class ClassValidator implements TypeValidator {
 

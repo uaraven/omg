@@ -1,4 +1,4 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import io.vavr.control.Option;
 
@@ -20,7 +20,7 @@ public enum Operation {
     MATCH("match", new MatchProducer());
 
     private final String opCode;
-    private final SqlConditionProducer producer;
+    private final OmqlConditionProducer producer;
 
     private static final Map<String, Operation> opCodeMap =
             Arrays.stream(values()).collect(Collectors.toMap(
@@ -28,7 +28,7 @@ public enum Operation {
                     Function.identity()
             ));
 
-    Operation(final String opCode, final SqlConditionProducer producer) {
+    Operation(final String opCode, final OmqlConditionProducer producer) {
         this.opCode = opCode;
         this.producer = producer;
     }
@@ -37,7 +37,7 @@ public enum Operation {
         return opCode;
     }
 
-    public SqlConditionProducer getProducer() {
+    public OmqlConditionProducer getProducer() {
         return producer;
     }
 

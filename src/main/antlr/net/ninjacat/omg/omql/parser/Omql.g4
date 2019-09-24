@@ -1,7 +1,7 @@
-grammar OmSql;
+grammar Omql;
 
 @header {
-   package net.ninjacat.omg.sql.parser;
+   package net.ninjacat.omg.omql.parser;
 }
 
 filter
@@ -49,7 +49,7 @@ where
 
 select
  : K_SELECT result_field ( ',' result_field )*
-   ( K_FROM source_name )?
+   K_FROM source_name
    where?
  ;
 

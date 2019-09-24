@@ -1,4 +1,4 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
@@ -18,8 +18,8 @@ public class OqlIntegrationTest {
 
     @Test
     public void shouldHandleEnumsInTypedQueries() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where e ='E1'");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where e ='E1'");
+        final Condition condition = queryCompiler.getCondition();
 
         final Pattern pattern = Patterns.compile(
                 condition,
@@ -37,8 +37,8 @@ public class OqlIntegrationTest {
 
     @Test
     public void shouldHandleEnumsInUntypedQueries() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where e ~='E1'");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age where e ~='E1'");
+        final Condition condition = queryCompiler.getCondition();
 
         final Pattern pattern = Patterns.compile(
                 condition,

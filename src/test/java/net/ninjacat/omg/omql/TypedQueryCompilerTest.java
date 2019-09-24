@@ -1,4 +1,4 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
@@ -9,12 +9,12 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class TypedSqlParserTest {
+public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowShortList() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where age in (25, 35, 45)");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where age in (25, 35, 45)");
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("age").in(io.vavr.collection.List.of((short) 25, (short) 35, (short) 45).asJava())
@@ -25,8 +25,8 @@ public class TypedSqlParserTest {
 
     @Test
     public void shouldAllowIntToInt() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where id <> 11");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where id <> 11");
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("id").neq(11)
@@ -37,8 +37,8 @@ public class TypedSqlParserTest {
 
     @Test
     public void shouldAllowStringToString() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where name ~= 'John.*'");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name ~= 'John.*'");
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("name").regex("John.*")
@@ -49,8 +49,8 @@ public class TypedSqlParserTest {
 
     @Test
     public void shouldAllowIntToDoubleConversion() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where height > 25");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where height > 25");
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("height").gt(25.0)
@@ -61,8 +61,8 @@ public class TypedSqlParserTest {
 
     @Test
     public void shouldAllowEnums() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where e ='E1'");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where e ='E1'");
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("e").eq(E.E1)
@@ -73,21 +73,21 @@ public class TypedSqlParserTest {
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToString() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where name = 25.1");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name = 25.1");
+        queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToStringList() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where name in ('a', 'b', 25.1)");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name in ('a', 'b', 25.1)");
+        queryCompiler.getCondition();
     }
 
 
     @Test(expected = PatternException.class)
     public void shouldFailOnInvalidProperty() {
-        final SqlParser sqlParser = SqlParser.of("select name, age from " + Data.class.getName() + " where unknown = 12");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where unknown = 12");
+        queryCompiler.getCondition();
     }
 
     public static enum E {

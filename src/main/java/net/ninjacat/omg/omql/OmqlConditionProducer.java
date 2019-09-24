@@ -1,10 +1,10 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.conditions.Conditions;
-import net.ninjacat.omg.sql.parser.OmSqlParser;
+import net.ninjacat.omg.omql.parser.OmqlParser;
 
 @FunctionalInterface
-public interface SqlConditionProducer<T extends OmSqlParser.ExprContext> {
+public interface OmqlConditionProducer<T extends OmqlParser.ExprContext> {
     void create(Conditions.LogicalConditionBuilder builder, String property, TypeValidator validator, T value);
 
 

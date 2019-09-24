@@ -1,20 +1,20 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.conditions.Conditions;
-import net.ninjacat.omg.errors.SqlParsingException;
-import net.ninjacat.omg.sql.parser.OmSqlParser;
+import net.ninjacat.omg.errors.OmqlParsingException;
+import net.ninjacat.omg.omql.parser.OmqlParser;
 
-public class RegexProducer implements SqlConditionProducer<OmSqlParser.ConditionContext> {
+public class RegexProducer implements OmqlConditionProducer<OmqlParser.ConditionContext> {
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder,
                        final String property,
                        final TypeValidator validator,
-                       final OmSqlParser.ConditionContext value) {
+                       final OmqlParser.ConditionContext value) {
         final Object converted = validator.validate(property, value.literal_value().getText());
         if (converted instanceof String) {
             builder.property(property).regex((String) converted);
         } else {
-            throw new SqlParsingException("Regex operation is only supported for strings");
+            throw new OmqlParsingException("Regex operation is only supported for strings");
         }
     }
 }

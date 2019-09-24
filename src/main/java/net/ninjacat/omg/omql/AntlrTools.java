@@ -1,6 +1,6 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
-import net.ninjacat.omg.errors.SqlParsingException;
+import net.ninjacat.omg.errors.OmqlParsingException;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -18,7 +18,7 @@ final class AntlrTools {
                 .map(ParseTree::getText)
                 .collect(Collectors.toList());
         if (!errorList.isEmpty()) {
-            throw new SqlParsingException("Failed to parse: \n%s", String.join("", errorList));
+            throw new OmqlParsingException("Failed to parse: \n%s", String.join("", errorList));
         }
     }
 }
