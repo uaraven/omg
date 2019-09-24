@@ -21,6 +21,8 @@ public final class EnumStrategy implements PatternCompilerStrategy {
             return new EnumStrategy(method);
         } else if (method == ConditionMethod.IN) {
             return new ReferenceInStrategy();
+        } else if (method == ConditionMethod.REGEX) {
+            return new ObjectRegexStrategy();
         } else {
             throw new CompilerException("Unsupported condition '%s' for Enum type", method);
         }

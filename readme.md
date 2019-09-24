@@ -111,6 +111,9 @@ will throw `TypeConversionException` during query parsing.
 
 If `FROM` is not used then no type-checking will be performed and matching can fail if there are any
 type incompatibilities in conditions.
+
+> Note: `FROM` will be required going forward and not specifying object for which the query is created will be 
+> considered an error.
  
 Supported operations include:
 
