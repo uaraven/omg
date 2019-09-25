@@ -8,9 +8,9 @@ public class NeqProducer implements OmqlConditionProducer<OmqlParser.ConditionCo
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder,
                        final String property,
-                       final TypeValidator validator,
+                       final QueryContext context,
                        final OmqlParser.ConditionContext value) {
-        final Object typed = validator.validate(property, value.literal_value().getText());
+        final Object typed = context.validator().validate(property, value.literal_value().getText());
         builder.property(property).neq(typed);
     }
 }

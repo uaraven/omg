@@ -13,31 +13,11 @@ import java.util.stream.Collectors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 
-public class OqlIntegrationTest {
-
+public class OmqlIntegrationTest {
 
     @Test
     public void shouldHandleEnumsInTypedQueries() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where e ='E1'");
-        final Condition condition = queryCompiler.getCondition();
-
-        final Pattern pattern = Patterns.compile(
-                condition,
-                PatternCompiler.forClass(Data.class));
-
-        final List<Data> test = io.vavr.collection.List.of(
-                new Data(1, 5.5, "test 1", (short) 30, E.E1),
-                new Data(2, 6.5, "test 2", (short) 20, E.E2)
-        ).asJava();
-
-        final List<Data> result = test.stream().filter(pattern::matches).collect(Collectors.toList());
-
-        assertThat(result, hasItems(new Data(1, 5.5, "test 1", (short) 30, E.E1)));
-    }
-
-    @Test
-    public void shouldHandleEnumsInUntypedQueries() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age where e ~='E1'");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data where e ='E1'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Pattern pattern = Patterns.compile(
@@ -56,9 +36,10 @@ public class OqlIntegrationTest {
 
     public enum E {
         E1,
-        E2;
+        E2
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class Data {
         private final int id;
         private final double height;

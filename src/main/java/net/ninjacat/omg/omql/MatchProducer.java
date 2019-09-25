@@ -11,10 +11,9 @@ public class MatchProducer implements OmqlConditionProducer<OmqlParser.MatchExpr
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder,
                        final String property,
-                       final TypeValidator validator,
+                       final QueryContext context,
                        final OmqlParser.MatchExprContext value) {
-        AntlrTools.assertError(value.select().children);
-        final QueryCompiler parser = QueryCompiler.ofParsed(value.select(), allowedSources);
+        final QueryCompiler parser = QueryCompiler.ofParsed(value.select(), context.allowedSources());
         builder.property(property).match(parser.getCondition());
     }
 }

@@ -2,6 +2,7 @@ package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.errors.OmqlParsingException;
 import net.ninjacat.omg.errors.PatternException;
 import net.ninjacat.omg.errors.TypeConversionException;
 import org.junit.Test;
@@ -11,9 +12,14 @@ import static org.hamcrest.Matchers.is;
 
 public class TypedQueryCompilerTest {
 
+    @Test(expected = OmqlParsingException.class)
+    public void shouldFailWhenNoFrom() {
+        QueryCompiler.of("select name, age where age > 25", String.class);
+    }
+
     @Test
     public void shouldAllowShortList() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where age in (25, 35, 45)");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where age in (25, 35, 45)", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -25,7 +31,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowIntToInt() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where id <> 11");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where id <> 11", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -37,7 +43,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowStringToString() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name ~= 'John.*'");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name ~= 'John.*'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -49,7 +55,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowIntToDoubleConversion() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where height > 25");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where height > 25", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -61,7 +67,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowEnums() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where e ='E1'");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where e ='E1'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -73,26 +79,26 @@ public class TypedQueryCompilerTest {
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToString() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name = 25.1");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name = 25.1", Data.class);
         queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToStringList() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name in ('a', 'b', 25.1)");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name in ('a', 'b', 25.1)", Data.class);
         queryCompiler.getCondition();
     }
 
 
     @Test(expected = PatternException.class)
     public void shouldFailOnInvalidProperty() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where unknown = 12");
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where unknown = 12", Data.class);
         queryCompiler.getCondition();
     }
 
-    public static enum E {
+    public enum E {
         E1,
-        E2;
+        E2
     }
 
     public static class Data {

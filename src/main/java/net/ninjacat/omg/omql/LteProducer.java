@@ -8,9 +8,9 @@ public class LteProducer implements OmqlConditionProducer<OmqlParser.ConditionCo
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder,
                        final String property,
-                       final TypeValidator validator,
+                       final QueryContext context,
                        final OmqlParser.ConditionContext value) {
-        final Object typedValue = validator.validate(property, value.literal_value().getText());
+        final Object typedValue = context.validator().validate(property, value.literal_value().getText());
         builder.or(cond -> cond
                 .property(property).lt(typedValue)
                 .property(property).eq(typedValue)

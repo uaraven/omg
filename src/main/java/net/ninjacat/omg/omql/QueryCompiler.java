@@ -21,8 +21,7 @@ import static net.ninjacat.omg.omql.parser.OmqlParser.WhereContext;
 
 public final class QueryCompiler {
     private final WhereContext where;
-    private final TypeValidator typeValidator;
-    private final Collection<Class<?>> allowedSources;
+    private final QueryContext context;
 
     public static QueryCompiler of(final String query, final Class<?> allowedSource) {
         return of(query, io.vavr.collection.List.<Class<?>>of(allowedSource).asJava());
@@ -43,7 +42,12 @@ public final class QueryCompiler {
     public static QueryCompiler of(final String query, final Collection<Class<?>> allowedSources) {
         final OmqlLexer lexer = new OmqlLexer(CharStreams.fromString(query));
         final OmqlParser parser = new OmqlParser(new CommonTokenStream(lexer));
+        final CompilerErrorListener errorListener = new CompilerErrorListener();
+        parser.addErrorListener(errorListener);
         final OmqlParser.FilterContext tree = parser.filter();
+        if (errorListener.hasErrors()) {
+            throw new OmqlParsingException("Failed to parse query: \n%s", errorListener.toString());
+        }
 
         return new QueryCompiler(tree.sql_stmt().select(), allowedSources);
     }
@@ -62,10 +66,11 @@ public final class QueryCompiler {
 
     private QueryCompiler(final OmqlParser.SelectContext selectContext,
                           final Collection<Class<?>> allowedSources) {
-        this.typeValidator = new ClassValidator(getSource(selectContext, allowedSources));
         this.where = selectContext.where();
-        this.allowedSources = allowedSources;
-        QueryContext context = ImmutableQueryContext.builder().build();
+        this.context = ImmutableQueryContext.builder()
+                .allowedSources(allowedSources)
+                .validator(new ClassValidator(getSource(selectContext, allowedSources)))
+                .build();
     }
 
     public Condition getCondition() {
@@ -96,7 +101,7 @@ public final class QueryCompiler {
 
         final Operation conditionOperation = Operation.byOpCode("in")
                 .getOrElseThrow(() -> new OmqlParsingException("Unsupported operation 'IN'"));
-        conditionOperation.getProducer().create(builder, property, typeValidator, expr);
+        conditionOperation.getProducer().create(builder, property, context, expr);
     }
 
 
@@ -105,7 +110,7 @@ public final class QueryCompiler {
 
         final Operation conditionOperation = Operation.byOpCode("match")
                 .getOrElseThrow(() -> new OmqlParsingException("Unsupported operation 'IN SELECT'"));
-        conditionOperation.getProducer().create(builder, property, typeValidator, expr);
+        conditionOperation.getProducer().create(builder, property, context, expr);
     }
 
     private void processExpression(final OmqlParser.AndExprContext expr, final Conditions.LogicalConditionBuilder builder) {
@@ -125,9 +130,7 @@ public final class QueryCompiler {
     }
 
     private void processExpression(final OmqlParser.NotExprContext expr, final Conditions.LogicalConditionBuilder builder) {
-        builder.not(cond -> {
-                    processExpression(expr.expr(), cond);
-                }
+        builder.not(cond -> processExpression(expr.expr(), cond)
         );
     }
 
@@ -136,6 +139,6 @@ public final class QueryCompiler {
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
         final Operation conditionOperation = Operation.byOpCode(operation)
                 .getOrElseThrow(() -> new OmqlParsingException("Unsupported operation '%s'", operation));
-        conditionOperation.getProducer().create(builder, property, typeValidator, expr);
+        conditionOperation.getProducer().create(builder, property, context, expr);
     }
 }

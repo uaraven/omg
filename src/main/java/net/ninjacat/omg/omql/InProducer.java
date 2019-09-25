@@ -16,11 +16,10 @@ public class InProducer implements OmqlConditionProducer<OmqlParser.InExprContex
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder,
                        final String property,
-                       final TypeValidator validator,
+                       final QueryContext context,
                        final OmqlParser.InExprContext value) {
-        AntlrTools.assertError(value.list().children);
         final List<Object> values = value.list().literal_value().stream()
-                .map(it -> validator.validate(property, it.getText()))
+                .map(it -> context.validator().validate(property, it.getText()))
                 .collect(Collectors.toList());
 
         if (values.isEmpty()) {

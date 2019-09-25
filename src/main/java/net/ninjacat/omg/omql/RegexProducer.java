@@ -8,13 +8,13 @@ public class RegexProducer implements OmqlConditionProducer<OmqlParser.Condition
     @Override
     public void create(final Conditions.LogicalConditionBuilder builder,
                        final String property,
-                       final TypeValidator validator,
+                       final QueryContext context,
                        final OmqlParser.ConditionContext value) {
-        final Object converted = validator.validate(property, value.literal_value().getText());
+        final Object converted = context.validator().validate(property, value.literal_value().getText());
         if (converted instanceof String) {
             builder.property(property).regex((String) converted);
         } else {
-            throw new OmqlParsingException("Regex operation is only supported for strings");
+            throw new OmqlParsingException("Regex operation is only supported for string values");
         }
     }
 }
