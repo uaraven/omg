@@ -1,6 +1,5 @@
 package net.ninjacat.omg.omql;
 
-import io.vavr.control.Try;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.OmqlParsingException;
@@ -39,7 +38,7 @@ public final class QueryCompiler {
         return of(query, io.vavr.collection.List.of(sourceA, sourceB, sourceC, sourceD).asJava());
     }
 
-    public static QueryCompiler of(final String query, final Collection<Class<?>> allowedSources) {
+    public static QueryCompiler of(final String query, final Collection<Class<?>> registeredSources) {
         final OmqlLexer lexer = new OmqlLexer(CharStreams.fromString(query));
         final OmqlParser parser = new OmqlParser(new CommonTokenStream(lexer));
         final CompilerErrorListener errorListener = new CompilerErrorListener();
@@ -49,27 +48,19 @@ public final class QueryCompiler {
             throw new OmqlParsingException("Failed to parse query: \n%s", errorListener.toString());
         }
 
-        return new QueryCompiler(tree.sql_stmt().select(), allowedSources);
+        return new QueryCompiler(tree.sql_stmt().select(), new RegisteredQuerySources(registeredSources));
     }
 
-    private static Class getSource(final OmqlParser.SelectContext select, final Collection<Class<?>> allowedSources) {
-        final String className = select.source_name().getText();
-        return allowedSources.stream().filter(cl -> cl.getSimpleName().equals(className)).findFirst().orElseGet(
-                () -> Try.of(() -> Class.forName(className))
-                        .getOrElseThrow(thr -> new OmqlParsingException("Cannot find class '%s'", className))
-        );
-    }
-
-    static QueryCompiler ofParsed(final OmqlParser.SelectContext select, final Collection<Class<?>> allowedSources) {
-        return new QueryCompiler(select, allowedSources);
+    static QueryCompiler ofParsed(final OmqlParser.SelectContext select, final RegisteredQuerySources registeredSources) {
+        return new QueryCompiler(select, registeredSources);
     }
 
     private QueryCompiler(final OmqlParser.SelectContext selectContext,
-                          final Collection<Class<?>> allowedSources) {
+                          final RegisteredQuerySources registeredSources) {
         this.where = selectContext.where();
         this.context = ImmutableQueryContext.builder()
-                .allowedSources(allowedSources)
-                .validator(new ClassValidator(getSource(selectContext, allowedSources)))
+                .registeredSources(registeredSources)
+                .validator(new ClassValidator(registeredSources.getSource(selectContext.source_name().getText())))
                 .build();
     }
 

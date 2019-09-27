@@ -13,7 +13,7 @@ public class MatchProducer implements OmqlConditionProducer<OmqlParser.MatchExpr
                        final String property,
                        final QueryContext context,
                        final OmqlParser.MatchExprContext value) {
-        final QueryCompiler parser = QueryCompiler.ofParsed(value.select(), context.allowedSources());
+        final QueryCompiler parser = QueryCompiler.ofParsed(value.select(), context.registeredSources());
         builder.property(property).match(parser.getCondition());
     }
 }
