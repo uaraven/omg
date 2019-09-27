@@ -77,6 +77,18 @@ public class TypedQueryCompilerTest {
         assertThat(condition, is(expected));
     }
 
+    @Test
+    public void shouldProcessObjectFields() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data where sub IN (select * from Subclass where contents != 'A.*')", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(Conditions.matcher().property("contents").regex("A.*").build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToString() {
         final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name = 25.1", Data.class);
@@ -101,20 +113,35 @@ public class TypedQueryCompilerTest {
         E2
     }
 
+    public static class Subclass {
+        private final String contents;
+
+        Subclass(final String contents) {
+            this.contents = contents;
+        }
+
+        public String getContents() {
+            return contents;
+        }
+    }
+
     public static class Data {
         private final int id;
         private final double height;
         private final Short age;
         private final String name;
         private final E e;
+        private final Subclass sub;
 
-        public Data(final int id, final double height, final String name, final short age, final E e) {
+        public Data(final int id, final double height, final String name, final short age, final E e, final String content) {
             this.id = id;
             this.height = height;
             this.name = name;
             this.age = age;
             this.e = e;
+            this.sub = new Subclass(content);
         }
+
 
         public int getId() {
             return id;
@@ -134,6 +161,10 @@ public class TypedQueryCompilerTest {
 
         public E getE() {
             return e;
+        }
+
+        public Subclass getSub() {
+            return sub;
         }
     }
 }
