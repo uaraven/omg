@@ -47,9 +47,7 @@ SELECT `<list-of-fields>` FROM `<class-name>` WHERE `<list-of-conditions>`
 ``` 
 
 To compile a query into a condition one must provide list of classes used in that query. `QueryCompiler` uses this 
-information to build type-correct conditions. `QueryCompiler` will register all provided classes and all classes
-that a return types of public methods. For example for classes in example below, only `Data` class has to be registered,
-`Subclass` class will be discovered automatically and this will allow queries on `subdata` field.
+information to build type-correct conditions. `QueryCompiler` will register all provided classes and all return types of public methods. For example for classes in example below, only `Data` class has to be registered, `Subclass` class will be discovered automatically and this will allow queries on `subdata` field.
 
 ```java
     class Subclass {
