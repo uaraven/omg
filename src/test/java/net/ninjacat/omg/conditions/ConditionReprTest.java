@@ -25,7 +25,7 @@ public class ConditionReprTest {
     @Theory
     public void testEqRepr(final ComparableValue value) {
         final String repr = Conditions.matcher().property("prop").eq(value.getValue()).build().repr();
-        assertPattern(repr, "'.*' == '.*'");
+        assertPattern(repr, "'.*' = '.*'");
     }
 
     @Test
@@ -52,7 +52,7 @@ public class ConditionReprTest {
     @Test
     public void testStringEqRepr() {
         final String repr = Conditions.matcher().property("prop").eq("text").build().repr();
-        assertPattern(repr, "'.*' == '.*'");
+        assertPattern(repr, "'.*' = '.*'");
     }
 
     @Test
@@ -65,6 +65,15 @@ public class ConditionReprTest {
     public void testStringRegexRepr() {
         final String repr = Conditions.matcher().property("prop").regex("text").build().repr();
         assertPattern(repr, "'.*' ~= '.*'");
+    }
+
+    @Test
+    public void testStringInRepr() {
+        final String repr = Conditions.matcher().property("prop")
+                .in(io.vavr.collection.List.of("A", "B", "C").asJava())
+                .build()
+                .repr();
+        assertPattern(repr, "'prop' in '\\[.*\\]'");
     }
 
     @Test
@@ -89,16 +98,16 @@ public class ConditionReprTest {
     @Test
     public void testNotRepr() {
         final String repr = Conditions.matcher()
-                .not(o -> o.property("prop1").gt(1)).build().repr();
+                .not(o -> o.property("prop1").gt(1)).build().toString();
         assertPattern(repr, "NOT\\s*'.*' > '.*'");
     }
 
-
-    private void assertPattern(final String repr, final String pattern) {
+    private static void assertPattern(final String repr, final String pattern) {
         assertThat(String.format("Repr [%s] doesn't match pattern [%s]", repr, pattern),
                 Pattern.compile(pattern, Pattern.MULTILINE + Pattern.DOTALL).matcher(repr).find(), is(true));
     }
 
+    @FunctionalInterface
     private interface ValueProvider {
         Object getValue();
     }

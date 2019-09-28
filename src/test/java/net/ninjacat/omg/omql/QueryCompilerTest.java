@@ -1,19 +1,28 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
-import net.ninjacat.omg.errors.SqlParsingException;
+import net.ninjacat.omg.errors.OmqlParsingException;
+import net.ninjacat.omg.errors.TypeConversionException;
+import org.immutables.value.Value;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class SqlParserTest {
+public class QueryCompilerTest {
+
+    private static final List<Class<?>> SOURCES = io.vavr.collection.List.of(
+            Person.class,
+            JetPilot.class
+    ).asJava();
 
     @Test
     public void shouldConvertSimpleQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age > 25");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("age").gt(25)
@@ -24,8 +33,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertGteQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age >= 25");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select callsign, age from JetPilot where age >= 25", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .or(c -> c
@@ -39,8 +48,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertLteQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age <= 25");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select callsign, age from JetPilot where age <= 25", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .or(c -> c
@@ -54,8 +63,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertNeqQuery1() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age <> 25");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age <> 25", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("age").neq(25)
@@ -66,8 +75,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertNeqQuery2() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age != 25");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age != 25", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("age").neq(25)
@@ -79,8 +88,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleAndQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age < 25 and name = 'Iñigo'");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age < 25 and name = 'Iñigo'", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .and(c -> c
@@ -93,8 +102,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleOrQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age > 25 or name = 'Iñigo'");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25 or name = 'Iñigo'", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .or(c -> c
@@ -107,8 +116,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleAndOrQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age > 25 or name = 'Iñigo' and status=\"Searching\"");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25 or name = 'Iñigo' and status=\"Searching\"", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .or(c -> c
@@ -125,8 +134,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertMultiAndQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age > 25 and name = 'Iñigo' and status=\"Searching\"");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25 and name = 'Iñigo' and status=\"Searching\"", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .and(c -> c
@@ -143,8 +152,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSimpleRegexQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where name ~= '^Iñigo.*'");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where name ~= '^Iñigo.*'", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("name").regex("^Iñigo.*")
@@ -155,8 +164,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertInQuery() {
-        final SqlParser sqlParser = SqlParser.of("select name, age where age in (1,2,3)");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age in (1,2,3)", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("age").in(io.vavr.collection.List.of(1, 2, 3).asJava())
@@ -167,8 +176,8 @@ public class SqlParserTest {
 
     @Test
     public void shouldConvertSubQuery() {
-        final SqlParser sqlParser = SqlParser.of("select * where friend in (select * where age > 18)");
-        final Condition condition = sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where friend in (select * from Person where age > 18)", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("friend").match(m -> m
@@ -178,39 +187,55 @@ public class SqlParserTest {
         assertThat(condition, is(expected));
     }
 
-    @Test(expected = SqlParsingException.class)
+    @Test(expected = OmqlParsingException.class)
     public void shouldFailToParseQuery() {
-        final SqlParser sqlParser = SqlParser.of("select * where friend is unlike others");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where friend is unlike others", SOURCES);
+        queryCompiler.getCondition();
     }
 
-    @Test(expected = SqlParsingException.class)
+    @Test(expected = TypeConversionException.class)
     public void shouldFailWhenInContainsDifferentTypes() {
-        final SqlParser sqlParser = SqlParser.of("select * where age in (21, 22, 'old enough')");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age in (21, 22, 'old enough')", SOURCES);
+        queryCompiler.getCondition();
     }
 
-    @Test(expected = SqlParsingException.class)
+    @Test(expected = OmqlParsingException.class)
     public void shouldFailWhenRegexOnNonString() {
-        final SqlParser sqlParser = SqlParser.of("select * where age ~= 20");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age ~= 20", SOURCES);
+        queryCompiler.getCondition();
     }
 
-    @Test(expected = SqlParsingException.class)
+    @Test(expected = OmqlParsingException.class)
     public void shouldFailOnSyntaxError1() {
-        final SqlParser sqlParser = SqlParser.of("select * where name = 'jack");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where name = 'jack", SOURCES);
+        queryCompiler.getCondition();
     }
 
-    @Test(expected = SqlParsingException.class)
+    @Test(expected = OmqlParsingException.class)
     public void shouldFailOnSyntaxError2() {
-        final SqlParser sqlParser = SqlParser.of("select * where name in ('jack', 'john'");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where name in ('jack', 'john'", SOURCES);
+        queryCompiler.getCondition();
     }
 
-    @Test(expected = SqlParsingException.class)
+    @Test(expected = OmqlParsingException.class)
     public void shouldFailOnSyntaxError3() {
-        final SqlParser sqlParser = SqlParser.of("select * where name in (not a list or subquery)");
-        sqlParser.getCondition();
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where name in (not a list or subquery)", SOURCES);
+        queryCompiler.getCondition();
+    }
+
+    @Value.Immutable
+    public interface Person {
+        int age();
+
+        String name();
+
+        String status();
+    }
+
+    @Value.Immutable
+    public interface JetPilot {
+        int age();
+
+        String callsign();
     }
 }

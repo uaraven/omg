@@ -7,7 +7,7 @@ public class EqCondition<T> extends ComparisonCondition<T> {
 
     @Override
     protected String operatorRepr() {
-        return "==";
+        return "=";
     }
 
     @Override

@@ -1,7 +1,7 @@
-package net.ninjacat.omg.sql;
+package net.ninjacat.omg.omql;
 
 import io.vavr.control.Try;
-import net.ninjacat.omg.errors.SqlParsingException;
+import net.ninjacat.omg.errors.OmqlParsingException;
 import net.ninjacat.omg.errors.TypeConversionException;
 import net.ninjacat.omg.utils.TypeUtils;
 
@@ -10,8 +10,8 @@ import java.util.function.Predicate;
 import static io.vavr.API.*;
 import static io.vavr.Predicates.is;
 
-final class SqlTypeConversion {
-    private SqlTypeConversion() {
+final class OmqlTypeConversion {
+    private OmqlTypeConversion() {
     }
 
     /**
@@ -22,14 +22,14 @@ final class SqlTypeConversion {
      * @param value String containing a value
      * @return Value of correct type
      */
-    static Object toJavaType(final String value) {
+    private static Object toJavaType(final String value) {
         return Match(value).of(
-                Case($(SqlTypeConversion::isInteger), Integer::parseInt),
-                Case($(SqlTypeConversion::isLong), Long::parseLong),
-                Case($(SqlTypeConversion::isDouble), Double::parseDouble),
-                Case($(SqlTypeConversion::isString), SqlTypeConversion::extractString),
+                Case($(OmqlTypeConversion::isInteger), Integer::parseInt),
+                Case($(OmqlTypeConversion::isLong), Long::parseLong),
+                Case($(OmqlTypeConversion::isDouble), Double::parseDouble),
+                Case($(OmqlTypeConversion::isString), OmqlTypeConversion::extractString),
                 Case($(), s -> {
-                    throw new SqlParsingException("Unsupported value: %s", value);
+                    throw new OmqlParsingException("Unsupported value: %s", value);
                 })
         );
     }
@@ -47,9 +47,9 @@ final class SqlTypeConversion {
     static Object toJavaTypeStrict(final Class targetType, final String value) {
         return Try.of(() -> Match(targetType).of(
                 Case($(is(null)), s -> toJavaType(value)),
-                Case($(SqlTypeConversion::isNumber), s -> SqlTypeConversion.parseIntoNumeric(targetType, value)),
-                Case($(is(String.class)), s -> SqlTypeConversion.extractStringChecked(value)),
-                Case($(Class::isEnum), s -> Enum.valueOf(targetType, SqlTypeConversion.extractStringChecked(value))),
+                Case($(OmqlTypeConversion::isNumber), s -> OmqlTypeConversion.parseIntoNumeric(targetType, value)),
+                Case($(is(String.class)), s -> OmqlTypeConversion.extractStringChecked(value)),
+                Case($(Class::isEnum), s -> Enum.valueOf(targetType, OmqlTypeConversion.extractStringChecked(value))),
                 Case($((Predicate<Class>) Object.class::isAssignableFrom), s -> value),
                 Case($(), s -> {
                     throw new TypeConversionException(value.getClass(), value, targetType);
@@ -88,7 +88,7 @@ final class SqlTypeConversion {
         if (isString(s)) {
             return s.substring(1, s.length() - 1);
         } else {
-            throw new SqlParsingException("Invalid string: " + s);
+            throw new OmqlParsingException("Invalid string: " + s);
         }
     }
 
@@ -98,11 +98,11 @@ final class SqlTypeConversion {
 
     private static <T> Number parseIntoNumeric(final Class<T> target, final String value) {
         final Number number = Match(value).of(
-                Case($(SqlTypeConversion::isInteger), Integer::parseInt),
-                Case($(SqlTypeConversion::isLong), Long::parseLong),
-                Case($(SqlTypeConversion::isDouble), Double::parseDouble),
+                Case($(OmqlTypeConversion::isInteger), Integer::parseInt),
+                Case($(OmqlTypeConversion::isLong), Long::parseLong),
+                Case($(OmqlTypeConversion::isDouble), Double::parseDouble),
                 Case($(), s -> {
-                    throw new SqlParsingException("Cannot parse value '%s' as number", value);
+                    throw new OmqlParsingException("Cannot parse value '%s' as number", value);
                 })
         );
         return TypeUtils.ensureNumericType(target, number);
