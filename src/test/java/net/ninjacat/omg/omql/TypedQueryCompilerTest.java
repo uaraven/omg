@@ -89,6 +89,18 @@ public class TypedQueryCompilerTest {
         assertThat(condition, is(expected));
     }
 
+    @Test
+    public void shouldProcessEnumInQuery() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data where e IN ('E1', 'E2')", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("e").in(io.vavr.collection.List.of(E.E1, E.E2).asJava())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToString() {
         final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name = 25.1", Data.class);
@@ -110,7 +122,8 @@ public class TypedQueryCompilerTest {
 
     public enum E {
         E1,
-        E2
+        E2,
+        E3
     }
 
     public static class Subclass {
