@@ -25,7 +25,7 @@ public class ConditionReprTest {
     @Theory
     public void testEqRepr(final ComparableValue value) {
         final String repr = Conditions.matcher().property("prop").eq(value.getValue()).build().repr();
-        assertPattern(repr, "'.*' == '.*'");
+        assertPattern(repr, "'.*' = '.*'");
     }
 
     @Test
@@ -52,7 +52,7 @@ public class ConditionReprTest {
     @Test
     public void testStringEqRepr() {
         final String repr = Conditions.matcher().property("prop").eq("text").build().repr();
-        assertPattern(repr, "'.*' == '.*'");
+        assertPattern(repr, "'.*' = '.*'");
     }
 
     @Test
