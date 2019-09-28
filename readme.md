@@ -92,10 +92,10 @@ JSON pattern for previous example:
 
 ```
 
-### SQL support
+### Query language support
 
 Limited support for SQL-like queries is provided.
-Previous examples written in SQL syntax will look like
+Previous examples written in OMQL syntax will look like
 
 ```sql
 SELECT * FROM com.example.Person WHERE 
@@ -103,17 +103,13 @@ SELECT * FROM com.example.Person WHERE
     AND firstName <> "Mary" AND age > 21 AND NOT friends < 1
 ```
 
-List of fields in `SELECT` clause is ignored. `FROM` clause is optional. 
+List of fields in `SELECT` clause is ignored in current implementation. It is recommended to always use `SELECT *` to
+ensure future compatibility.
 
-If `FROM` is used it should contain fully-qualified class name and in this case conditions will be
+If `FROM` should contain fully-qualified class name (or short name, if class was registered with OMQL parser) and in this case conditions will be
 type-checked to validate that values can be used with the given properties. For example condition `age = "50"` 
 will throw `TypeConversionException` during query parsing.
 
-If `FROM` is not used then no type-checking will be performed and matching can fail if there are any
-type incompatibilities in conditions.
-
-> Note: `FROM` will be required going forward and not specifying object for which the query is created will be 
-> considered an error.
  
 Supported operations include:
 
@@ -141,7 +137,7 @@ SELECT * FROM Car WHERE
     passengerCapacity > 2 AND engine IN (SELECT * WHERE displacement < 3.2)
 ```
 
-To create matcher from SQL query use following code:
+To create matcher from OMQL query use following code:
 ```
     final Condition condition = SqlParser.of("select * where ....").getCondition();
 
@@ -150,15 +146,7 @@ To create matcher from SQL query use following code:
         PatternCompiler.forClass(...));
 ```
 
-**Notes**
-
-SQL parser does not know types of fields it needs to match, so produced literals are converted into Java types using 
-simple approach:
-
- - anything looking like floating point number is treated as `double`.
- - anything looking like integer number is treated as `int` or as `long`  if it cannot fit into `int`.
- - anything in single or double quotes is treated as `String`
- - anything else causes parsing exception. 
+For more detailes on how to use OMQL check [this](docs/omql.md) document. 
 
 ### Benchmark
 
@@ -181,6 +169,43 @@ Invocation mode B - using new object every time but with the same field values.
 Speed column shows speed of bytecode comparing to reflection of the same invocation mode (A or B).
 
 Source code for benchmark is in `benchmark` folder.
+
+### Installation
+
+#### Gradle
+Add jitpack.io repository in your root build.gradle at the end of list of repositories:
+
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+
+Add the dependency
+
+	dependencies {
+	        implementation 'com.github.uaraven:omg:beta2'
+	}
+	
+#### Maven
+
+Add jitpack.io repository in your pom.xml
+
+    <repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+Add the dependency
+
+	<dependency>
+	    <groupId>com.github.uaraven</groupId>
+	    <artifactId>omg</artifactId>
+	    <version>beta2</version>
+	</dependency>
 
 ### Build status
 
