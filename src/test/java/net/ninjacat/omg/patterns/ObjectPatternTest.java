@@ -1,8 +1,6 @@
 package net.ninjacat.omg.patterns;
 
 import net.jcip.annotations.Immutable;
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.OmgException;
@@ -24,7 +22,7 @@ public class ObjectPatternTest {
 
     @Test
     @Theory
-    public void testObjectEquality(final CompilerSelectionStrategy strategy) {
+    public void testObjectEquality(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").eq(new InnerClass(1, "found it"))
                 .build();
@@ -40,7 +38,7 @@ public class ObjectPatternTest {
 
     @Test
     @Theory
-    public void testObjectNonEquality(final CompilerSelectionStrategy strategy) {
+    public void testObjectNonEquality(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").neq(new InnerClass(1, "found it"))
                 .build();
@@ -64,7 +62,7 @@ public class ObjectPatternTest {
 
     @Test
     @Theory
-    public void testObjectInequality(final CompilerSelectionStrategy strategy) {
+    public void testObjectInequality(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").eq(new InnerClass(1, "found it"))
                 .build();
@@ -80,7 +78,7 @@ public class ObjectPatternTest {
 
     @Test
     @Theory
-    public void testSimplePattern(final CompilerSelectionStrategy strategy) {
+    public void testSimplePattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").match(obj -> obj.property("aString").eq("found it"))
                 .build();
@@ -96,7 +94,7 @@ public class ObjectPatternTest {
 
     @Test
     @Theory
-    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+    public void testNotPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .not(n -> n.property("inner").match(obj -> obj.property("aString").eq("found it")))
                 .build();
@@ -112,7 +110,7 @@ public class ObjectPatternTest {
 
     @Test
     @Theory
-    public void testComplexPattern(final CompilerSelectionStrategy strategy) {
+    public void testComplexPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").match(obj ->
                         obj.or(orCond -> orCond
@@ -142,7 +140,7 @@ public class ObjectPatternTest {
 
     @Theory
     @Test(expected = OmgException.class)
-    public void shouldFailWhenUnsupportedCondition(final CompilerSelectionStrategy strategy) {
+    public void shouldFailWhenUnsupportedCondition(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("inner").gt(new InnerClass(1, "found it"))
                 .build();

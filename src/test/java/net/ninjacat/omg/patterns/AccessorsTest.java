@@ -1,7 +1,5 @@
 package net.ninjacat.omg.patterns;
 
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import org.junit.experimental.theories.Theories;
@@ -15,7 +13,7 @@ import static org.hamcrest.Matchers.is;
 public class AccessorsTest {
 
     @Theory
-    public void shouldMatchOnMethodCall(final CompilerSelectionStrategy strategy) {
+    public void shouldMatchOnMethodCall(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("otherValue").eq(42)
                 .build();
@@ -28,7 +26,7 @@ public class AccessorsTest {
     }
 
     @Theory
-    public void shouldMatchOnGetter(final CompilerSelectionStrategy strategy) {
+    public void shouldMatchOnGetter(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("value").eq(42)
                 .build();
@@ -41,7 +39,7 @@ public class AccessorsTest {
     }
 
     @Theory
-    public void shouldMatchOnInterfaceGetter(final CompilerSelectionStrategy strategy) {
+    public void shouldMatchOnInterfaceGetter(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("value").eq(42)
                 .build();

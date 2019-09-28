@@ -1,9 +1,9 @@
 package net.ninjacat.omg.errors;
 
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.patterns.CompilingStrategy;
+import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.Patterns;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
@@ -15,7 +15,7 @@ public class TestPatternErrors {
 
     @Theory
     @Test(expected = PatternException.class)
-    public void shouldFailWhenNoGetterFound(final CompilerSelectionStrategy strategy) {
+    public void shouldFailWhenNoGetterFound(final CompilingStrategy strategy) {
 
         final Condition condition = Conditions.matcher().property("strField").eq("abc").build();
 
@@ -25,7 +25,7 @@ public class TestPatternErrors {
 
     @Theory
     @Test(expected = TypeConversionException.class)
-    public void shouldFailWhenInvalidConditionType(final CompilerSelectionStrategy strategy) {
+    public void shouldFailWhenInvalidConditionType(final CompilingStrategy strategy) {
 
         final Condition condition = Conditions.matcher().property("intField").eq("123").build();
 

@@ -1,8 +1,6 @@
 package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import org.junit.Test;
@@ -21,7 +19,7 @@ public class EnumPatternTest {
 
     @Test
     @Theory
-    public void testSimplePattern(final CompilerSelectionStrategy strategy) {
+    public void testSimplePattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("e1").eq(Enum1.VALUE1)
                 .build();
@@ -40,7 +38,7 @@ public class EnumPatternTest {
 
     @Test
     @Theory
-    public void testNotePattern(final CompilerSelectionStrategy strategy) {
+    public void testNotePattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .not(n -> n.property("e1").eq(Enum1.VALUE1))
                 .build();

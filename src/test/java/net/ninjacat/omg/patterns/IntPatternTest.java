@@ -1,8 +1,6 @@
 package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import org.immutables.value.Value;
@@ -19,7 +17,7 @@ public class IntPatternTest {
 
     @Test
     @Theory
-    public void testSimplePattern(final CompilerSelectionStrategy strategy) {
+    public void testSimplePattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("longField").eq(42L)
                 .build();
@@ -37,7 +35,7 @@ public class IntPatternTest {
 
     @Test
     @Theory
-    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+    public void testNotPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .not(n -> n.property("longField").eq(42L))
                 .build();
@@ -55,7 +53,7 @@ public class IntPatternTest {
 
     @Test
     @Theory
-    public void testSimplePatternTypeConversion(final CompilerSelectionStrategy strategy) {
+    public void testSimplePatternTypeConversion(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("longField").eq(42)
                 .build();
@@ -74,7 +72,7 @@ public class IntPatternTest {
 
     @Test
     @Theory
-    public void testOrPattern(final CompilerSelectionStrategy strategy) {
+    public void testOrPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .or(cond -> cond
                         .property("intField").eq(1)
@@ -100,7 +98,7 @@ public class IntPatternTest {
 
     @Test
     @Theory
-    public void testAndPattern(final CompilerSelectionStrategy strategy) {
+    public void testAndPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .and(cond -> cond
                         .property("intField").eq(1)
@@ -123,7 +121,7 @@ public class IntPatternTest {
 
     @Test
     @Theory
-    public void testComplexPattern(final CompilerSelectionStrategy strategy) {
+    public void testComplexPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("shortField").neq((short) 100)
                 .and(cond -> cond

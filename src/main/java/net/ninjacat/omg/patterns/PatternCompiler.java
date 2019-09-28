@@ -1,7 +1,6 @@
-package net.ninjacat.omg;
+package net.ninjacat.omg.patterns;
 
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
-import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
 public final class PatternCompiler {
 
@@ -12,7 +11,7 @@ public final class PatternCompiler {
         return AsmPatternCompiler.forClass(cls);
     }
 
-    public static <T> PropertyPatternCompiler<T> forClass(final Class<T> cls, final CompilerSelectionStrategy strategy) {
+    public static <T> PropertyPatternCompiler<T> forClass(final Class<T> cls, final CompilingStrategy strategy) {
         return strategy.getCompiler(cls);
     }
 }

@@ -38,7 +38,7 @@ SELECT `<list-of-fields>` FROM `<class-name>` WHERE `<list-of-conditions>`
  ```java
     import net.ninjacat.omg.omql.QueryCompiler;
     import net.ninjacat.omg.patterns.Patterns;
-    import net.ninjacat.omg.PatternCompiler;
+    import net.ninjacat.omg.patterns.PatternCompiler;
     .
     .
     .

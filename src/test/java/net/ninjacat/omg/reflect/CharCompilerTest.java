@@ -1,16 +1,16 @@
 package net.ninjacat.omg.reflect;
 
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.OmgException;
+import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
 import java.util.List;
 
-import static net.ninjacat.omg.CompilerSelectionStrategy.SAFE;
+import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

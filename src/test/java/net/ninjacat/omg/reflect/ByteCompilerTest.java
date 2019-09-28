@@ -1,11 +1,11 @@
 package net.ninjacat.omg.reflect;
 
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.OmgException;
+import net.ninjacat.omg.patterns.CompilingStrategy;
+import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
@@ -111,7 +111,7 @@ public class ByteCompilerTest {
     }
 
     private static PropertyPattern<ByteTest> buildPattern(final PropertyCondition<Byte> condition) {
-        return PatternCompiler.forClass(ByteTest.class, CompilerSelectionStrategy.SAFE).build(condition);
+        return PatternCompiler.forClass(ByteTest.class, CompilingStrategy.SAFE).build(condition);
     }
 
     public static class ByteTest {

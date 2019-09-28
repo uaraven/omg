@@ -50,6 +50,8 @@ Example:
 
 ```
 
+See [OMG DSL](docs/dsl.md) for more details on how to use 
+
 JSON pattern for previous example:
 
 ```json
