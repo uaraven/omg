@@ -1,8 +1,6 @@
 package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import org.immutables.value.Value;
@@ -19,7 +17,7 @@ public class DoublePatternTest {
 
     @Test
     @Theory
-    public void testSimplePattern(final CompilerSelectionStrategy strategy) {
+    public void testSimplePattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("doubleField").eq(42.0)
                 .build();
@@ -37,7 +35,7 @@ public class DoublePatternTest {
 
     @Test
     @Theory
-    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+    public void testNotPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .not(n -> n.property("doubleField").eq(42.0))
                 .build();
@@ -57,7 +55,7 @@ public class DoublePatternTest {
 
     @Test
     @Theory
-    public void testOrPattern(final CompilerSelectionStrategy strategy) {
+    public void testOrPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .or(cond -> cond
                         .property("floatField").eq(1.0f)
@@ -82,7 +80,7 @@ public class DoublePatternTest {
 
     @Test
     @Theory
-    public void testAndPattern(final CompilerSelectionStrategy strategy) {
+    public void testAndPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .and(cond -> cond
                         .property("floatField").eq(1.0f)
@@ -105,7 +103,7 @@ public class DoublePatternTest {
 
     @Test
     @Theory
-    public void testSimplePatternTypeConversion(final CompilerSelectionStrategy strategy) {
+    public void testSimplePatternTypeConversion(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("doubleField").eq(42f)
                 .build();

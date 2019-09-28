@@ -1,8 +1,8 @@
 package net.ninjacat.omg.omql;
 
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.patterns.Pattern;
+import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.Patterns;
 import org.junit.Test;
 

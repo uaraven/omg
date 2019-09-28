@@ -1,18 +1,17 @@
-package net.ninjacat.omg;
+package net.ninjacat.omg.patterns;
 
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.reflect.ReflectPatternCompiler;
-import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
 import java.util.function.Function;
 
-public enum CompilerSelectionStrategy {
+public enum CompilingStrategy {
     SAFE(ReflectPatternCompiler::forClass),
     FAST(AsmPatternCompiler::forClass);
 
     private final Function<Class, PropertyPatternCompiler> provider;
 
-    CompilerSelectionStrategy(final Function<Class, PropertyPatternCompiler> provider) {
+    CompilingStrategy(final Function<Class, PropertyPatternCompiler> provider) {
         this.provider = provider;
     }
 

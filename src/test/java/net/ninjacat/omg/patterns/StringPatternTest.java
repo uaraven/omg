@@ -1,8 +1,6 @@
 package net.ninjacat.omg.patterns;
 
 import io.vavr.collection.List;
-import net.ninjacat.omg.CompilerSelectionStrategy;
-import net.ninjacat.omg.PatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import org.immutables.value.Value;
@@ -19,7 +17,7 @@ public class StringPatternTest {
 
     @Theory
     @Test
-    public void testSimplePattern(final CompilerSelectionStrategy strategy) {
+    public void testSimplePattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str2").eq("test")
                 .build();
@@ -37,7 +35,7 @@ public class StringPatternTest {
 
     @Theory
     @Test
-    public void testOrPattern(final CompilerSelectionStrategy strategy) {
+    public void testOrPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .or(orCond -> orCond
                         .property("str1").eq("string")
@@ -57,7 +55,7 @@ public class StringPatternTest {
 
     @Theory
     @Test
-    public void testAndPattern(final CompilerSelectionStrategy strategy) {
+    public void testAndPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .and(orCond -> orCond
                         .property("str1").eq("string")
@@ -78,7 +76,7 @@ public class StringPatternTest {
 
     @Theory
     @Test
-    public void testRegexPattern(final CompilerSelectionStrategy strategy) {
+    public void testRegexPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str1").regex("st.*[abc]final")
                 .build();
@@ -99,7 +97,7 @@ public class StringPatternTest {
 
     @Theory
     @Test
-    public void testNotPattern(final CompilerSelectionStrategy strategy) {
+    public void testNotPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .not(n -> n.property("str1").regex("st.*[abc]final"))
                 .build();
@@ -121,7 +119,7 @@ public class StringPatternTest {
 
     @Theory
     @Test
-    public void testNullPattern(final CompilerSelectionStrategy strategy) {
+    public void testNullPattern(final CompilingStrategy strategy) {
         final Condition condition = Conditions.matcher()
                 .property("str1").eq(null)
                 .build();
