@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class OqlTypeConversionTest {
+public class OmqlTypeConversionTest {
 
     @Test
     public void shouldExtractStringFromDoubleQuotes() {
@@ -82,4 +82,29 @@ public class OqlTypeConversionTest {
         final Object result = OmqlTypeConversion.toJavaTypeStrict(double.class, "42");
         assertThat(result, is(42.0));
     }
+
+    @Test
+    public void shouldDetectIntUsingFallback() {
+        final Object result = OmqlTypeConversion.toJavaTypeStrict(null, "42");
+        assertThat(result, is(42));
+    }
+
+    @Test
+    public void shouldDetectLongUsingFallback() {
+        final Object result = OmqlTypeConversion.toJavaTypeStrict(null, "922337203685477500");
+        assertThat(result, is(922337203685477500L));
+    }
+
+    @Test
+    public void shouldDetectDoubleUsingFallback() {
+        final Object result = OmqlTypeConversion.toJavaTypeStrict(null, "42.5");
+        assertThat(result, is(42.5));
+    }
+
+    @Test
+    public void shouldDetectStringUsingFallback() {
+        final Object result = OmqlTypeConversion.toJavaTypeStrict(null, "'42.5'");
+        assertThat(result, is("42.5"));
+    }
+
 }

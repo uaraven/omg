@@ -22,7 +22,7 @@ final class OmqlTypeConversion {
      * @param value String containing a value
      * @return Value of correct type
      */
-    static Object toJavaType(final String value) {
+    private static Object toJavaType(final String value) {
         return Match(value).of(
                 Case($(OmqlTypeConversion::isInteger), Integer::parseInt),
                 Case($(OmqlTypeConversion::isLong), Long::parseLong),
