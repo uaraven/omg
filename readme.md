@@ -2,12 +2,11 @@
 
 ### Object Matcher Generator
 
-Java library to quickly match objects against a pattern declared as JSON (or with DSL)
+Java library to quickly match objects against a pattern declared at runtime with DSL (or JSON or SQL-like language).
 
 Supports matching properties of types:
 
-- long, int, short, byte, char and boxed types
-- double, float and boxed types
+- any numeric type + their boxed counterparts
 - String
 - Enums
 - Arbitrary objects 
@@ -50,9 +49,9 @@ Example:
 
 ```
 
-See [OMG DSL](docs/dsl.md) for more details on how to use 
+See [OMG DSL](docs/dsl.md) for more details on how to use DSL and also some insights on how it works under the hood.
 
-JSON pattern for previous example:
+You can define conditions using JSON, condition from previous example will look like
 
 ```json
 
@@ -96,7 +95,8 @@ JSON pattern for previous example:
 
 ### Query language support
 
-Limited support for SQL-like queries is provided.
+SQL-like language for defining conditions is recommended for practical use. OMQL (Object mapping query language) supports all operations that DSL supports, and does it in type-safe manner.
+
 Previous examples written in OMQL syntax will look like
 
 ```sql
@@ -108,10 +108,8 @@ SELECT * FROM com.example.Person WHERE
 List of fields in `SELECT` clause is ignored in current implementation. It is recommended to always use `SELECT *` to
 ensure future compatibility.
 
-If `FROM` should contain fully-qualified class name (or short name, if class was registered with OMQL parser) and in this case conditions will be
-type-checked to validate that values can be used with the given properties. For example condition `age = "50"` 
+If `FROM` should contain fully-qualified class name (or short name, if class was registered with OMQL parser). Conditions will be type-checked to validate that values can be used with the given properties. For example condition `age = "50"` 
 will throw `TypeConversionException` during query parsing.
-
  
 Supported operations include:
 
