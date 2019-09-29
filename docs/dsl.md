@@ -6,11 +6,13 @@ OMG works by defining tree of conditions which matching objects must satisfy and
 compiling those conditions to a `Pattern` which implements `Predicate` interface and can 
 be used wherever `Predicate` can be used, for example in `.filter()` operation on a `Stream`.
 
-Make no mistake, OMG DSL is a low level tool and one can easily shoot oneself in the foot with it. For all practical
-purposes [OMQL](omql.md) is a better choice. JSON representation is more verbose and does not provide type-checking that OMQL 
-provides and so is not recommended for production use.  
+Make no mistake, OMG DSL is a low level tool and if you can go with [OMQL](omql.md) that is most certainly will be a better choice. Main benefit of using OMQL is type checks. 
+
+JSON representation is more verbose than OMQL and does not provide type-checking thus is not recommended for production use. 
 
 ## Conditions
+
+Conditions is an abstract tree of operation matching properties to values and combined using logical operations. Conditions are just a way of writing `name = "Alice" and salary > 50000` without knowing what is "name" or "salary". Think of it as of AST of something like `WHERE` clause of SQL query.
 
 ```java
 import net.ninjacat.omg.conditions.Conditions;
@@ -18,7 +20,8 @@ import net.ninjacat.omg.conditions.Conditions;
 ...
 
 Condition condition = Conditions.matcher()
-    .property("firstName").eq("Sammy")
+    .property("firstName").eq("Alice")
+    .property("salary").gt(50000)
     .build();
 ```
 
@@ -28,14 +31,11 @@ you can start adding property conditions or combine them with logical conditions
 Property conditions can be added with `.property(String)` method to set property name
 and then chain call to a method defining operation and a matching value.
 
-Multiple `.property()` calls can be chained together with implicit **AND** between them.
+Multiple `.property()` calls on the top level of condition are chained together with implicit **AND** between them.
 
-Logical conditions can be created on condition builder by calling one of the following
-methods: `.and()`, `.or()` and `.not()`. These methods accept a lambda with one parameter
-which is nested builder. New property conditions can be added to this builder.
+Logical conditions can be created on condition builder by calling one of the following methods: `.and()`, `.or()` and `.not()`. These methods accept a lambda with one parameter which is nested builder. New property conditions can be added to this builder.
 
-For example to match objects where `firstName` is `Sam` or `Samuel` and age is between 45 and 65
-one can use following code to build proper conditions:
+For example to match some objects where `firstName` is `Sam` or `Samuel` and age is between 45 and 65 one can use following code to build proper conditions:
 
 ```java
 Condition condition = Conditions.matcher()
@@ -47,6 +47,7 @@ Condition condition = Conditions.matcher()
          andCond.property("age").lt(65))
     .build();
 ```
+
 `.or()` and `.and()` calls are themselves combined using implicit AND operation.
 
 Supported property operation are:
@@ -77,7 +78,7 @@ exception to be thrown.
 
 ## Patterns
 
-Conditions can be compiled into patterns for a specific class. `Pattern<T>` is an interface extending `Predicate<T>` 
+Conditions can be compiled into patterns for a specific class `T`. `Pattern<T>` is an interface extending `Predicate<T>` 
 interface and as such can be used anywhere where predicate is expected. `Pattern.matches()` (and `Predicate.test()`)
 methods return `true` if provided object matches all the conditions for which pattern was compiled.
  
@@ -103,24 +104,21 @@ instances of which are to be tested. `PatternCompiler.forClass(Class<T>)` will r
 
 There is an overloaded version of `PatternCompiler.forClass` method which accepts second parameter: `CompilingStrategy`.
 
-OMG provides two compiler strategies: FAST and SAFE. Default strategy to use is FAST.
-FAST generates bytecode optimized for a specific class and specific properties. SAFE strategy uses reflection to 
-retrieve object property values. In testing bytecode-based Patterns showed to be 5-25 percent faster than reflection-based
-ones. There is a big chance of improvement in performance as bytecode generator is improved.
+OMG provides two compiler strategies: FAST and SAFE. Default strategy to use is FAST. FAST generates bytecode optimized for a specific class and specific properties. SAFE strategy uses reflection to retrieve object property values. In testing bytecode-based Patterns showed to be 5-25 percent faster than reflection-based ones. There is a big chance of improvement in performance as bytecode generator is improved.
 
 Both SAFE and FAST strategies are identical in behavior. SAFE strategy is treated as a reference and new features are
-first implemented and tested in reflection-based pattern compiler. 
+first implemented and tested in reflection-based pattern compiler.
 
 Default strategy used by `PatternCompiler.forClass(Class<T>)` is `CompilingStrategy.FAST`.
 
 At the time of compilation each condition is tested whether it can actually be applied to a property, based on property
-type. If condition or condition value is incompatible with property, then a runtime exception will be thrown. 
+type. If condition iself or condition parameter is incompatible with property, then a runtime exception will be thrown. 
 
-For example following code defines condition priority > 4. As condition builder does not know anything about "priority"
-it just builds condition tree for abstract "priority" property. You can consider conditions to be duck-typed at 
+For example following code defines condition `priority > 4`. As condition builder does not know anything about "priority"
+it just builds condition tree for abstract "priority" property. You can think of conditions as being duck-typed at 
 compilation time. 
 
-When that condition is compiled for `Incident` class it works fine, as `getPriority()` method in `Incident` returns int.
+When that condition is compiled for `Incident` class it works fine, as `getPriority()` method in `Incident` returns `int`.
 Compiling the same condition for `Request` class fails, because `greaterThan` operation does not work for enum types.
 
 ```java
@@ -146,6 +144,7 @@ Pattern<Request> requestPattern = = Patterns.compile(cond, PatternCompiler.forCl
 Properties in conditions are defined just as names of type string. When compiling conditions compiler looks for a 
 0-arity method with the same name as a property name in condition and with a return type different from `void` or for a 
 JavaBean-style getter for a property. 
+
 For example for property `age` following methods will be considered (in this exact order):
 - `age()`
 - `getAge()`
