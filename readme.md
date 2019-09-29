@@ -2,7 +2,7 @@
 
 ### Object Matcher Generator
 
-Java library to quickly match objects against a pattern declared at runtime with DSL (or JSON or SQL-like language).
+Java library to quickly match objects against a pattern declared at runtime with DSL (or JSON or SQL-like language). `OMG` compiles patterns to bytecode to minimize performance penalty. If for some reason you cannot use bytecode compiled in runtime, reflection-based matchers are also available.
 
 Supports matching properties of types:
 
@@ -15,8 +15,6 @@ Types not supported:
 - collections
 - arrays
 
-`OMG` generates property-specific matchers and compiles them to bytecode to minimize performance penalty. 
-Reflection-based matchers are also available.
 
 Example:
 ```java
