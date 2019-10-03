@@ -48,7 +48,7 @@ jacocoTestReport {
 }
 
 group 'net.ninjacat'
-version '0.1.3'
+version '0.1.4'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -69,6 +69,7 @@ dependencies {
     implementation 'org.ow2.asm:asm-util:7.1'
     implementation 'io.vavr:vavr:0.10.2'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
+    implementation 'org.antlr:antlr4-runtime:4.7.2'
 
     antlr 'org.antlr:antlr4:4.7.2'
 
