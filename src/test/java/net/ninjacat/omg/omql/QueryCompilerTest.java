@@ -1,5 +1,6 @@
 package net.ninjacat.omg.omql;
 
+import net.ninjacat.omg.conditions.AlwaysTrueCondition;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.OmqlParsingException;
@@ -186,6 +187,17 @@ public class QueryCompilerTest {
 
         assertThat(condition, is(expected));
     }
+
+    @Test
+    public void shouldParseQueryWithoutWhere() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = AlwaysTrueCondition.INSTANCE;
+
+        assertThat(condition, is(expected));
+    }
+
 
     @Test(expected = OmqlParsingException.class)
     public void shouldFailToParseQuery() {
