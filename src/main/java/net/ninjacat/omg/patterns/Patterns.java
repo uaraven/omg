@@ -20,6 +20,7 @@ public final class Patterns {
     @SuppressWarnings("unchecked")
     private static <T> Pattern<T> processCondition(final Condition condition, final PropertyPatternCompiler<T> propBuilder) {
         return Match(condition).of(
+                Case($(instanceOf(AlwaysTrueCondition.class)), trueCondition -> processAlwaysTrueCondition()),
                 Case($(instanceOf(AndCondition.class)), andCondition -> processAndCondition(andCondition, propBuilder)),
                 Case($(instanceOf(OrCondition.class)), orCondition -> processOrCondition(orCondition, propBuilder)),
                 Case($(instanceOf(NotCondition.class)), notCondition -> processNotCondition(notCondition, propBuilder)),
@@ -32,6 +33,10 @@ public final class Patterns {
 
     private static <T, P> PropertyPattern<T> processPropertyCondition(final PropertyCondition<P> condition, final PropertyPatternCompiler<T> propBuilder) {
         return propBuilder.build(condition);
+    }
+
+    private static <T> Pattern<T> processAlwaysTrueCondition() {
+        return AlwaysMatchingPattern.INSTANCE;
     }
 
     private static <T> Pattern<T> processAndCondition(final AndCondition condition, final PropertyPatternCompiler<T> propBuilder) {

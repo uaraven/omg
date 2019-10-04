@@ -1,5 +1,6 @@
 package net.ninjacat.omg.omql;
 
+import net.ninjacat.omg.conditions.AlwaysTrueCondition;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.OmqlParsingException;
@@ -67,6 +68,9 @@ public final class QueryCompiler {
     public Condition getCondition() {
         final Conditions.LogicalConditionBuilder builder = Conditions.matcher();
 
+        if (where == null) {
+            return AlwaysTrueCondition.INSTANCE;
+        }
         final OmqlParser.ExprContext expr = where.expr();
         processExpression(expr, builder);
 

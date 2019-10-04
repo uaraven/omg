@@ -34,6 +34,27 @@ public class OmqlIntegrationTest {
         assertThat(result, hasItems(new Data(1, 5.5, "test 1", (short) 30, E.E1)));
     }
 
+    @Test
+    public void shouldHandleNoWhere() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Pattern pattern = Patterns.compile(
+                condition,
+                PatternCompiler.forClass(Data.class));
+
+        final List<Data> test = io.vavr.collection.List.of(
+                new Data(1, 5.5, "test 1", (short) 30, E.E1),
+                new Data(2, 6.5, "test 2", (short) 20, E.E2)
+        ).asJava();
+
+        final List<Data> result = test.stream().filter(pattern::matches).collect(Collectors.toList());
+
+        assertThat(result, hasItems(
+                new Data(1, 5.5, "test 1", (short) 30, E.E1),
+                new Data(2, 6.5, "test 2", (short) 20, E.E2)));
+    }
+
     public enum E {
         E1,
         E2
