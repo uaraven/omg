@@ -131,9 +131,24 @@ public final class QueryCompiler {
 
     private void processExpression(final OmqlParser.ConditionContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String operation = Optional.ofNullable(expr.operator()).map(RuleContext::getText).orElse(null);
-        final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
-        final Operation conditionOperation = Operation.byOpCode(operation)
-                .getOrElseThrow(() -> new OmqlParsingException("Unsupported operation '%s'", operation));
-        conditionOperation.getProducer().create(builder, property, context, expr);
+        final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).get();
+        if (!property.contains(".")) {
+            final Operation conditionOperation = Operation.byOpCode(operation)
+                    .getOrElseThrow(() -> new OmqlParsingException("Unsupported operation '%s'", operation));
+            conditionOperation.getProducer().create(builder, property, context, expr);
+        } else {
+            final int dotPos = property.indexOf('.');
+            final String thisProperty = property.substring(0, dotPos);
+            final String restExpr = expr.getText().substring(dotPos + 1);
+
+            if (!context.validator().isObjectProperty(thisProperty)) {
+                throw new OmqlParsingException("Unsupported property type: '%s", thisProperty);
+            }
+
+            final Class<?> returnType = context.validator().getReturnType(thisProperty);
+            final QueryCompiler compiler = QueryCompiler.of("SELECT * FROM " + returnType.getSimpleName() + " WHERE " + restExpr,
+                    returnType);
+            builder.property(thisProperty).match(compiler.getCondition());
+        }
     }
 }
