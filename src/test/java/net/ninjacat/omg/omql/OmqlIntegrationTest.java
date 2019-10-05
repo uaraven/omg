@@ -17,7 +17,7 @@ public class OmqlIntegrationTest {
 
     @Test
     public void shouldHandleEnumsInTypedQueries() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data where e ='E1'", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where e ='E1'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Pattern pattern = Patterns.compile(
@@ -36,7 +36,7 @@ public class OmqlIntegrationTest {
 
     @Test
     public void shouldHandleNoWhere() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Pattern pattern = Patterns.compile(

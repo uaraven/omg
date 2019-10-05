@@ -103,12 +103,12 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldProcessStringSubField() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.contents ~= '.*'", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.contents ~= 'ab cd.*'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
                 .property("sub").match(
-                        Conditions.matcher().property("contents").regex(".*").build())
+                        Conditions.matcher().property("contents").regex("ab cd.*").build())
                 .build();
 
         assertThat(condition, is(expected));
@@ -138,6 +138,43 @@ public class TypedQueryCompilerTest {
                 .build();
 
         assertThat(condition, is(expected));
+    }
+
+
+    @Test
+    public void shouldProcessMultilevelSubFieldList() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.contents.length = 3", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(
+                        Conditions.matcher().property("contents")
+                                .match(Conditions.matcher().property("length").eq(3).build()).build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+
+    @Test
+    public void shouldProcessSubfieldWithMatch() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.contents IN (SELECT * FROM java.lang.String WHERE length = 3)", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(
+                        Conditions.matcher().property("contents")
+                                .match(Conditions.matcher().property("length").eq(3).build()).build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+
+    @Test(expected = OmqlParsingException.class)
+    public void shouldFailWhenSubfieldIsNotAnObject() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where height.number IN (1, 2, 42)", Data.class);
+        queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
