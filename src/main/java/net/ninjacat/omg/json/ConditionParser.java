@@ -13,6 +13,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+/**
+ * JSON support is deprecated and will be removed in 0.2.0 release.
+ */
+@Deprecated
 public final class ConditionParser {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -20,6 +24,10 @@ public final class ConditionParser {
     private ConditionParser() {
     }
 
+    /**
+     * JSON support is deprecated and will be removed in 0.2.0 release. Please use OMQL instead
+     */
+    @Deprecated
     public static Condition parse(final String json) {
         final JsonNode root = Try.of(() -> OBJECT_MAPPER.readTree(json))
                 .getOrElseThrow((ex) -> new JsonParsingException(ex, "Failed to parse JSON"));
