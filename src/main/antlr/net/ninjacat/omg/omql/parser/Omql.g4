@@ -48,7 +48,7 @@ where
  ;
 
 select
- : K_SELECT result_field ( ',' result_field )*
+ : K_SELECT '*'
    K_FROM source_name
    where?
  ;
@@ -75,6 +75,7 @@ source_name
 
 field_name
  : IDENTIFIER
+ | CLASS_IDENTIFIER
  ;
 
 K_AND : A N D;

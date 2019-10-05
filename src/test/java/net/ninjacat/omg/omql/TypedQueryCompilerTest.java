@@ -14,12 +14,12 @@ public class TypedQueryCompilerTest {
 
     @Test(expected = OmqlParsingException.class)
     public void shouldFailWhenNoFrom() {
-        QueryCompiler.of("select name, age where age > 25", String.class);
+        QueryCompiler.of("select * where age > 25", String.class);
     }
 
     @Test
     public void shouldAllowShortList() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where age in (25, 35, 45)", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where age in (25, 35, 45)", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -31,7 +31,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowIntToInt() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where id <> 11", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where id <> 11", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -43,7 +43,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowStringToString() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name ~= 'John.*'", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where name ~= 'John.*'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -55,7 +55,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowIntToDoubleConversion() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where height > 25", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where height > 25", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -67,7 +67,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldAllowEnums() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where e ='E1'", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where e ='E1'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -79,7 +79,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldProcessObjectFields() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data where sub IN (select * from Subclass where contents != 'A.*')", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub IN (select * from Subclass where contents != 'A.*')", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -91,7 +91,7 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldProcessEnumInQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Data where e IN ('E1', 'E2')", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where e IN ('E1', 'E2')", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -101,22 +101,98 @@ public class TypedQueryCompilerTest {
         assertThat(condition, is(expected));
     }
 
+    @Test
+    public void shouldProcessStringSubField() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.contents ~= 'ab cd.*'", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(
+                        Conditions.matcher().property("contents").regex("ab cd.*").build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldProcessIntSubField() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.number = 42", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(
+                        Conditions.matcher().property("number").eq(42).build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
+    public void shouldProcessIntSubFieldList() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.number IN (1, 2, 42)", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(
+                        Conditions.matcher().property("number").in(io.vavr.collection.List.of(1, 2, 42).asJava()).build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+
+    @Test
+    public void shouldProcessMultilevelSubFieldList() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.contents.length = 3", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(
+                        Conditions.matcher().property("contents")
+                                .match(Conditions.matcher().property("length").eq(3).build()).build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+
+    @Test
+    public void shouldProcessSubfieldWithMatch() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub.contents IN (SELECT * FROM java.lang.String WHERE length = 3)", Data.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("sub").match(
+                        Conditions.matcher().property("contents")
+                                .match(Conditions.matcher().property("length").eq(3).build()).build())
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+
+    @Test(expected = OmqlParsingException.class)
+    public void shouldFailWhenSubfieldIsNotAnObject() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where height.number IN (1, 2, 42)", Data.class);
+        queryCompiler.getCondition();
+    }
+
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToString() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name = 25.1", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where name = 25.1", Data.class);
         queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToStringList() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where name in ('a', 'b', 25.1)", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where name in ('a', 'b', 25.1)", Data.class);
         queryCompiler.getCondition();
     }
 
 
     @Test(expected = PatternException.class)
     public void shouldFailOnInvalidProperty() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from " + Data.class.getName() + " where unknown = 12", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where unknown = 12", Data.class);
         queryCompiler.getCondition();
     }
 
@@ -128,9 +204,15 @@ public class TypedQueryCompilerTest {
 
     public static class Subclass {
         private final String contents;
+        private final int number;
 
-        Subclass(final String contents) {
+        Subclass(final String contents, final int number) {
             this.contents = contents;
+            this.number = number;
+        }
+
+        public int getNumber() {
+            return number;
         }
 
         public String getContents() {
@@ -152,7 +234,7 @@ public class TypedQueryCompilerTest {
             this.name = name;
             this.age = age;
             this.e = e;
-            this.sub = new Subclass(content);
+            this.sub = new Subclass(content, 42);
         }
 
 

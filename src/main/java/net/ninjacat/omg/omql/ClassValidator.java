@@ -17,10 +17,20 @@ public class ClassValidator implements TypeValidator {
 
     @Override
     public Object validate(final String fieldName, final String value) throws TypeConversionException {
-        final Method callable = Reflect.getCallable(fieldName, clazz);
-        final Class<?> propertyType = callable.getReturnType();
+        final Class<?> propertyType = getReturnType(fieldName);
 
         return toJavaTypeStrict(propertyType, value);
+    }
+
+    @Override
+    public boolean isObjectProperty(final String fieldName) {
+        return !getReturnType(fieldName).isPrimitive();
+    }
+
+    @Override
+    public Class<?> getReturnType(final String fieldName) {
+        final Method callable = Reflect.getCallable(fieldName, clazz);
+        return callable.getReturnType();
     }
 
 }

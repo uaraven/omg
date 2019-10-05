@@ -22,7 +22,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertSimpleQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age > 25", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -34,7 +34,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertGteQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select callsign, age from JetPilot where age >= 25", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from JetPilot where age >= 25", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -49,7 +49,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertLteQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select callsign, age from JetPilot where age <= 25", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from JetPilot where age <= 25", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -64,7 +64,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertNeqQuery1() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age <> 25", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age <> 25", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -76,7 +76,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertNeqQuery2() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age != 25", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age != 25", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -89,7 +89,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertSimpleAndQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age < 25 and name = 'Iñigo'", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age < 25 and name = 'Iñigo'", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -103,7 +103,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertSimpleOrQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25 or name = 'Iñigo'", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age > 25 or name = 'Iñigo'", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -117,7 +117,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertSimpleAndOrQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25 or name = 'Iñigo' and status=\"Searching\"", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age > 25 or name = 'Iñigo' and status=\"Searching\"", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -135,7 +135,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertMultiAndQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age > 25 and name = 'Iñigo' and status=\"Searching\"", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age > 25 and name = 'Iñigo' and status=\"Searching\"", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -153,11 +153,11 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertSimpleRegexQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where name ~= '^Iñigo.*'", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where name ~= '^Iñigo .*'", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
-                .property("name").regex("^Iñigo.*")
+                .property("name").regex("^Iñigo .*")
                 .build();
 
         assertThat(condition, is(expected));
@@ -165,7 +165,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldConvertInQuery() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person where age in (1,2,3)", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person where age in (1,2,3)", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -190,7 +190,7 @@ public class QueryCompilerTest {
 
     @Test
     public void shouldParseQueryWithoutWhere() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select name, age from Person", SOURCES);
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Person", SOURCES);
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = AlwaysTrueCondition.INSTANCE;
