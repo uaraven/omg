@@ -91,6 +91,8 @@ You can define conditions using JSON, condition from previous example will look 
 
 ```
 
+JSON support is deprecated and will be removed in next versions. Use OMQL or DSL to write matchers. 
+
 ### Query language support
 
 SQL-like language for defining conditions is recommended for practical use. OMQL (Object mapping query language) supports all operations that DSL supports, and does it in type-safe manner.
