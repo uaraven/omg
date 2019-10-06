@@ -65,6 +65,8 @@ public final class TypeUtils {
             return Long.class;
         } else if (FLOAT_CLASSES.contains(aClass)) {
             return Double.class;
+        } else if (aClass.equals(boolean.class)) {
+            return Boolean.class;
         } else {
             return aClass;
         }

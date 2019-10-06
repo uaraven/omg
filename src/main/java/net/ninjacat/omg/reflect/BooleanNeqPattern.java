@@ -11,7 +11,7 @@ public class BooleanNeqPattern<T> extends BaseBooleanPattern<T> {
 
     @Override
     protected boolean compare(final boolean propertyValue) {
-        return propertyValue == getMatchingValue();
+        return propertyValue != getMatchingValue();
     }
 
     @Override
