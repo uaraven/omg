@@ -1,7 +1,7 @@
 package net.ninjacat.omg.reflect;
 
 import io.vavr.control.Try;
-import net.ninjacat.omg.errors.MatcherException;
+import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 
 import java.lang.invoke.MethodHandle;
@@ -34,7 +34,7 @@ public abstract class BaseEnumPattern<T> implements PropertyPattern<T> {
         final MethodHandle getter = property.getGetterMethod();
         return Try.of(() -> getter.invoke(instance))
                 .map(it -> (Enum)it)
-                .getOrElseThrow(err -> new MatcherException(err, "Failed to match property '%s' in '%s'", property, instance));
+                .getOrElseThrow(err -> new CompilerException(err, "Failed to match property '%s' in '%s'", property, instance));
     }
 
     protected abstract boolean compare(Enum propertyValue, Enum matchingValue);

@@ -6,7 +6,10 @@ import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.ObjectCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
-import net.ninjacat.omg.errors.*;
+import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.errors.OmgException;
+import net.ninjacat.omg.errors.PatternException;
+import net.ninjacat.omg.errors.TypeConversionException;
 import net.ninjacat.omg.patterns.Patterns;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.patterns.PropertyPatternCompiler;
@@ -80,24 +83,41 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
     }
 
     private <P> PropertyPattern<T> getPattern(final PropertyCondition<P> condition, final Property<T> property) {
-        return Match(property.getWidenedType()).of(
-                Case($(is(Long.class)), $_ -> new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
-                Case($(is(Double.class)), $_ -> new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
-                Case($(is(String.class)), $_ -> new StringEqPattern<>(property, forceToString(condition.getValue()))),
-                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumEqPattern<>(property, (Enum) condition.getValue())),
-                Case($(ReflectPatternCompiler::isObject), $_ -> new ObjectEqPattern<>(property, condition.getValue()))
-        );
+        final Class type = property.getWidenedType();
+        //noinspection IfStatementWithTooManyBranches
+        if (type.equals(Long.class)) {
+            return new LongEqPattern<>(property, (Long) convertToBasicType(condition.getValue()));
+        } else if (type.equals(Double.class)) {
+            return new DoubleEqPattern<>(property, (Double) convertToBasicType(condition.getValue()));
+        } else if (type.equals(String.class)) {
+            return new StringEqPattern<>(property, forceToString(condition.getValue()));
+        } else if (type.equals(Boolean.class)) {
+            return new BooleanEqPattern<>(property, (Boolean) condition.getValue());
+        } else if (isEnum(type)) {
+            return new EnumEqPattern<>(property, (Enum) condition.getValue());
+        } else {
+            return new ObjectEqPattern<>(property, condition.getValue());
+        }
     }
 
     private <P> PropertyPattern<T> buildNeqPattern(final PropertyCondition<P> condition) {
         final Property<T> property = createProperty(condition.getProperty());
-        return Match(property.getWidenedType()).of(
-                Case($(is(Long.class)), longProp -> new LongNeqPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
-                Case($(is(Double.class)), doubleProp -> new DoubleNeqPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
-                Case($(is(String.class)), strProp -> new StringNeqPattern<>(property, forceToString(condition.getValue()))),
-                Case($(ReflectPatternCompiler::isEnum), enumProp -> new EnumNeqPattern<>(property, (Enum) condition.getValue())),
-                Case($(ReflectPatternCompiler::isObject), $_ -> new ObjectNeqPattern<>(property, condition.getValue()))
-        );
+        final Class type = property.getWidenedType();
+
+        //noinspection IfStatementWithTooManyBranches
+        if (type.equals(Long.class)) {
+            return new LongNeqPattern<>(property, (Long) convertToBasicType(condition.getValue()));
+        } else if (type.equals(Double.class)) {
+            return new DoubleNeqPattern<>(property, (Double) convertToBasicType(condition.getValue()));
+        } else if (type.equals(String.class)) {
+            return new StringNeqPattern<>(property, forceToString(condition.getValue()));
+        } else if (type.equals(Boolean.class)) {
+            return new BooleanNeqPattern<>(property, (Boolean) condition.getValue());
+        } else if (isEnum(type)) {
+            return new EnumNeqPattern<>(property, (Enum) condition.getValue());
+        } else {
+            return new ObjectNeqPattern<>(property, condition.getValue());
+        }
     }
 
     private <P> PropertyPattern<T> buildGtPattern(final PropertyCondition<P> condition) {
@@ -106,7 +126,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
                 Case($(is(Long.class)), $_ -> new LongGtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), $_ -> new DoubleGtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(), () -> {
-                    throw new MatcherException("Greater-than expressions are only supported for numeric properties. Got property: %s", property);
+                    throw new CompilerException("Greater-than expressions are only supported for numeric properties. Got property: %s", property);
                 })
         );
     }
@@ -117,7 +137,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
                 Case($(is(Long.class)), $_ -> new LongLtPattern<>(property, (Long) convertToBasicType(condition.getValue()))),
                 Case($(is(Double.class)), $_ -> new DoubleLtPattern<>(property, (Double) convertToBasicType(condition.getValue()))),
                 Case($(), () -> {
-                    throw new MatcherException("Less-than expressions are only supported for numeric properties. Got property: %s", property);
+                    throw new CompilerException("Less-than expressions are only supported for numeric properties. Got property: %s", property);
                 })
         );
     }
@@ -127,7 +147,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         return Match(property.getWidenedType()).of(
                 Case($(is(String.class)), $_ -> new StringRegexPattern<>(property, forceToString(condition.getValue()))),
                 Case($(), () -> {
-                    throw new MatcherException("Regex expressions are only supported for 'String' properties. Got property: %s", property);
+                    throw new CompilerException("Regex expressions are only supported for 'String' properties. Got property: %s", property);
                 })
         );
     }
@@ -136,7 +156,7 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
     private PropertyPattern<T> buildObjectPattern(final ObjectCondition condition) {
         final Property<T> property = createProperty(condition.getProperty());
         if (isBasicType(property.getWidenedType())) {
-            throw new MatcherException("Not a nested object. Property: %s ", property);
+            throw new CompilerException("Not a nested object. Property: %s ", property);
         } else {
             return new ObjectPattern<>(property,
                     Patterns.compile(condition.getValue(), ReflectPatternCompiler.forClass(property.getType())));

@@ -1,7 +1,7 @@
 package net.ninjacat.omg.reflect;
 
 import io.vavr.control.Try;
-import net.ninjacat.omg.errors.MatcherException;
+import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.PropertyPattern;
 
@@ -27,7 +27,7 @@ public class ObjectPattern<T> implements PropertyPattern<T> {
     private Object getObjectValue(final T instance) {
         final MethodHandle getter = property.getGetterMethod();
         return Try.of(() -> getter.invoke(instance))
-                .getOrElseThrow(err -> new MatcherException(err, "Failed to match property %s in %s", property, instance));
+                .getOrElseThrow(err -> new CompilerException(err, "Failed to match property %s in %s", property, instance));
     }
 
     @Override

@@ -27,6 +27,7 @@ final class OmqlTypeConversion {
                 Case($(OmqlTypeConversion::isInteger), Integer::parseInt),
                 Case($(OmqlTypeConversion::isLong), Long::parseLong),
                 Case($(OmqlTypeConversion::isDouble), Double::parseDouble),
+                Case($(OmqlTypeConversion::isBoolean), OmqlTypeConversion::toBoolean),
                 Case($(OmqlTypeConversion::isString), OmqlTypeConversion::extractString),
                 Case($(), s -> {
                     throw new OmqlParsingException("Unsupported value: %s", value);
@@ -48,6 +49,7 @@ final class OmqlTypeConversion {
         return Try.of(() -> Match(targetType).of(
                 Case($(is(null)), s -> toJavaType(value)),
                 Case($(OmqlTypeConversion::isNumber), s -> OmqlTypeConversion.parseIntoNumeric(targetType, value)),
+                Case($(OmqlTypeConversion::isBooleanType), s -> OmqlTypeConversion.toBoolean(value)),
                 Case($(is(String.class)), s -> OmqlTypeConversion.extractStringChecked(value)),
                 Case($(Class::isEnum), s -> Enum.valueOf(targetType, OmqlTypeConversion.extractStringChecked(value))),
                 Case($((Predicate<Class>) Object.class::isAssignableFrom), s -> value),
@@ -76,6 +78,10 @@ final class OmqlTypeConversion {
                 .getOrElse(false);
     }
 
+    private static boolean isBoolean(final String s) {
+        return "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s);
+    }
+
     private static boolean isString(final String s) {
         return (s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"));
     }
@@ -96,6 +102,11 @@ final class OmqlTypeConversion {
         return TypeUtils.isIntegerType(cls) || TypeUtils.isFloatType(cls);
     }
 
+
+    private static <T> boolean isBooleanType(final Class<T> cls) {
+        return cls.equals(Boolean.class) || cls.equals(boolean.class);
+    }
+
     private static <T> Number parseIntoNumeric(final Class<T> target, final String value) {
         final Number number = Match(value).of(
                 Case($(OmqlTypeConversion::isInteger), Integer::parseInt),
@@ -106,6 +117,16 @@ final class OmqlTypeConversion {
                 })
         );
         return TypeUtils.ensureNumericType(target, number);
+    }
+
+    private static boolean toBoolean(final String s) {
+        if ("true".equalsIgnoreCase(s)) {
+            return true;
+        } else if ("false".equalsIgnoreCase(s)) {
+            return false;
+        } else {
+            throw new OmqlParsingException("Cannot parse value '%s' as boolean", s);
+        }
     }
 
 }

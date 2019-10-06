@@ -198,6 +198,16 @@ public class QueryCompilerTest {
         assertThat(condition, is(expected));
     }
 
+    @Test
+    public void shouldParseQueryWithBoolean() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("select * from JetPilot where canFly = true", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher().property("canFly").eq(true).build();
+
+        assertThat(condition, is(expected));
+    }
+
 
     @Test(expected = OmqlParsingException.class)
     public void shouldFailToParseQuery() {
@@ -249,5 +259,7 @@ public class QueryCompilerTest {
         int age();
 
         String callsign();
+
+        boolean canFly();
     }
 }
