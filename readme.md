@@ -7,6 +7,7 @@ Java library to quickly match objects against a pattern declared at runtime with
 Supports matching properties of types:
 
 - any numeric type + their boxed counterparts
+- boolean and java.lang.Boolean
 - String
 - Enums
 - Arbitrary objects 
