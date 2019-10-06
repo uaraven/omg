@@ -112,6 +112,10 @@ public final class TypeUtils {
         return o instanceof Character || o.getClass().equals(char.class);
     }
 
+    private static boolean isBooleanFloat(final Object o) {
+        return o instanceof Boolean || o.getClass().equals(boolean.class);
+    }
+
     private static boolean isFloat(final Object o) {
         return o instanceof Float || o.getClass().equals(float.class);
     }

@@ -38,11 +38,6 @@ expr
  | field_name K_IN '(' select ')' # matchExpr
  ;
 
-result_field
- : '*'
- | field_name ( K_AS? column_alias )?
- ;
-
 where
  : K_WHERE expr
  ;
@@ -60,6 +55,7 @@ signed_number
 literal_value
  : signed_number
  | STRING_LITERAL
+ | boolean_value
  | K_NULL
  ;
 
@@ -78,6 +74,11 @@ field_name
  | CLASS_IDENTIFIER
  ;
 
+boolean_value
+ : K_TRUE
+ | K_FALSE
+ ;
+
 K_AND : A N D;
 K_AS : A S;
 K_BETWEEN : B E T W E E N;
@@ -89,6 +90,8 @@ K_OR: O R;
 K_REGEX: R E G E X;
 K_SELECT: S E L E C T;
 K_WHERE : W H E R E;
+K_TRUE: T R U E;
+K_FALSE: F A L S E;
 
 IDENTIFIER
  : [a-zA-Z] [a-zA-Z_0-9$]*

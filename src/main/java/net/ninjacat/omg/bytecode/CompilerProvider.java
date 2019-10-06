@@ -1,9 +1,6 @@
 package net.ninjacat.omg.bytecode;
 
-import net.ninjacat.omg.bytecode.primitive.IntStrategy;
-import net.ninjacat.omg.bytecode.primitive.PrimitiveDoubleStrategy;
-import net.ninjacat.omg.bytecode.primitive.PrimitiveFloatStrategy;
-import net.ninjacat.omg.bytecode.primitive.PrimitiveLongStrategy;
+import net.ninjacat.omg.bytecode.primitive.*;
 import net.ninjacat.omg.bytecode.reference.*;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -33,6 +30,7 @@ final class CompilerProvider {
                 Case($(is(long.class)), l -> PrimitiveLongStrategy.forMethod(method)),
                 Case($(is(float.class)), l -> PrimitiveFloatStrategy.forMethod(method)),
                 Case($(is(double.class)), l -> PrimitiveDoubleStrategy.forMethod(method)),
+                Case($(is(boolean.class)), l -> PrimitiveBooleanStrategy.forMethod(method)),
                 Case($(is(Integer.class)), intCls -> IntegerStrategy.forMethod(method)),
                 Case($(is(Long.class)), longCls -> LongStrategy.forMethod(method)),
                 Case($(is(Short.class)), s -> ShortStrategy.forMethod(method)),
@@ -41,6 +39,7 @@ final class CompilerProvider {
                 Case($(is(Float.class)), s -> FloatStrategy.forMethod(method)),
                 Case($(is(Character.class)), s -> CharacterStrategy.forMethod(method)),
                 Case($(is(String.class)), s -> StringStrategyProvider.forMethod(method)),
+                Case($(is(Boolean.class)), s -> BooleanStrategy.forMethod(method)),
                 Case($((Predicate<Class>) Enum.class::isAssignableFrom), e -> EnumStrategy.forMethod(method)),
                 Case($(), $_ -> ObjectStrategyProvider.forMethod(cls, method))
         );
