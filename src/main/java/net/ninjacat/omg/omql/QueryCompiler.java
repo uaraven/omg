@@ -64,7 +64,7 @@ public final class QueryCompiler {
         this.where = selectContext.where();
         this.context = ImmutableQueryContext.builder()
                 .registeredSources(registeredSources)
-                .validator(new ClassValidator(registeredSources.getSource(selectContext.source_name().getText())))
+                .validator(new ClassValidator(registeredSources.getSource(sourceText(selectContext.source_name()))))
                 .build();
     }
 
@@ -85,17 +85,21 @@ public final class QueryCompiler {
         if (propertyContext.isPresent() && propertyContext.get().isSubfield()) {
             processSubfield(propertyContext.get(), builder);
         } else {
-            Match(expr).of(
-                    Case($(instanceOf(OmqlParser.ConditionContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                    Case($(instanceOf(OmqlParser.AndExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                    Case($(instanceOf(OmqlParser.OrExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                    Case($(instanceOf(OmqlParser.NotExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                    Case($(instanceOf(OmqlParser.InExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                    Case($(instanceOf(OmqlParser.MatchExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
-                    Case($(), () -> {
-                        throw new OmqlParsingException("Unsupported expression: %s", expr.getText());
-                    })
-            );
+            if (expr instanceof OmqlParser.ParensExprContext) {
+                processExpression(((OmqlParser.ParensExprContext) expr).expr(), builder);
+            } else {
+                Match(expr).of(
+                        Case($(instanceOf(OmqlParser.ConditionContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                        Case($(instanceOf(OmqlParser.AndExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                        Case($(instanceOf(OmqlParser.OrExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                        Case($(instanceOf(OmqlParser.NotExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                        Case($(instanceOf(OmqlParser.InExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                        Case($(instanceOf(OmqlParser.MatchExprContext.class)), ctx -> run(() -> processExpression(ctx, builder))),
+                        Case($(), () -> {
+                            throw new OmqlParsingException("Unsupported expression: %s", sourceText(expr));
+                        })
+                );
+            }
         }
     }
 

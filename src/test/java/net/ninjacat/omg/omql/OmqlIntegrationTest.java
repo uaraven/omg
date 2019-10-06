@@ -4,6 +4,7 @@ import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.Patterns;
+import org.immutables.value.Value;
 import org.junit.Test;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class OmqlIntegrationTest {
         final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where e ='E1'", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
-        final Pattern pattern = Patterns.compile(
+        final Pattern<Data> pattern = Patterns.compile(
                 condition,
                 PatternCompiler.forClass(Data.class));
 
@@ -39,7 +40,7 @@ public class OmqlIntegrationTest {
         final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data", Data.class);
         final Condition condition = queryCompiler.getCondition();
 
-        final Pattern pattern = Patterns.compile(
+        final Pattern<Data> pattern = Patterns.compile(
                 condition,
                 PatternCompiler.forClass(Data.class));
 
@@ -53,6 +54,30 @@ public class OmqlIntegrationTest {
         assertThat(result, hasItems(
                 new Data(1, 5.5, "test 1", (short) 30, E.E1),
                 new Data(2, 6.5, "test 2", (short) 20, E.E2)));
+    }
+
+    @Test
+    public void shouldParseExampleFromDocs() {
+        final QueryCompiler queryCompiler = QueryCompiler.of(
+                "SELECT * FROM LivingPerson WHERE homeAddress.city.name = 'Windsor' OR (\n" +
+                        "  homeAddress.city.name = 'Toronto' AND \n" +
+                        "  homeAddress.city.districtName IN ('Etobicoke', 'Scarborough'))", LivingPerson.class);
+        final Condition condition = queryCompiler.getCondition();
+
+        final LivingPerson windsorPerson = ImmutableLivingPerson.of(ImmutableAddress.of(ImmutableCity.of("Windsor", "")));
+        final LivingPerson scarboroPerson = ImmutableLivingPerson.of(ImmutableAddress.of(ImmutableCity.of("Toronto", "Scarborough")));
+        final LivingPerson etobicokePerson = ImmutableLivingPerson.of(ImmutableAddress.of(ImmutableCity.of("Toronto", "Etobicoke")));
+        final LivingPerson kitchenerPerson = ImmutableLivingPerson.of(ImmutableAddress.of(ImmutableCity.of("Kitchener", "")));
+
+        final Pattern<LivingPerson> pattern = Patterns.compile(
+                condition,
+                PatternCompiler.forClass(LivingPerson.class));
+
+        final List<LivingPerson> source = io.vavr.collection.List.of(windsorPerson, scarboroPerson, etobicokePerson, kitchenerPerson).asJava();
+
+        final List<LivingPerson> result = source.stream().filter(pattern::matches).collect(Collectors.toList());
+
+        assertThat(result, hasItems(windsorPerson, scarboroPerson, etobicokePerson));
     }
 
     public enum E {
@@ -112,5 +137,26 @@ public class OmqlIntegrationTest {
         public int hashCode() {
             return Objects.hash(getId(), getHeight(), getAge(), getName(), getE());
         }
+    }
+
+    @Value.Immutable
+    public interface City {
+        @Value.Parameter(order = 1)
+        String name();
+
+        @Value.Parameter(order = 2)
+        String districtName();
+    }
+
+    @Value.Immutable
+    public interface Address {
+        @Value.Parameter
+        City city();
+    }
+
+    @Value.Immutable
+    public interface LivingPerson {
+        @Value.Parameter
+        Address homeAddress();
     }
 }

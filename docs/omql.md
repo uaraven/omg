@@ -12,10 +12,9 @@ own quirks.
 
 Only supported type of queries is `SELECT` and queries must follow followin pattern:
 
-SELECT `<list-of-fields>` FROM `<class-name>` WHERE `<list-of-conditions>`
+SELECT * FROM `<class-name>` WHERE `<list-of-conditions>`
 
- In current implementation `<list-of-fields>` is ignored and can be either `*` or any list of valid Java identifiers
- separated with comma.
+ In current implementation only `*` can appear in SELECT clause.
  
  `<class-name>` is either a fully-qualified Java class name or a short name of registered class (see below).
  
@@ -25,6 +24,7 @@ SELECT `<list-of-fields>` FROM `<class-name>` WHERE `<list-of-conditions>`
  |  Data type          | Operators supported                    |
  |:-------------------:|:---------------------------------------|
  | Numeric types       | `>`, `<`, `=`,  `!=`, `>=`, `<=`, `IN (list)` |
+ | Boolean             | `=`, `!=`                              |
  | String              | `=`, `!=`, `~=`, `IN (list)`           |
  | Enum                | `=`, `!=`, `~=`, `IN (list)`           |
  | Object              | `=`, `!=`, `~=`, `IN (subquery)`       |
@@ -109,3 +109,19 @@ For example following query will match objects where `person.homeAddress.city.eq
 ```sql
     SELECT * FROM Person WHERE homeAddress IN (SELECT * FROM Address WHERE city = 'Toronto')
 ```
+
+Starting from version 0.1.5 more natural syntax is supported for nested objects. Previous query can be rewritten as
+ 
+```sql
+    SELECT * FROM Person WHERE homeAddress.city = 'Toronto'
+```
+
+Query parser will rewrite the latter query as the former while processing conditions.
+Multiple levels of nested objects is supported as well as any combinations with logical operators:
+
+```sql
+    SELECT * FROM Person WHERE homeAddress.city.name = 'Windsor' OR (
+        homeAddress.city.name = 'Toronto' AND
+        homeAddress.city.districtName IN ('Etobicoke', 'Scarborough'))
+```
+ 
