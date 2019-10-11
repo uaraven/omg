@@ -2,7 +2,6 @@ package net.ninjacat.omg.omql;
 
 import io.vavr.Tuple2;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import net.ninjacat.omg.errors.OmqlParsingException;
 
 import java.lang.reflect.Method;
@@ -20,9 +19,17 @@ import java.util.stream.Stream;
 class RegisteredQuerySources {
     private final Map<String, Class<?>> sources;
 
-    RegisteredQuerySources(final Collection<Class<?>> classes) {
-        this.sources = buildDependencies(classes)
-                .collect(Collectors.toConcurrentMap(Tuple2::_1, Tuple2::_2));
+    RegisteredQuerySources(final Collection<Class<?>> classes, final boolean registerDependencies) {
+        this.sources = (registerDependencies
+                ? buildDependencies(classes)
+                : noDependencies(classes)).collect(Collectors.toConcurrentMap(Tuple2::_1, Tuple2::_2));
+
+    }
+
+    private Stream<Tuple2<String, Class<?>>> noDependencies(Collection<Class<?>> classes) {
+        return classes.stream()
+                .distinct()
+                .flatMap(RegisteredQuerySources::namedPair);
     }
 
     /**
@@ -37,8 +44,7 @@ class RegisteredQuerySources {
      */
     Class<?> getSource(final String source) {
         return Option.<Class<?>>of(sources.get(source))
-                .orElse(Try.of(() -> Class.forName(source)).toOption())
-                .getOrElseThrow(() -> new OmqlParsingException("Cannot find class '%s'", source));
+                .getOrElseThrow(() -> new OmqlParsingException("Class '%s' is not registered for matching", source));
     }
 
     private Stream<Tuple2<String, Class<?>>> buildDependencies(final Collection<Class<?>> classes) {
