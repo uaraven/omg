@@ -1,6 +1,7 @@
 package net.ninjacat.omg.omql;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Security settings for OMQL compiler
@@ -17,7 +18,7 @@ public enum OmqlSettings {
      *
      * @return Set of settings for minimal security
      */
-    public static EnumSet<OmqlSettings> relaxed() {
+    public static Set<OmqlSettings> relaxed() {
         return EnumSet.of(REGISTER_PROPERTY_TYPES);
     }
 
@@ -26,7 +27,7 @@ public enum OmqlSettings {
      *
      * @return Set of settings for maximal supported security
      */
-    public static EnumSet<OmqlSettings> strict() {
+    public static Set<OmqlSettings> strict() {
         return EnumSet.noneOf(OmqlSettings.class);
     }
 
@@ -37,7 +38,7 @@ public enum OmqlSettings {
      * @param rest  Optional rest of settings
      * @return Set of settings.
      */
-    public static EnumSet<OmqlSettings> of(final OmqlSettings first, final OmqlSettings... rest) {
+    public static Set<OmqlSettings> of(final OmqlSettings first, final OmqlSettings... rest) {
         return EnumSet.of(first, rest);
     }
 }

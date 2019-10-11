@@ -3,10 +3,12 @@ package net.ninjacat.omg.omql;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.errors.OmqlParsingException;
+import net.ninjacat.omg.errors.OmqlSecurityException;
 import net.ninjacat.omg.errors.PatternException;
 import net.ninjacat.omg.errors.TypeConversionException;
 import org.junit.Test;
 
+import static net.ninjacat.omg.omql.OmqlSettings.relaxed;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -79,7 +81,10 @@ public class TypedQueryCompilerTest {
 
     @Test
     public void shouldProcessObjectFields() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where sub IN (select * from Subclass where contents != 'A.*')", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler.of(
+                "select * from Data where sub IN (select * from Subclass where contents != 'A.*')",
+                Data.class,
+                relaxed());
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -170,29 +175,42 @@ public class TypedQueryCompilerTest {
         assertThat(condition, is(expected));
     }
 
+    @Test(expected = OmqlSecurityException.class)
+    public void shouldNotProcessNonWhitelistedObjectFields() {
+        final QueryCompiler queryCompiler = QueryCompiler.of(
+                "select * from Data where sub IN (select * from Subclass where contents != 'A.*')",
+                Data.class,
+                OmqlSettings.strict());
+        queryCompiler.getCondition();
+    }
+
 
     @Test(expected = OmqlParsingException.class)
     public void shouldFailWhenSubfieldIsNotAnObject() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select * from Data where height.number IN (1, 2, 42)", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler
+                .of("select * from Data where height.number IN (1, 2, 42)", Data.class, relaxed());
         queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToString() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where name = 25.1", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler
+                .of("select * from " + Data.class.getName() + " where name = 25.1", Data.class, relaxed());
         queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToStringList() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where name in ('a', 'b', 25.1)", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler
+                .of("select * from " + Data.class.getName() + " where name in ('a', 'b', 25.1)", Data.class, relaxed());
         queryCompiler.getCondition();
     }
 
 
     @Test(expected = PatternException.class)
     public void shouldFailOnInvalidProperty() {
-        final QueryCompiler queryCompiler = QueryCompiler.of("select * from " + Data.class.getName() + " where unknown = 12", Data.class);
+        final QueryCompiler queryCompiler = QueryCompiler
+                .of("select * from " + Data.class.getName() + " where unknown = 12", Data.class, relaxed());
         queryCompiler.getCondition();
     }
 

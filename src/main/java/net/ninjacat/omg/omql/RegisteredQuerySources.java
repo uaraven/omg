@@ -1,13 +1,15 @@
 package net.ninjacat.omg.omql;
 
 import io.vavr.Tuple2;
-import io.vavr.control.Option;
+import io.vavr.control.Try;
 import net.ninjacat.omg.errors.OmqlParsingException;
+import net.ninjacat.omg.errors.OmqlSecurityException;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,8 +45,25 @@ class RegisteredQuerySources {
      * @throws OmqlParsingException if Class specified in FROM cannot be found
      */
     Class<?> getSource(final String source) {
-        return Option.<Class<?>>of(sources.get(source))
-                .getOrElseThrow(() -> new OmqlParsingException("Class '%s' is not registered for matching", source));
+        final Try<Class<?>> firstTry = Try.of(() -> Optional.of(sources.get(source)).get());
+        return firstTry
+                .orElse(Try.of(() -> tryCreate(source)))
+                .getOrElseThrow(ex -> rethrow(ex, source));
+    }
+
+    private Class<?> tryCreate(final String className) throws ClassNotFoundException {
+        final Class<?> cls = Class.forName(className);
+        if (isAllowedClass(cls)) {
+            return cls;
+        } else {
+            throw new OmqlSecurityException("Class '%' is not allowed", cls);
+        }
+    }
+
+    private OmqlSecurityException rethrow(Throwable ex, final String source) {
+        return ex instanceof OmqlSecurityException
+                ? (OmqlSecurityException) ex
+                : new OmqlSecurityException("Class '%s' is not registered for matching", source);
     }
 
     private Stream<Tuple2<String, Class<?>>> buildDependencies(final Collection<Class<?>> classes) {
@@ -75,7 +94,11 @@ class RegisteredQuerySources {
                 .map(c -> (Class<?>) c);
     }
 
+    private boolean isAllowedClass(final Class<?> cls) {
+        return cls.isPrimitive() || cls.getName().startsWith("java.");
+    }
+
     private boolean isSupportedClass(final Class<?> cls) {
-        return !cls.isPrimitive() && !cls.getName().startsWith("java");
+        return !cls.isPrimitive() && !cls.getName().startsWith("java.");
     }
 }

@@ -32,6 +32,19 @@ public final class QueryCompiler {
     /**
      * Creates compiler for query and single whitelisted class.
      * <p>
+     *
+     * @param query OMQL query
+     * @param cls Class that is whitelisted for matching
+     * @param settings          Set of {@link OmqlSettings} for compiler
+     * @return Query compiler
+     */
+    public static QueryCompiler of(final String query, final Class<?> cls, final Set<OmqlSettings> settings) {
+        return of(query, Stream.of(cls).collect(Collectors.toList()), settings);
+    }
+
+    /**
+     * Creates compiler for query and single whitelisted class.
+     * <p>
      * Default settings will be used. If you want to change settings use {@link #of(String, Collection, Set)} method
      *
      * @param query OMQL query

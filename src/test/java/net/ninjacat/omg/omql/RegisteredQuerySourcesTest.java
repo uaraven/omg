@@ -1,7 +1,7 @@
 package net.ninjacat.omg.omql;
 
 import io.vavr.collection.List;
-import net.ninjacat.omg.errors.OmqlParsingException;
+import net.ninjacat.omg.errors.OmqlSecurityException;
 import org.hamcrest.MatcherAssert;
 import org.immutables.value.Value;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class RegisteredQuerySourcesTest {
         MatcherAssert.assertThat(sources.getSource("FieldClass"), is(notNullValue()));
     }
 
-    @Test(expected = OmqlParsingException.class)
+    @Test(expected = OmqlSecurityException.class)
     public void shouldNotRegisterDependentClasses() {
         final java.util.List<Class<?>> classes = List.<Class<?>>of(RegisteredClass.class).asJava();
         final RegisteredQuerySources sources = new RegisteredQuerySources(classes, false);
@@ -27,7 +27,7 @@ public class RegisteredQuerySourcesTest {
         sources.getSource("FieldClass");
     }
 
-    @Test(expected = OmqlParsingException.class)
+    @Test(expected = OmqlSecurityException.class)
     public void shouldNotFindUnregisteredClasses() {
         final java.util.List<Class<?>> classes = List.<Class<?>>of(RegisteredClass.class).asJava();
         final RegisteredQuerySources sources = new RegisteredQuerySources(classes, false);
