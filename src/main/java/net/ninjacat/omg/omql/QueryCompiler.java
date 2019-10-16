@@ -15,6 +15,9 @@ import org.immutables.value.Value;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
@@ -26,23 +29,42 @@ public final class QueryCompiler {
     private final WhereContext where;
     private final QueryContext context;
 
-    public static QueryCompiler of(final String query, final Class<?> allowedSource) {
-        return of(query, io.vavr.collection.List.<Class<?>>of(allowedSource).asJava());
+    /**
+     * Creates compiler for query and single whitelisted class.
+     * <p>
+     *
+     * @param query OMQL query
+     * @param cls Class that is whitelisted for matching
+     * @param settings          Set of {@link OmqlSettings} for compiler
+     * @return Query compiler
+     */
+    public static QueryCompiler of(final String query, final Class<?> cls, final Set<OmqlSettings> settings) {
+        return of(query, Stream.of(cls).collect(Collectors.toList()), settings);
     }
 
-    public static QueryCompiler of(final String query, final Class<?> sourceA, final Class<?> sourceB) {
-        return of(query, io.vavr.collection.List.of(sourceA, sourceB).asJava());
+    /**
+     * Creates compiler for query and single whitelisted class.
+     * <p>
+     * Default settings will be used. If you want to change settings use {@link #of(String, Collection, Set)} method
+     *
+     * @param query OMQL query
+     * @param first Class that is whitelisted for matching
+     * @param rest  Rest of classes that are whitelisted for matching
+     * @return Query compiler
+     */
+    public static QueryCompiler of(final String query, final Class<?> first, final Class<?>... rest) {
+        return of(query, Stream.concat(Stream.of(first), Stream.of(rest)).collect(Collectors.toList()));
     }
 
-    public static QueryCompiler of(final String query, final Class<?> sourceA, final Class<?> sourceB, final Class<?> sourceC) {
-        return of(query, io.vavr.collection.List.of(sourceA, sourceB, sourceC).asJava());
-    }
-
-    public static QueryCompiler of(final String query, final Class<?> sourceA, final Class<?> sourceB, final Class<?> sourceC, final Class<?> sourceD) {
-        return of(query, io.vavr.collection.List.of(sourceA, sourceB, sourceC, sourceD).asJava());
-    }
-
-    public static QueryCompiler of(final String query, final Collection<Class<?>> registeredSources) {
+    /**
+     * Creates compiler for query and single whitelisted class.
+     *
+     * @param query             OMQL query
+     * @param registeredSources Classes that are whitelisted for matching
+     * @param settings          Set of {@link OmqlSettings} for compiler
+     * @return Query compiler
+     */
+    public static QueryCompiler of(final String query, final Collection<Class<?>> registeredSources, final Set<OmqlSettings> settings) {
         final OmqlLexer lexer = new OmqlLexer(CharStreams.fromString(query));
         final OmqlParser parser = new OmqlParser(new CommonTokenStream(lexer));
         final CompilerErrorListener errorListener = new CompilerErrorListener();
@@ -52,11 +74,26 @@ public final class QueryCompiler {
             throw new OmqlParsingException("Failed to parse query: \n%s", errorListener.toString());
         }
 
-        return new QueryCompiler(tree.sql_stmt().select(), new RegisteredQuerySources(registeredSources));
+        return new QueryCompiler(tree.sql_stmt().select(),
+                new RegisteredQuerySources(registeredSources, settings.contains(OmqlSettings.REGISTER_PROPERTY_TYPES)));
     }
 
-    static QueryCompiler ofParsed(final OmqlParser.SelectContext select, final RegisteredQuerySources registeredSources) {
-        return new QueryCompiler(select, registeredSources);
+    /**
+     * Creates compiler for query and single whitelisted class.
+     * <p>
+     * Default settings will be used. If you want to change settings use {@link #of(String, Collection, Set)} method
+     *
+     * @param query             OMQL query
+     * @param registeredSources Classes that are whitelisted for matching
+     * @return Query compiler
+     */
+    public static QueryCompiler of(final String query, final Collection<Class<?>> registeredSources) {
+        return of(query, registeredSources, OmqlSettings.strict());
+    }
+
+    static QueryCompiler ofParsed(final OmqlParser.SelectContext selectContext,
+                                  final RegisteredQuerySources registeredSources) {
+        return new QueryCompiler(selectContext, registeredSources);
     }
 
     private QueryCompiler(final OmqlParser.SelectContext selectContext,
