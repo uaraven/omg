@@ -147,13 +147,13 @@ To create matcher from OMQL query use following code:
         PatternCompiler.forClass(...));
 ```
 
-For more detailes on how to use OMQL check [this](docs/omql.md) document. 
+For more details on how to use OMQL check [this](docs/omql.md) document. 
 
 ### Security Notice
 
-Please note that OMQL allows whoever writin the query to essentially **execute any method** with matching signature (public, no parameters non-void return type) on almost any public class on classpath. 
+Please note that OMQL allows whoever is writing the query to essentially **execute any method** with matching signature (public, no parameters non-void return type) on almost any public class on classpath.
 
-There is a ticket [#48](https://github.com/uaraven/omg/issues/48) open and can be used to track progress on security improvements. 
+See [OMQL documentation](docs/omql.md) for more details on security.
 
 ### Benchmark
 

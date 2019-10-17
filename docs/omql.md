@@ -47,7 +47,34 @@ SELECT * FROM `<class-name>` WHERE `<list-of-conditions>`
 ``` 
 
 To compile a query into a condition one must provide list of classes used in that query. `QueryCompiler` uses this 
-information to build type-correct conditions. `QueryCompiler` will register all provided classes and all return types of public methods. For example for classes in example below, only `Data` class has to be registered, `Subclass` class will be discovered automatically and this will allow queries on `subdata` field.
+information to build type-correct conditions, also this list used as white list for classes that can be used in the query.
+
+**Security notice**
+
+Using OMQL poses a security risk, as query execution will execute any method matching properties mentioned in the query.
+For example query `SELECT * FROM PasswdReader where file ~= 'user_name'` will look for one of following methods in `PasswdReader` class:
+ - `String file()`
+ - `String getFile()`
+ - `String isFile()`
+ 
+if any of these methods exist it will be executed. If this method is not a simple getter, but actually reads, for example, 
+`/etc/passwd`, then this query can be used to check if login `user_name` exists on that machine.
+
+Given this, starting from version 0.2.0, OMQL only supports queries on classes that were explicitly registered. 
+
+For simplicity `QueryCompiler` can register all properties' types of explicitly provided classes. This greatly 
+simplifies usage fields of object properties in queries.
+ 
+`QueryCompiler` accepts `OmqlSettings` as last optional parameter. `OmqlSetting` can be configured for either allowing
+automatic registration of properties' types or for disabling it. There are two shortcut methods: `OmqlSettings.easy()` 
+for simplest usage experience at the cost of security and `OmqlSettings.strict()` for maximum security with more involved
+configuration. Default is `OmqlSettings.strict()`.
+   
+Classes in `java.*` packages are exempt from registration requirements.
+
+For example for classes in example below, only `Data` class has to be registered, `Subclass` class can be discovered 
+automatically and this will allow queries on `subdata` field.
+
 
 ```java
     class Subclass {
@@ -60,12 +87,14 @@ information to build type-correct conditions. `QueryCompiler` will register all 
 ```
 
 ```java
-    final Condition condition = QueryCompiler.of("SELECT * FROM Data WHERE subdata IN (SELECT * FROM Subclass WHERE code = '1533')", Data.class); // Works
-    final Condition condition = QueryCompiler.of("SELECT * FROM SomeOtherData", Data.class); // May work, if SomeOtherData class exist outside package
-    final Condition condition = QueryCompiler.of("SELECT * FROM com.example.SomeOtherData"); // Will work if com.example.SomeOtherData exists  
+    final Condition condition = QueryCompiler.of("SELECT * FROM Data WHERE subdata IN (SELECT * FROM Subclass WHERE code = '1533')", Data.class, OmqlSettings.easy()); // Works
+    final Condition condition = QueryCompiler.of("SELECT * FROM Data WHERE subdata IN (SELECT * FROM Subclass WHERE code = '1533')", Data.class, OmqlSettings.strict()); // Will not work, Subclass is not whitelisted
+    final Condition condition = QueryCompiler.of("SELECT * FROM SomeOtherData", Data.class, OmqlSettings.easy()); // Will not work, SomeOtherData must be registered explicitly 
+    final Condition condition = QueryCompiler.of("SELECT * FROM com.example.SomeOtherData"); // Will not work  
 ```
-All registered classes can be referenced in `FROM` clause using their simple name, to use non-registered class, one 
-must use fully-qualified name. The class must be available on classpath.
+All registered classes can be referenced in `FROM` clause using either their simple name or fully-qualified name. 
+If two classes have the same simple name (i.e. `com.example.Pojo` and `com.example.other.Pojo`), then only the
+first one can be accessed using simple name, other class(es) must be referenced using fully-qualified name. 
 
 ## Type-specific comparisons
 

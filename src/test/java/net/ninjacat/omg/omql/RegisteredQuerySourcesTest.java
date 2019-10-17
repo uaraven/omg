@@ -19,6 +19,16 @@ public class RegisteredQuerySourcesTest {
         MatcherAssert.assertThat(sources.getSource("FieldClass"), is(notNullValue()));
     }
 
+    @Test
+    public void name() {
+        final java.util.List<Class<?>> classes = List.of(TestClass.class, net.ninjacat.omg.omql.pack.TestClass.class).asJava();
+        final RegisteredQuerySources sources = new RegisteredQuerySources(classes, true);
+
+        MatcherAssert.assertThat(sources.getSource("TestClass"), is(TestClass.class));
+        MatcherAssert.assertThat(sources.getSource("net.ninjacat.omg.omql.pack.TestClass"), is(net.ninjacat.omg.omql.pack.TestClass.class));
+        MatcherAssert.assertThat(sources.getSource("net.ninjacat.omg.omql.TestClass"), is(TestClass.class));
+    }
+
     @Test(expected = OmqlSecurityException.class)
     public void shouldNotRegisterDependentClasses() {
         final java.util.List<Class<?>> classes = List.<Class<?>>of(RegisteredClass.class).asJava();
