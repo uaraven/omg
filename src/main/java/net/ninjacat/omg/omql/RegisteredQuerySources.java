@@ -6,11 +6,8 @@ import net.ninjacat.omg.errors.OmqlParsingException;
 import net.ninjacat.omg.errors.OmqlSecurityException;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -22,13 +19,14 @@ class RegisteredQuerySources {
     private final Map<String, Class<?>> sources;
 
     RegisteredQuerySources(final Collection<Class<?>> classes, final boolean registerDependencies) {
-        this.sources = (registerDependencies
+        final Map<String, Class<?>> collection = new ConcurrentHashMap<>();
+        (registerDependencies
                 ? buildDependencies(classes)
-                : noDependencies(classes)).collect(Collectors.toConcurrentMap(Tuple2::_1, Tuple2::_2));
-
+                : noDependencies(classes)).forEachOrdered(tpl -> collection.putIfAbsent(tpl._1, tpl._2));
+        this.sources = Collections.unmodifiableMap(collection);
     }
 
-    private Stream<Tuple2<String, Class<?>>> noDependencies(Collection<Class<?>> classes) {
+    private static Stream<Tuple2<String, Class<?>>> noDependencies(final Collection<Class<?>> classes) {
         return classes.stream()
                 .distinct()
                 .flatMap(RegisteredQuerySources::namedPair);
@@ -51,7 +49,7 @@ class RegisteredQuerySources {
                 .getOrElseThrow(ex -> rethrow(ex, source));
     }
 
-    private Class<?> tryCreate(final String className) throws ClassNotFoundException {
+    private static Class<?> tryCreate(final String className) throws ClassNotFoundException {
         final Class<?> cls = Class.forName(className);
         if (isAllowedClass(cls)) {
             return cls;
@@ -60,15 +58,15 @@ class RegisteredQuerySources {
         }
     }
 
-    private OmqlSecurityException rethrow(Throwable ex, final String source) {
+    private static OmqlSecurityException rethrow(final Throwable ex, final String source) {
         return ex instanceof OmqlSecurityException
                 ? (OmqlSecurityException) ex
                 : new OmqlSecurityException("Class '%s' is not registered for matching", source);
     }
 
-    private Stream<Tuple2<String, Class<?>>> buildDependencies(final Collection<Class<?>> classes) {
+    private static Stream<Tuple2<String, Class<?>>> buildDependencies(final Collection<Class<?>> classes) {
         return classes.stream()
-                .flatMap(this::getClassDependencies)
+                .flatMap(RegisteredQuerySources::getClassDependencies)
                 .distinct()
                 .flatMap(RegisteredQuerySources::namedPair);
     }
@@ -80,25 +78,25 @@ class RegisteredQuerySources {
         );
     }
 
-    private Stream<Class<?>> getClassDependencies(final Class<?> cls) {
+    private static Stream<Class<?>> getClassDependencies(final Class<?> cls) {
         return Stream.concat(
                 Stream.of(cls),
                 getDependentClasses(cls)
         );
     }
 
-    private Stream<Class<?>> getDependentClasses(final Class<?> cls) {
+    private static Stream<Class<?>> getDependentClasses(final Class<?> cls) {
         return Arrays.stream(cls.getMethods())
                 .map(Method::getReturnType)
-                .filter(this::isSupportedClass)
+                .filter(RegisteredQuerySources::isSupportedClass)
                 .map(c -> (Class<?>) c);
     }
 
-    private boolean isAllowedClass(final Class<?> cls) {
+    private static boolean isAllowedClass(final Class<?> cls) {
         return cls.isPrimitive() || cls.getName().startsWith("java.");
     }
 
-    private boolean isSupportedClass(final Class<?> cls) {
+    private static boolean isSupportedClass(final Class<?> cls) {
         return !cls.isPrimitive() && !cls.getName().startsWith("java.");
     }
 }

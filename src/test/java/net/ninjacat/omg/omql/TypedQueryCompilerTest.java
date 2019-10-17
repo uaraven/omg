@@ -8,7 +8,7 @@ import net.ninjacat.omg.errors.PatternException;
 import net.ninjacat.omg.errors.TypeConversionException;
 import org.junit.Test;
 
-import static net.ninjacat.omg.omql.OmqlSettings.relaxed;
+import static net.ninjacat.omg.omql.OmqlSettings.easy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -84,7 +84,7 @@ public class TypedQueryCompilerTest {
         final QueryCompiler queryCompiler = QueryCompiler.of(
                 "select * from Data where sub IN (select * from Subclass where contents != 'A.*')",
                 Data.class,
-                relaxed());
+                easy());
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
@@ -188,21 +188,21 @@ public class TypedQueryCompilerTest {
     @Test(expected = OmqlParsingException.class)
     public void shouldFailWhenSubfieldIsNotAnObject() {
         final QueryCompiler queryCompiler = QueryCompiler
-                .of("select * from Data where height.number IN (1, 2, 42)", Data.class, relaxed());
+                .of("select * from Data where height.number IN (1, 2, 42)", Data.class, easy());
         queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToString() {
         final QueryCompiler queryCompiler = QueryCompiler
-                .of("select * from " + Data.class.getName() + " where name = 25.1", Data.class, relaxed());
+                .of("select * from " + Data.class.getName() + " where name = 25.1", Data.class, easy());
         queryCompiler.getCondition();
     }
 
     @Test(expected = TypeConversionException.class)
     public void shouldFailDoubleToStringList() {
         final QueryCompiler queryCompiler = QueryCompiler
-                .of("select * from " + Data.class.getName() + " where name in ('a', 'b', 25.1)", Data.class, relaxed());
+                .of("select * from " + Data.class.getName() + " where name in ('a', 'b', 25.1)", Data.class, easy());
         queryCompiler.getCondition();
     }
 
@@ -210,7 +210,7 @@ public class TypedQueryCompilerTest {
     @Test(expected = PatternException.class)
     public void shouldFailOnInvalidProperty() {
         final QueryCompiler queryCompiler = QueryCompiler
-                .of("select * from " + Data.class.getName() + " where unknown = 12", Data.class, relaxed());
+                .of("select * from " + Data.class.getName() + " where unknown = 12", Data.class, easy());
         queryCompiler.getCondition();
     }
 

@@ -1,44 +1,90 @@
 package net.ninjacat.omg.omql;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  * Security settings for OMQL compiler
  */
-public enum OmqlSettings {
-    /**
-     * If included into option set will allow matching on registered classes and all properties' types.
-     * Otherwise matching is allowed only for classes explicitly registered when creating {@link QueryCompiler}.
-     */
-    REGISTER_PROPERTY_TYPES;
+public final class OmqlSettings {
 
-    /**
-     * Minimal security. Allows automatic whitelisting of properties' types.
-     *
-     * @return Set of settings for minimal security
-     */
-    public static Set<OmqlSettings> relaxed() {
-        return EnumSet.of(REGISTER_PROPERTY_TYPES);
+    private final boolean registerPropertyTypes;
+
+    private OmqlSettings(final OmqlSettings.Builder builder) {
+        this.registerPropertyTypes = builder.isRegisterPropertyClasses();
     }
 
     /**
-     * Strict security. Restricts matching only to explicitly registered types.
+     * Creates a new builder to configure OMQL settings
      *
-     * @return Set of settings for maximal supported security
+     * @return new instance of {@link Builder}
      */
-    public static Set<OmqlSettings> strict() {
-        return EnumSet.noneOf(OmqlSettings.class);
+    public static Builder builder() {
+        return new Builder();
     }
 
     /**
-     * Creates a set of settings from provided values
+     * Preconfigured settings for easy usage.
+     * This setting enables automatic registration of property types.
      *
-     * @param first First security setting
-     * @param rest  Optional rest of settings
-     * @return Set of settings.
+     * @return Settings configured for ease of use
      */
-    public static Set<OmqlSettings> of(final OmqlSettings first, final OmqlSettings... rest) {
-        return EnumSet.of(first, rest);
+    public static OmqlSettings easy() {
+        return OmqlSettings.builder().registerPropertyClasses(true).build();
+    }
+
+    /**
+     * Preconfigured settings for maximum security
+     * This setting disables automatic registration of property types.
+     *
+     * @return Settings configured for maximum security
+     */
+    public static OmqlSettings strict() {
+        return OmqlSettings.builder().registerPropertyClasses(false).build();
+    }
+
+    /**
+     * Returns {@code true} if automatic registration of property types is enabled
+     *
+     * @return {@code true} if automatic registration of property types is enabled
+     */
+    public boolean isRegisterPropertyTypes() {
+        return registerPropertyTypes;
+    }
+
+    /**
+     * Fluid-style builder for OmqlSettings
+     */
+    public static final class Builder {
+        private boolean registerPropertyClasses;
+
+        public Builder() {
+            this.registerPropertyClasses = false;
+        }
+
+        public Builder(final OmqlSettings settings) {
+            this.registerPropertyClasses = settings.isRegisterPropertyTypes();
+        }
+
+        boolean isRegisterPropertyClasses() {
+            return registerPropertyClasses;
+        }
+
+        /**
+         * Enables or disables automatic registration of property types
+         *
+         * @param registerPropertyClasses flag to either enable or disable automatic property type registration
+         * @return this builder
+         */
+        public Builder registerPropertyClasses(final boolean registerPropertyClasses) {
+            this.registerPropertyClasses = registerPropertyClasses;
+            return this;
+        }
+
+        /**
+         * Creates OmqlSettings instance
+         *
+         * @return OmqlSettings instance set up according to this builder
+         */
+        public OmqlSettings build() {
+            return new OmqlSettings(this);
+        }
     }
 }
