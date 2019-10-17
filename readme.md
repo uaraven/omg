@@ -50,50 +50,6 @@ Example:
 
 See [OMG DSL](docs/dsl.md) for more details on how to use DSL and also some insights on how it works under the hood.
 
-You can define conditions using JSON, condition from previous example will look like
-
-```json
-
-[
-  {
-   "op": "or",
-   "value": [
-    {
-      "op": "regex",
-      "property": "lastName",
-      "value": "John.*on"
-    },
-    {
-      "op": "regex",
-      "property": "lastName",
-      "value": "Smith.*"
-    }
-   ]
-  },
-  {
-    "op": "neq",
-    "property": "firstName",
-    "value": "Mary"
-  },
-  {
-    "op": "gt",
-    "property": "age",
-    "value": 21
-  },
-  {
-    "op": "not",
-    "value": {
-      "op": "lt",
-      "property": "friends",
-      "value": 1
-    }
-  }
-]  
-
-```
-
-JSON support is deprecated and will be removed in next versions. Use OMQL or DSL to write matchers. 
-
 ### Query language support
 
 SQL-like language for defining conditions is recommended for practical use. OMQL (Object mapping query language) supports all operations that DSL supports, and does it in type-safe manner.
