@@ -37,6 +37,7 @@ public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
         if (mv == null) {
             return Collections.emptyList();
         } else if (mv instanceof List) {
+            //noinspection unchecked
             return Collections.unmodifiableList((List<E>)mv);
         } else {
             throw new TypeConversionException(mv.getClass(), mv, List.class);

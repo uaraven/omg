@@ -23,5 +23,5 @@ package net.ninjacat.omg.bytecode;
  */
 public enum CompareOrdering {
     PROPERTY_THEN_MATCHING,
-    MATCHING_THEN_PROPERTY;
+    MATCHING_THEN_PROPERTY
 }

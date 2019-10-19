@@ -53,6 +53,7 @@ public final class Patterns {
         return propBuilder.build(condition);
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> Pattern<T> processAlwaysTrueCondition() {
         return AlwaysMatchingPattern.INSTANCE;
     }

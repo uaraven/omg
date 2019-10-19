@@ -37,6 +37,7 @@ public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
         if (mv == null) {
             return Collections.emptyList();
         } else if (mv instanceof List) {
+            //noinspection unchecked
             return Collections.unmodifiableList((List<E>) mv);
         } else {
             throw new TypeConversionException(mv.getClass(), mv, List.class);
@@ -51,9 +52,9 @@ public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
      * <strong>Note:</strong> The order of parameters is different from similar method in "reference" package
      * because of the order of parameters on stack
      *
-     * @param matchingValue
-     * @param propertyValue
-     * @return
+     * @param matchingValue List of values to match
+     * @param propertyValue value of the property
+     * @return true if list contains property value
      */
     public boolean isInList(final List<E> matchingValue, final E propertyValue) {
         return matchingValue.stream().anyMatch(item -> item.equals(propertyValue));

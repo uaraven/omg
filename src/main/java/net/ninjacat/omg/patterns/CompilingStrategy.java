@@ -33,6 +33,7 @@ public enum CompilingStrategy {
         this.provider = provider;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> PropertyPatternCompiler<T> getCompiler(final Class<T> cls) {
         return provider.apply(cls);
     }

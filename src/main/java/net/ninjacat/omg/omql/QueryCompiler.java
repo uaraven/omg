@@ -157,6 +157,7 @@ public final class QueryCompiler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void processExpression(final OmqlParser.InExprContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
 
@@ -166,6 +167,7 @@ public final class QueryCompiler {
     }
 
 
+    @SuppressWarnings("unchecked")
     private void processExpression(final OmqlParser.MatchExprContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
 
@@ -195,6 +197,7 @@ public final class QueryCompiler {
         );
     }
 
+    @SuppressWarnings("unchecked")
     private void processExpression(final OmqlParser.ConditionContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String operation = Optional.ofNullable(expr.operator()).map(RuleContext::getText).orElse(null);
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).get();
@@ -261,7 +264,7 @@ public final class QueryCompiler {
 
         default String getSubExpression(final Class<?> type) {
             final int dotPos = propertyName().indexOf('.');
-            final String subField = propertyName().substring(dotPos + 1, propertyName().length());
+            final String subField = propertyName().substring(dotPos + 1);
             return String.format("SELECT * FROM %s WHERE %s %s %s", type.getSimpleName(), subField, operation(), value());
         }
 

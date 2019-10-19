@@ -29,7 +29,7 @@ public class StringNeqPattern<T> extends BaseStringPattern<T> {
 
     @Override
     protected boolean compare(final String propertyValue) {
-        if (propertyValue == null || getMatchingValue() == null && propertyValue != getMatchingValue()) {
+        if ((propertyValue == null || getMatchingValue() == null) && propertyValue != getMatchingValue()) {
             return true;
         } else {
             return !propertyValue.equals(getMatchingValue());
