@@ -25,14 +25,15 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public abstract class PrimitiveInStrategy implements PatternCompilerStrategy {
-    protected static final String IS_IN_LIST_DESC = Type.getMethodDescriptor(
+    protected static final String METHOD = "isInCollection";
+    static final String IS_IN_COLLECTION_DESC = Type.getMethodDescriptor(
             Type.getType(boolean.class),
-            Type.getType(List.class),
+            Type.getType(Collection.class),
             Type.getType(Object.class));
 
 
@@ -52,8 +53,8 @@ public abstract class PrimitiveInStrategy implements PatternCompilerStrategy {
         mv.visitMethodInsn(
                 INVOKEVIRTUAL,
                 Type.getInternalName(getParentPropertyPatternClass()),
-                "isInList",
-                IS_IN_LIST_DESC,
+                METHOD,
+                IS_IN_COLLECTION_DESC,
                 false
         );
     }
@@ -90,7 +91,7 @@ public abstract class PrimitiveInStrategy implements PatternCompilerStrategy {
 
     @Override
     public String getMatchingValueDescriptor() {
-        return "()Ljava/util/List;";
+        return Type.getMethodDescriptor(Type.getType(Collection.class));
     }
 
 }

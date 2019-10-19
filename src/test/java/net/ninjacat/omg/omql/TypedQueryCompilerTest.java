@@ -25,7 +25,7 @@ public class TypedQueryCompilerTest {
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
-                .property("age").in(io.vavr.collection.List.of((short) 25, (short) 35, (short) 45).asJava())
+                .property("age").in(io.vavr.collection.HashSet.of((short) 25, (short) 35, (short) 45).toJavaSet())
                 .build();
 
         assertThat(condition, is(expected));
@@ -100,7 +100,7 @@ public class TypedQueryCompilerTest {
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
-                .property("e").in(io.vavr.collection.List.of(E.E1, E.E2).asJava())
+                .property("e").in(io.vavr.collection.HashSet.of(E.E1, E.E2).toJavaSet())
                 .build();
 
         assertThat(condition, is(expected));
@@ -139,7 +139,7 @@ public class TypedQueryCompilerTest {
 
         final Condition expected = Conditions.matcher()
                 .property("sub").match(
-                        Conditions.matcher().property("number").in(io.vavr.collection.List.of(1, 2, 42).asJava()).build())
+                        Conditions.matcher().property("number").in(io.vavr.collection.HashSet.of(1, 2, 42).toJavaSet()).build())
                 .build();
 
         assertThat(condition, is(expected));

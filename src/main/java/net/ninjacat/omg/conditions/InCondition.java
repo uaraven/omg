@@ -18,11 +18,11 @@
 
 package net.ninjacat.omg.conditions;
 
-import java.util.List;
+import java.util.Collection;
 
-public class InCondition<T> extends ComparisonCondition<List<T>> {
+public class InCondition<T> extends ComparisonCondition<Collection<T>> {
 
-    public InCondition(final String property, final List<T> value) {
+    public InCondition(final String property, final Collection<T> value) {
         super(property, value);
     }
 

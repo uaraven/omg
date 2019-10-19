@@ -21,6 +21,7 @@ package net.ninjacat.omg.conditions;
 import net.ninjacat.omg.errors.ConditionException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -114,7 +115,7 @@ public final class Conditions {
             return parentBuilder;
         }
 
-        public <T> LogicalConditionBuilder in(final List<T> value) {
+        public <T> LogicalConditionBuilder in(final Collection<T> value) {
             parentBuilder.addCondition(() -> new InCondition<>(propertyName, value));
             return parentBuilder;
         }

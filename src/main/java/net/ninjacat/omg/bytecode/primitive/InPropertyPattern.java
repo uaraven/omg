@@ -22,29 +22,29 @@ import net.ninjacat.omg.bytecode.BasePropertyPattern;
 import net.ninjacat.omg.bytecode.Property;
 import net.ninjacat.omg.errors.TypeConversionException;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
-    private final List<E> matchingValue;
+    private final Collection<E> matchingValue;
 
     protected InPropertyPattern(final Property property, final T matchingValue) {
         super(property);
         this.matchingValue = getMatchingValueConverted(matchingValue);
     }
 
-    private List<E> getMatchingValueConverted(final T mv) {
+    private Collection<E> getMatchingValueConverted(final T mv) {
         if (mv == null) {
-            return Collections.emptyList();
-        } else if (mv instanceof List) {
+            return Collections.emptySet();
+        } else if (mv instanceof Collection) {
             //noinspection unchecked
-            return Collections.unmodifiableList((List<E>) mv);
+            return Collections.unmodifiableCollection((Collection<E>) mv);
         } else {
-            throw new TypeConversionException(mv.getClass(), mv, List.class);
+            throw new TypeConversionException(mv.getClass(), mv, Collection.class);
         }
     }
 
-    public List<E> getMatchingValue() {
+    public Collection<E> getMatchingValue() {
         return matchingValue;
     }
 
@@ -56,7 +56,7 @@ public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
      * @param propertyValue value of the property
      * @return true if list contains property value
      */
-    public boolean isInList(final List<E> matchingValue, final E propertyValue) {
+    public boolean isInCollection(final Collection<E> matchingValue, final E propertyValue) {
         return matchingValue.stream().anyMatch(item -> item.equals(propertyValue));
     }
 }

@@ -8,6 +8,8 @@ import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
+import java.util.Collection;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -49,7 +51,7 @@ public class BooleanCompilerTest {
 
     @Test(expected = CompilerException.class)
     public void shouldFailInPattern() {
-        final PropertyCondition<java.util.List<Boolean>> condition =
+        final PropertyCondition<Collection<Boolean>> condition =
                 new InCondition<>("boolField", List.of(true, false).asJava());
 
         ReflectPatternCompiler.forClass(BooleanTest.class).build(condition);

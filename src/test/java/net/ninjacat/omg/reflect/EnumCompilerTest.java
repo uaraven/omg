@@ -8,7 +8,7 @@ import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
@@ -46,7 +46,7 @@ public class EnumCompilerTest {
 
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<EnumValues>> condition = new InCondition<>(
+        final PropertyCondition<Collection<EnumValues>> condition = new InCondition<>(
                 "enumField",
                 io.vavr.collection.List.of(EnumValues.E1, EnumValues.E2, EnumValues.E4).asJava());
 

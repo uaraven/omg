@@ -1,6 +1,6 @@
 package net.ninjacat.omg.bytecode.primitive;
 
-import io.vavr.collection.List;
+import io.vavr.collection.HashSet;
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
@@ -8,6 +8,8 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
+
+import java.util.Collection;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -57,8 +59,8 @@ public class CharCompilerTest {
 
     @Test
     public void shouldMatchInPattern() {
-        final PropertyCondition<java.util.List<Character>> condition =
-                new InCondition<>("charField", List.of((char) 42, (char) 84).asJava());
+        final PropertyCondition<Collection<Character>> condition =
+                new InCondition<>("charField", HashSet.of((char) 42, (char) 84).toJavaSet());
 
         final PropertyPattern<CharTest> pattern = AsmPatternCompiler.forClass(CharTest.class).build(condition);
 

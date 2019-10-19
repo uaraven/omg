@@ -23,7 +23,7 @@ import net.ninjacat.omg.errors.OmqlParsingException;
 import net.ninjacat.omg.omql.parser.OmqlParser;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -36,18 +36,18 @@ public class InProducer implements OmqlConditionProducer<OmqlParser.InExprContex
                        final String property,
                        final QueryContext context,
                        final OmqlParser.InExprContext value) {
-        final List<Object> values = value.list().literal_value().stream()
+        final Set<Object> values = value.list().literal_value().stream()
                 .map(it -> context.validator().validate(property, it.getText()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         if (values.isEmpty()) {
             builder.property(property).in(Collections.emptyList());
         } else {
-            final Class<?> firstClass = values.get(0).getClass();
+            final Class<?> firstClass = values.iterator().next().getClass();
             if (!values.stream().allMatch(it -> firstClass.isAssignableFrom(it.getClass()))) {
                 throw new OmqlParsingException("All elements of IN operation should be of same type");
             }
-            final List<Object> items = values.stream().map(firstClass::cast).collect(Collectors.toList());
+            final Set<Object> items = values.stream().map(firstClass::cast).collect(Collectors.toSet());
             builder.property(property).in(items);
         }
     }

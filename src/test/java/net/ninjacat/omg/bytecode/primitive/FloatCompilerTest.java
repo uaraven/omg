@@ -9,6 +9,8 @@ import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
+import java.util.Collection;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -58,7 +60,7 @@ public class FloatCompilerTest {
 
     @Test
     public void shouldMatchInPattern() {
-        final PropertyCondition<java.util.List<Float>> condition =
+        final PropertyCondition<Collection<Float>> condition =
                 new InCondition<>("floatField", List.of(42.0f, 84.0f).asJava());
 
         final PropertyPattern<FloatTest> pattern =

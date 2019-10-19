@@ -9,6 +9,8 @@ import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
+import java.util.Collection;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -57,7 +59,7 @@ public class IntCompilerTest {
 
     @Test
     public void shouldMatchInPattern() {
-        final PropertyCondition<java.util.List<Integer>> condition = new InCondition<>("intField", List.of(42, 84).asJava());
+        final PropertyCondition<Collection<Integer>> condition = new InCondition<>("intField", List.of(42, 84).asJava());
 
         final PropertyPattern<IntTest> pattern = AsmPatternCompiler.forClass(IntTest.class).build(condition);
 

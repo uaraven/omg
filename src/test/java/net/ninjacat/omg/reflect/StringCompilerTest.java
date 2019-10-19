@@ -9,7 +9,7 @@ import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
@@ -56,7 +56,7 @@ public class StringCompilerTest {
 
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<String>> condition = new InCondition<>(
+        final PropertyCondition<Collection<String>> condition = new InCondition<>(
                 "stringField",
                 io.vavr.collection.List.of("Waldo", "Wally", "von Ludensdorf").asJava());
 

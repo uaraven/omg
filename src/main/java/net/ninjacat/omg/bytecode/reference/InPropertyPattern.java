@@ -22,33 +22,34 @@ import net.ninjacat.omg.bytecode.BasePropertyPattern;
 import net.ninjacat.omg.bytecode.Property;
 import net.ninjacat.omg.errors.TypeConversionException;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
-    private final List<E> matchingValue;
+    private final Collection<E> matchingValue;
 
     protected InPropertyPattern(final Property property, final T matchingValue) {
         super(property);
         this.matchingValue = getMatchingValueConverted(matchingValue);
     }
 
-    private List<E> getMatchingValueConverted(final T mv) {
+    private Collection<E> getMatchingValueConverted(final T mv) {
         if (mv == null) {
-            return Collections.emptyList();
-        } else if (mv instanceof List) {
+            return Collections.emptySet();
+        } else if (mv instanceof Collection) {
             //noinspection unchecked
-            return Collections.unmodifiableList((List<E>)mv);
+            return Collections.unmodifiableCollection((Collection<E>) mv);
         } else {
             throw new TypeConversionException(mv.getClass(), mv, List.class);
         }
     }
 
-    public List<E> getMatchingValue() {
+    public Collection<E> getMatchingValue() {
         return matchingValue;
     }
 
-    public boolean isInList(final E propertyValue, final List<E> matchingValue) {
+    public boolean isInCollection(final E propertyValue, final Collection<E> matchingValue) {
         return matchingValue.stream().anyMatch(item -> item.equals(propertyValue));
     }
 }

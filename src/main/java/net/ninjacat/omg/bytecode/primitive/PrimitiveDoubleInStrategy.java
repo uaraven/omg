@@ -67,8 +67,8 @@ public class PrimitiveDoubleInStrategy extends PrimitiveInStrategy {
         mv.visitMethodInsn(
                 INVOKEVIRTUAL,
                 Type.getInternalName(getParentPropertyPatternClass()),
-                "isInList",
-                IS_IN_LIST_DESC,
+                METHOD,
+                IS_IN_COLLECTION_DESC,
                 false
         );
     }

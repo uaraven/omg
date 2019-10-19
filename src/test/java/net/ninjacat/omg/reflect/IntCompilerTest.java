@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.runner.RunWith;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
@@ -65,7 +65,7 @@ public class IntCompilerTest {
 
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<Integer>> condition = new InCondition<>(
+        final PropertyCondition<Collection<Integer>> condition = new InCondition<>(
                 "intField",
                 io.vavr.collection.List.of(21, 42, 11).asJava());
 
