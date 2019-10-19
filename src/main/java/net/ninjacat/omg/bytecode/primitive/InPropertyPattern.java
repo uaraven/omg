@@ -1,3 +1,21 @@
+/*
+ * omg: InPropertyPattern.java
+ *
+ * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.ninjacat.omg.bytecode.primitive;
 
 import net.ninjacat.omg.bytecode.BasePropertyPattern;
@@ -19,6 +37,7 @@ public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
         if (mv == null) {
             return Collections.emptyList();
         } else if (mv instanceof List) {
+            //noinspection unchecked
             return Collections.unmodifiableList((List<E>) mv);
         } else {
             throw new TypeConversionException(mv.getClass(), mv, List.class);
@@ -33,9 +52,9 @@ public abstract class InPropertyPattern<T, E> extends BasePropertyPattern<T> {
      * <strong>Note:</strong> The order of parameters is different from similar method in "reference" package
      * because of the order of parameters on stack
      *
-     * @param matchingValue
-     * @param propertyValue
-     * @return
+     * @param matchingValue List of values to match
+     * @param propertyValue value of the property
+     * @return true if list contains property value
      */
     public boolean isInList(final List<E> matchingValue, final E propertyValue) {
         return matchingValue.stream().anyMatch(item -> item.equals(propertyValue));

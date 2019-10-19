@@ -1,3 +1,21 @@
+/*
+ * omg: QueryCompiler.java
+ *
+ * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.ninjacat.omg.omql;
 
 import net.ninjacat.omg.conditions.AlwaysTrueCondition;
@@ -139,6 +157,7 @@ public final class QueryCompiler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void processExpression(final OmqlParser.InExprContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
 
@@ -148,6 +167,7 @@ public final class QueryCompiler {
     }
 
 
+    @SuppressWarnings("unchecked")
     private void processExpression(final OmqlParser.MatchExprContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).orElse(null);
 
@@ -177,6 +197,7 @@ public final class QueryCompiler {
         );
     }
 
+    @SuppressWarnings("unchecked")
     private void processExpression(final OmqlParser.ConditionContext expr, final Conditions.LogicalConditionBuilder builder) {
         final String operation = Optional.ofNullable(expr.operator()).map(RuleContext::getText).orElse(null);
         final String property = Optional.ofNullable(expr.field_name()).map(RuleContext::getText).get();
@@ -243,7 +264,7 @@ public final class QueryCompiler {
 
         default String getSubExpression(final Class<?> type) {
             final int dotPos = propertyName().indexOf('.');
-            final String subField = propertyName().substring(dotPos + 1, propertyName().length());
+            final String subField = propertyName().substring(dotPos + 1);
             return String.format("SELECT * FROM %s WHERE %s %s %s", type.getSimpleName(), subField, operation(), value());
         }
 
