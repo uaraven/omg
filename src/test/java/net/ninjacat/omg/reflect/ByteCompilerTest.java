@@ -9,7 +9,7 @@ import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -59,7 +59,7 @@ public class ByteCompilerTest {
 
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<Byte>> condition = new InCondition<>(
+        final PropertyCondition<Collection<Byte>> condition = new InCondition<>(
                 "byteField",
                 io.vavr.collection.List.of((byte) 21, (byte) 42, (byte) 11).asJava());
 

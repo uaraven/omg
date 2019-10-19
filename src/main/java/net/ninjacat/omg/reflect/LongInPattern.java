@@ -20,12 +20,12 @@ package net.ninjacat.omg.reflect;
 
 import net.jcip.annotations.Immutable;
 
-import java.util.List;
+import java.util.Collection;
 
 @Immutable
 public class LongInPattern<T> extends BaseInPattern<T, Long> {
 
-    LongInPattern(final Property<T> property, final List<Long> matchingValue) {
+    LongInPattern(final Property<T> property, final Collection<Long> matchingValue) {
         super(property, matchingValue);
     }
 

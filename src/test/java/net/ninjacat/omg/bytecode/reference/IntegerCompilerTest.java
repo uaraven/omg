@@ -1,5 +1,6 @@
 package net.ninjacat.omg.bytecode.reference;
 
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.ConditionMethod;
@@ -58,6 +59,17 @@ public class IntegerCompilerTest {
     @Test
     public void shouldMatchInPattern() {
         final InCondition<Integer> condition = new InCondition<>("intField", List.of(42, 43).asJava());
+
+        final PropertyPattern<IntTest> pattern = AsmPatternCompiler.forClass(IntTest.class).build(condition);
+
+        assertThat(pattern.matches(new IntTest(42)), is(true));
+        assertThat(pattern.matches(new IntTest(21)), is(false));
+    }
+
+
+    @Test
+    public void shouldMatchInPatternWithSet() {
+        final InCondition<Integer> condition = new InCondition<>("intField", HashSet.of(42, 43).toJavaSet());
 
         final PropertyPattern<IntTest> pattern = AsmPatternCompiler.forClass(IntTest.class).build(condition);
 

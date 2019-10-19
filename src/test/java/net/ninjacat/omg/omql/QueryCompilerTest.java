@@ -169,7 +169,7 @@ public class QueryCompilerTest {
         final Condition condition = queryCompiler.getCondition();
 
         final Condition expected = Conditions.matcher()
-                .property("age").in(io.vavr.collection.List.of(1, 2, 3).asJava())
+                .property("age").in(io.vavr.collection.HashSet.of(1, 2, 3).toJavaSet())
                 .build();
 
         assertThat(condition, is(expected));

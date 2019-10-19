@@ -21,15 +21,15 @@ package net.ninjacat.omg.reflect;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.utils.TypeUtils;
 
-import java.util.List;
+import java.util.Collection;
 
 public abstract class BaseInPattern<T, V> implements PropertyPattern<T> {
 
     private final Property<T> property;
-    private final List<V> matchingValue;
+    private final Collection<V> matchingValue;
 
     @SuppressWarnings("unchecked")
-    BaseInPattern(final Property<T> property, final List<V> matchingValue) {
+    BaseInPattern(final Property<T> property, final Collection<V> matchingValue) {
         this.property = property;
         this.matchingValue = io.vavr.collection.List.ofAll(matchingValue).map(it -> (V) TypeUtils.convertToBasicType(it)).toJavaList();
     }
@@ -38,7 +38,7 @@ public abstract class BaseInPattern<T, V> implements PropertyPattern<T> {
         return property;
     }
 
-    public List<V> getMatchingValue() {
+    public Collection<V> getMatchingValue() {
         return matchingValue;
     }
 

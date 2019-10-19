@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.experimental.theories.Theories;
 import org.junit.runner.RunWith;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
@@ -64,7 +64,7 @@ public class DoubleCompilerTest {
 
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<Double>> condition = new InCondition<>(
+        final PropertyCondition<Collection<Double>> condition = new InCondition<>(
                 "doubleField",
                 io.vavr.collection.List.of(21.0, 42.0, 11.5).asJava());
 

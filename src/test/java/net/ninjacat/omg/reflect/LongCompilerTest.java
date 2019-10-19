@@ -9,7 +9,7 @@ import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
@@ -40,7 +40,7 @@ public class LongCompilerTest {
     // TODO: Convert to Theory to test both reflection and compiled pattern
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<Long>> condition = new InCondition<>(
+        final PropertyCondition<Collection<Long>> condition = new InCondition<>(
                 "longField",
                 io.vavr.collection.List.of(21L, 42L, 11L).asJava());
 

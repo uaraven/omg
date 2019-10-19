@@ -9,7 +9,7 @@ import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
@@ -62,7 +62,7 @@ public class FloatCompilerTest {
     // TODO: Convert to Theory to test both reflection and compiled pattern
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<Float>> condition = new InCondition<>(
+        final PropertyCondition<Collection<Float>> condition = new InCondition<>(
                 "floatField",
                 io.vavr.collection.List.of(21.0f, 42.0f, 11.5f).asJava());
 

@@ -23,16 +23,16 @@ import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
 
 public class ReferenceInStrategy implements PatternCompilerStrategy {
-    private static final String IS_IN_LIST_DESC = Type.getMethodDescriptor(
+    private static final String IS_IN_COLLECTION_DESC = Type.getMethodDescriptor(
             Type.getType(boolean.class),
             Type.getType(Object.class),
-            Type.getType(List.class));
+            Type.getType(Collection.class));
 
     @Override
     public Class<? extends PropertyPattern> getParentPropertyPatternClass() {
@@ -44,8 +44,8 @@ public class ReferenceInStrategy implements PatternCompilerStrategy {
         mv.visitMethodInsn(
                 INVOKEVIRTUAL,
                 Type.getInternalName(getParentPropertyPatternClass()),
-                "isInList",
-                IS_IN_LIST_DESC,
+                "isInCollection",
+                IS_IN_COLLECTION_DESC,
                 false
         );
     }
@@ -72,7 +72,7 @@ public class ReferenceInStrategy implements PatternCompilerStrategy {
 
     @Override
     public String getMatchingValueDescriptor() {
-        return "()Ljava/util/List;";
+        return Type.getMethodDescriptor(Type.getType(Collection.class));
     }
 
 }

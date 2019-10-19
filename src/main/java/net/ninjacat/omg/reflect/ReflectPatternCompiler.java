@@ -32,7 +32,7 @@ import net.ninjacat.omg.patterns.Patterns;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Predicate;
 
 import static io.vavr.API.*;
@@ -74,10 +74,10 @@ public final class ReflectPatternCompiler<T> implements PropertyPatternCompiler<
         @SuppressWarnings("CastToConcreteClass") final InCondition<P> condition = (InCondition<P>) propCondition;
         final Property<T> property = createProperty(condition.getProperty());
         return Match(property.getWidenedType()).of(
-                Case($(is(Long.class)), l -> new LongInPattern<>(property, (List<Long>) condition.getValue())),
-                Case($(is(Double.class)), d -> new DoubleInPattern<>(property, (List<Double>) condition.getValue())),
-                Case($(is(String.class)), s -> new StringInPattern<>(property, (List<String>) condition.getValue())),
-                Case($(ReflectPatternCompiler::isEnum), e -> new EnumInPattern<>(property, (List<Enum>) condition.getValue())),
+                Case($(is(Long.class)), l -> new LongInPattern<>(property, (Collection<Long>) condition.getValue())),
+                Case($(is(Double.class)), d -> new DoubleInPattern<>(property, (Collection<Double>) condition.getValue())),
+                Case($(is(String.class)), s -> new StringInPattern<>(property, (Collection<String>) condition.getValue())),
+                Case($(ReflectPatternCompiler::isEnum), e -> new EnumInPattern<>(property, (Collection<Enum>) condition.getValue())),
                 Case($(), () -> {
                     throw new CompilerException("Object fields are not supported for IN condition '%s", propCondition);
                 })

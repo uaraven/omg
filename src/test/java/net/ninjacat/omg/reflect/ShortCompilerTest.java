@@ -1,5 +1,6 @@
 package net.ninjacat.omg.reflect;
 
+import io.vavr.collection.HashSet;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.InCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -9,7 +10,7 @@ import net.ninjacat.omg.patterns.PatternCompiler;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 
 import static net.ninjacat.omg.patterns.CompilingStrategy.SAFE;
 import static org.hamcrest.Matchers.is;
@@ -61,9 +62,9 @@ public class ShortCompilerTest {
     // TODO: Convert to Theory to test both reflection and compiled pattern
     @Test
     public void shouldMatchSimpleInPattern() {
-        final PropertyCondition<List<Short>> condition = new InCondition<>(
+        final PropertyCondition<Collection<Short>> condition = new InCondition<>(
                 "shortField",
-                io.vavr.collection.List.of((short) 21, (short) 42, (short) 11).asJava());
+                HashSet.of((short) 21, (short) 42, (short) 11).toJavaSet());
 
 
         final PropertyPattern<ShortTest> pattern = ReflectPatternCompiler.forClass(ShortTest.class).build(condition);

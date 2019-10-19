@@ -9,6 +9,8 @@ import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
+import java.util.Collection;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -57,7 +59,7 @@ public class LongCompilerTest {
 
     @Test
     public void shouldMatchInPattern() {
-        final PropertyCondition<java.util.List<Long>> condition = new InCondition<>("longField", List.of(42L, 84L).asJava());
+        final PropertyCondition<Collection<Long>> condition = new InCondition<>("longField", List.of(42L, 84L).asJava());
 
         final PropertyPattern<LongTest> pattern = AsmPatternCompiler.forClass(LongTest.class).build(condition);
 

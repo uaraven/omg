@@ -9,6 +9,8 @@ import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.junit.Test;
 
+import java.util.Collection;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -57,7 +59,7 @@ public class ByteCompilerTest {
 
     @Test
     public void shouldMatchInPattern() {
-        final PropertyCondition<java.util.List<Byte>> condition =
+        final PropertyCondition<Collection<Byte>> condition =
                 new InCondition<>("byteField", List.of((byte) 42, (byte) 84).asJava());
 
         final PropertyPattern<ByteTest> pattern = AsmPatternCompiler.forClass(ByteTest.class).build(condition);
