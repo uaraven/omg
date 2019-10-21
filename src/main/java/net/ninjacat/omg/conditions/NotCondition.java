@@ -18,6 +18,7 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ninjacat.omg.utils.Strings;
@@ -27,6 +28,7 @@ import org.immutables.value.Value;
 @JsonSerialize
 @JsonDeserialize(as = ImmutableNotCondition.class)
 public abstract class NotCondition implements Condition {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     public abstract Condition getChild();
 
     @Override

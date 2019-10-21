@@ -57,4 +57,30 @@ public class ConditionsJsonTest {
         assertThat(newCond, is(condition));
     }
 
+    @Test
+    public void shouldSerializeAndDeserializeOrCondition() throws IOException {
+        final Condition condition = Conditions.matcher()
+                .or(o -> o
+                        .property("name").neq("Bruce")
+                        .property("value").gt(200)
+                )
+                .build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond, is(condition));
+    }
+
+
+    @Test
+    public void shouldSerializeAndDeserializeNotCondition() throws IOException {
+        final Condition condition = Conditions.matcher()
+                .not(o -> o.property("value").gt(200))
+                .build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond, is(condition));
+    }
+
 }

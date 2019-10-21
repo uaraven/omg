@@ -19,6 +19,7 @@
 package net.ninjacat.omg.conditions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public interface LogicalCondition extends Condition {
      *
      * @return The list of conditions combined by logical operation
      */
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     List<Condition> getChildren();
 
     @JsonIgnore
