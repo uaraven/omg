@@ -18,10 +18,14 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ninjacat.omg.utils.Strings;
 import org.immutables.value.Value;
 
 @Value.Immutable
+@JsonSerialize
+@JsonDeserialize(as = ImmutableNotCondition.class)
 public abstract class NotCondition implements Condition {
     public abstract Condition getChild();
 

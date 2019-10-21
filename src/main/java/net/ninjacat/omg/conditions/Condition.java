@@ -18,6 +18,8 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Basic interface for condition.
  *
@@ -41,6 +43,7 @@ public interface Condition {
         return repr(0);
     }
 
+    @JsonIgnore
     ConditionMethod getMethod();
 
 }

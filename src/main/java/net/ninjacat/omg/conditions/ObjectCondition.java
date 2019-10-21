@@ -18,6 +18,8 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import net.ninjacat.omg.utils.Strings;
 
 import java.util.Objects;
@@ -27,7 +29,8 @@ public class ObjectCondition implements PropertyCondition<Condition> {
     private final String property;
     private final Condition value;
 
-    public ObjectCondition(final String property, final Condition value) {
+    @JsonCreator
+    public ObjectCondition(@JsonProperty("property") final String property, @JsonProperty("value") final Condition value) {
         this.property = property;
         this.value = value;
     }

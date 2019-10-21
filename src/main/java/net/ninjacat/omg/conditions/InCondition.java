@@ -18,11 +18,15 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Collection;
 
 public class InCondition<T> extends ComparisonCondition<Collection<T>> {
 
-    public InCondition(final String property, final Collection<T> value) {
+    @JsonCreator
+    public InCondition(@JsonProperty("property") final String property, @JsonProperty("value") final Collection<T> value) {
         super(property, value);
     }
 

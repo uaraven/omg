@@ -18,6 +18,8 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
 public interface LogicalCondition extends Condition {
@@ -28,6 +30,7 @@ public interface LogicalCondition extends Condition {
      */
     List<Condition> getChildren();
 
+    @JsonIgnore
     @Override
     default ConditionMethod getMethod() {
         return ConditionMethod.LOGIC;
