@@ -18,6 +18,7 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.ninjacat.omg.utils.Strings;
 
 public class AlwaysTrueCondition implements Condition {
@@ -28,6 +29,7 @@ public class AlwaysTrueCondition implements Condition {
         return Strings.indent("", level * 2) + "true";
     }
 
+    @JsonIgnore
     @Override
     public ConditionMethod getMethod() {
         return ConditionMethod.EQ;

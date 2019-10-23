@@ -18,8 +18,13 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RegexCondition extends ComparisonCondition<String> {
-    public RegexCondition(final String property, final String value) {
+
+    @JsonCreator
+    public RegexCondition(@JsonProperty("property") final String property, @JsonProperty("value") final String value) {
         super(property, value);
     }
 

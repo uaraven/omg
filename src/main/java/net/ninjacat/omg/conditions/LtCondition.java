@@ -18,8 +18,12 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class LtCondition<T> extends ComparisonCondition<T> {
-    LtCondition(final String property, final T value) {
+    @JsonCreator
+    LtCondition(@JsonProperty("property") final String property, @JsonProperty("value") final T value) {
         super(property, value);
     }
 

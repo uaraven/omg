@@ -18,12 +18,16 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ninjacat.omg.utils.Strings;
 import org.immutables.value.Value;
 
 import java.util.List;
 
 @Value.Immutable
+@JsonSerialize
+@JsonDeserialize(as = ImmutableAndCondition.class)
 public abstract class AndCondition implements LogicalCondition {
     @Override
     public abstract List<Condition> getChildren();

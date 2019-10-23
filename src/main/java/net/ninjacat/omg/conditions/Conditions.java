@@ -18,8 +18,13 @@
 
 package net.ninjacat.omg.conditions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ninjacat.omg.errors.ConditionException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +43,14 @@ public final class Conditions {
      */
     public static LogicalConditionBuilder matcher() {
         return new AndConditionBuilder(null);
+    }
+
+    public static String asJson(final Condition condition) throws IOException {
+        return new ObjectMapper().writeValueAsString(new JsonWrapper(condition));
+    }
+
+    public static Condition fromJson(final String json) throws IOException {
+        return new ObjectMapper().readValue(json, JsonWrapper.class).getCondition();
     }
 
     @FunctionalInterface
@@ -216,4 +229,17 @@ public final class Conditions {
     }
 
 
+    private static class JsonWrapper {
+        private final Condition condition;
+
+        @JsonCreator
+        JsonWrapper(@JsonProperty("condition") final Condition condition) {
+            this.condition = condition;
+        }
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+        public Condition getCondition() {
+            return condition;
+        }
+    }
 }
