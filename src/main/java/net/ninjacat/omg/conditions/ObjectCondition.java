@@ -20,6 +20,7 @@ package net.ninjacat.omg.conditions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import net.ninjacat.omg.utils.Strings;
 
 import java.util.Objects;
@@ -41,6 +42,7 @@ public class ObjectCondition implements PropertyCondition<Condition> {
     }
 
     @Override
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     public Condition getValue() {
         return value;
     }

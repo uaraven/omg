@@ -46,6 +46,60 @@ public class ConditionsJsonTest {
     }
 
     @Test
+    public void shouldSerializeAndDeserializeSimpleGtCondition() throws IOException {
+        final Condition condition = Conditions.matcher().property("value").gt(10).build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond, is(condition));
+    }
+
+    @Test
+    public void shouldSerializeAndDeserializeSimpleLtCondition() throws IOException {
+        final Condition condition = Conditions.matcher().property("value").lt(10).build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond, is(condition));
+    }
+
+    @Test
+    public void shouldSerializeAndDeserializeSimpleInCondition() throws IOException {
+        final Condition condition = Conditions.matcher()
+                .property("value")
+                .in(io.vavr.collection.HashSet.of(1, 2, 3, 4).toJavaSet())
+                .build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond.repr(), is(condition.repr()));
+    }
+
+    @Test
+    public void shouldSerializeAndDeserializeSimpleRegexCondition() throws IOException {
+        final Condition condition = Conditions.matcher()
+                .property("name")
+                .regex(".*")
+                .build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond.repr(), is(condition.repr()));
+    }
+
+    @Test
+    public void shouldSerializeAndDeserializeSimpleMatchCondition() throws IOException {
+        final Condition condition = Conditions.matcher()
+                .property("name")
+                .match(Conditions.matcher().property("a").eq("b").build())
+                .build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond.repr(), is(condition.repr()));
+    }
+
+    @Test
     public void shouldSerializeAndDeserializeAndCondition() throws IOException {
         final Condition condition = Conditions.matcher()
                 .property("name").neq("Bruce")
@@ -76,6 +130,23 @@ public class ConditionsJsonTest {
     public void shouldSerializeAndDeserializeNotCondition() throws IOException {
         final Condition condition = Conditions.matcher()
                 .not(o -> o.property("value").gt(200))
+                .build();
+        final String jsonCondition = Conditions.asJson(condition);
+        final Condition newCond = Conditions.fromJson(jsonCondition);
+
+        assertThat(newCond, is(condition));
+    }
+
+
+    @Test
+    public void shouldSerializeMultipleLevelNested() throws IOException {
+        final Condition condition = Conditions.matcher()
+                .or(or -> or
+                        .property("name").regex("A.*")
+                        .property("name").regex(".*z"))
+                .and(and -> and
+                        .property("value").in(io.vavr.collection.List.of(1, 2, 3).asJava())
+                        .not(o -> o.property("value").gt(200)))
                 .build();
         final String jsonCondition = Conditions.asJson(condition);
         final Condition newCond = Conditions.fromJson(jsonCondition);
