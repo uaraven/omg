@@ -21,21 +21,21 @@ package net.ninjacat.omg.bytecode2;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import org.objectweb.asm.MethodVisitor;
 
-public class PropertyConditionGenerator<T, P> implements ConditionCodeGenerator<T, PropertyCondition<P>> {
+public class PropertyConditionGenerator<T, P, V> implements ConditionCodeGenerator<T, PropertyCondition<V>> {
 
     @Override
     public void generateCode(final CodeGenerationContext<T> context,
                              final MethodVisitor method,
-                             final PropertyCondition<P> condition) {
+                             final PropertyCondition<V> condition) {
         final Property<T, P> property = createProperty(condition.getProperty(), context.targetClass());
 
-        final TypedCodeGenerator<P> codeGen = getGeneratorFor(property.getType(), context);
+        final TypedCodeGenerator<T, P, V> codeGen = getGeneratorFor(property.getType(), context);
 
         codeGen.prepareStackForCompare(property, condition, method);
         codeGen.compare(condition, method);
     }
 
-    private TypedCodeGenerator getGeneratorFor(final Class type, final CodeGenerationContext<P> context) {
+    private TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final CodeGenerationContext<T> context) {
         return null;
     }
 

@@ -26,7 +26,7 @@ import org.objectweb.asm.MethodVisitor;
  *
  * @param <T> Type of the target class
  * @param <P> Type of the property of the target class
- * @param <V> Type of the condition (usually either P or Collection&lt;P&gt;)
+ * @param <V> Type of the condition value (usually either P or Collection&lt;P&gt;)
  */
 public interface TypedCodeGenerator<T, P, V> {
     // Retrieves value of the property and leaves it on stack
