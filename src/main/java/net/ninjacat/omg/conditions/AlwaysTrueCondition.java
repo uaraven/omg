@@ -21,6 +21,9 @@ package net.ninjacat.omg.conditions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.ninjacat.omg.utils.Strings;
 
+/**
+ * Special type of condition which always evaluates to {@code true}.
+ */
 public class AlwaysTrueCondition implements Condition {
     public static final AlwaysTrueCondition INSTANCE = new AlwaysTrueCondition();
 

@@ -18,7 +18,6 @@
 
 package net.ninjacat.omg.bytecode2;
 
-import net.ninjacat.omg.bytecode.Property;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import net.ninjacat.omg.patterns.PropertyPatternCompiler;
@@ -40,7 +39,7 @@ public final class AsmPatternCompiler<T> implements PropertyPatternCompiler<T> {
     }
 
     private <P> PropertyPattern<T> buildPattern(final PropertyCondition<P> condition) {
-        final Property<T> property = createProperty(condition.getProperty());
+//        final Property<T> property = createProperty(condition.getProperty());
         final MatcherGenerator<T> compiler = new MatcherGenerator<>(cls, condition);
         return compiler.compilePattern();
     }

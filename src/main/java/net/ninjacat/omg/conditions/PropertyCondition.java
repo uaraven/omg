@@ -18,8 +18,13 @@
 
 package net.ninjacat.omg.conditions;
 
-public interface PropertyCondition<T> extends Condition {
+/**
+ * Value matching condition for a given property
+ *
+ * @param <P> Type of the property
+ */
+public interface PropertyCondition<P> extends Condition {
     String getProperty();
 
-    T getValue();
+    P getValue();
 }
