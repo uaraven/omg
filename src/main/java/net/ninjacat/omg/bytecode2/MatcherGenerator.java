@@ -69,6 +69,9 @@ class MatcherGenerator<T> {
         final Type type = Type.getType(BasePropertyPattern.class);
         final String className = generateClassName();
         writer.visit(V1_8, ACC_PUBLIC, className, null, type.getInternalName(), null);
+
+//        ImmutableCodeGenerationContext.builder()
+
         createConstructor(writer);
 
         createMatches(writer);
@@ -125,7 +128,7 @@ class MatcherGenerator<T> {
      * Implementation reads property from passed object instance, performs null checks and then calls provided strategy
      * to generate casting and comparison code
      */
-    @SuppressWarnings({"FeatureEnvy", "OverlyLongMethod"})
+    @SuppressWarnings({"FeatureEnvy"})
     private void createMatches(final ClassVisitor cv) {
         final MethodVisitor match = cv.visitMethod(ACC_PUBLIC, "matches", MATCHES_DESC, "(TT;)Z", null);
         final Label start = new Label();
@@ -172,7 +175,7 @@ class MatcherGenerator<T> {
         return className.replaceAll("/", ".");
     }
 
-    private Property<T> createProperty(final String field) {
+    private Property<T, ?> createProperty(final String field) {
         return Property.fromPropertyName(field, targetClass);
     }
 }

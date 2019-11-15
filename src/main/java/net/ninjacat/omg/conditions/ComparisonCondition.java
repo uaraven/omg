@@ -22,11 +22,11 @@ import net.ninjacat.omg.utils.Strings;
 
 import java.util.Objects;
 
-public abstract class ComparisonCondition<T> implements PropertyCondition<T> {
+public abstract class ComparisonCondition<P> implements PropertyCondition<P> {
     private final String field;
-    private final T value;
+    private final P value;
 
-    ComparisonCondition(final String property, final T value) {
+    ComparisonCondition(final String property, final P value) {
         this.field = property;
         this.value = value;
     }
@@ -37,7 +37,7 @@ public abstract class ComparisonCondition<T> implements PropertyCondition<T> {
     }
 
     @Override
-    public T getValue() {
+    public P getValue() {
         return value;
     }
 

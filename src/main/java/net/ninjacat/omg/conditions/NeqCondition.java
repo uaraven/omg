@@ -21,9 +21,9 @@ package net.ninjacat.omg.conditions;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class NeqCondition<T> extends ComparisonCondition<T> {
+public class NeqCondition<P> extends ComparisonCondition<P> {
     @JsonCreator
-    NeqCondition(@JsonProperty("property") final String property, @JsonProperty("value") final T value) {
+    NeqCondition(@JsonProperty("property") final String property, @JsonProperty("value") final P value) {
         super(property, value);
     }
 

@@ -23,6 +23,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
 
+/**
+ * Condition that combines child conditions using logical operation
+ */
 public interface LogicalCondition extends Condition {
     /**
      * List of children condition

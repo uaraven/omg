@@ -1,5 +1,5 @@
 /*
- * omg: PropertyPatternCompiler.java
+ * omg: CodeGenerationContext.java
  *
  * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,15 +16,26 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.patterns;
+package net.ninjacat.omg.bytecode2;
 
+import net.ninjacat.omg.conditions.LogicalCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
+import org.immutables.value.Value;
+import org.objectweb.asm.ClassVisitor;
 
 /**
- * Creates a {@link PropertyPattern} from a property condition.
+ * Context for generating code for a matcher
  *
- * @param <T> Class against which the matching is performed
+ * @param <T> Type of target class
  */
-public interface PropertyPatternCompiler<T> {
-    <P> PropertyPattern<T> build(PropertyCondition<P> condition);
+@Value.Immutable
+public interface CodeGenerationContext<T> {
+    ClassVisitor classVisitor();
+
+    Class<T> targetClass();
+
+    ConditionCodeGenerator<T, LogicalCondition> logicalConditionGenerator();
+
+    ConditionCodeGenerator<T, PropertyCondition<T>> propertyConditionGenerator();
 }
+

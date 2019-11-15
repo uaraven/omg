@@ -28,14 +28,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Immutable
-public final class Property<T> {
+public final class Property<T, P> {
     private final Class<T> owner;
     private final boolean isInterface;
     private final String propertyName;
-    private final Class type;
+    private final Class<P> type;
     private final Method method;
 
-    private Property(final Class<T> owner, final boolean isInterface, final String propertyName, final Class type, final Method method) {
+    private Property(final Class<T> owner, final boolean isInterface, final String propertyName, final Class<P> type, final Method method) {
         this.owner = owner;
         this.propertyName = propertyName;
         this.type = type;
@@ -43,10 +43,10 @@ public final class Property<T> {
         this.isInterface = isInterface;
     }
 
-    static <T> Property<T> fromPropertyName(final String propertyName, final Class<T> cls) {
+    static <T, P> Property<T, P> fromPropertyName(final String propertyName, final Class<T> cls) {
         final java.lang.reflect.Method getter = findMethod(cls, propertyName).orElseGet(() -> findGetter(cls, propertyName));
         final Method method = Method.getMethod(getter);
-        final Class propertyType = getter.getReturnType();
+        final Class<P> propertyType = (Class<P>) getter.getReturnType();
         return new Property<>(cls, cls.isInterface(), propertyName, propertyType, method);
     }
 
@@ -102,16 +102,17 @@ public final class Property<T> {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final Property<?> property = (Property<?>) o;
-        return Objects.equals(owner, property.owner) &&
-                Objects.equals(propertyName, property.propertyName) &&
-                Objects.equals(type, property.type) &&
-                Objects.equals(method, property.method);
+        if (!(o instanceof Property)) return false;
+        final Property<?, ?> property = (Property<?, ?>) o;
+        return isInterface() == property.isInterface() &&
+                getOwner().equals(property.getOwner()) &&
+                getPropertyName().equals(property.getPropertyName()) &&
+                getType().equals(property.getType()) &&
+                getMethod().equals(property.getMethod());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(owner, propertyName, type, method);
+        return Objects.hash(getOwner(), isInterface(), getPropertyName(), getType(), getMethod());
     }
 }

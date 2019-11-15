@@ -21,10 +21,10 @@ package net.ninjacat.omg.conditions;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GtCondition<T> extends ComparisonCondition<T> {
+public class GtCondition<P> extends ComparisonCondition<P> {
 
     @JsonCreator
-    GtCondition(@JsonProperty("property") final String property, @JsonProperty("value") final T value) {
+    GtCondition(@JsonProperty("property") final String property, @JsonProperty("value") final P value) {
         super(property, value);
     }
 

@@ -23,10 +23,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
 
-public class InCondition<T> extends ComparisonCondition<Collection<T>> {
+public class InCondition<P> extends ComparisonCondition<Collection<P>> {
 
     @JsonCreator
-    public InCondition(@JsonProperty("property") final String property, @JsonProperty("value") final Collection<T> value) {
+    public InCondition(@JsonProperty("property") final String property, @JsonProperty("value") final Collection<P> value) {
         super(property, value);
     }
 
