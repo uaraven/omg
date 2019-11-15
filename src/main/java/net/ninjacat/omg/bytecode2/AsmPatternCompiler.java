@@ -18,27 +18,17 @@
 
 package net.ninjacat.omg.bytecode2;
 
-import net.ninjacat.omg.conditions.PropertyCondition;
-import net.ninjacat.omg.patterns.PropertyPattern;
-import net.ninjacat.omg.patterns.PropertyPatternCompiler;
+import net.ninjacat.omg.conditions.Condition;
+import net.ninjacat.omg.patterns.Pattern;
 
-public final class AsmPatternCompiler<T> implements PropertyPatternCompiler<T> {
+public final class AsmPatternCompiler<T> {
     private final Class<T> cls;
-
-    public static <T> PropertyPatternCompiler<T> forClass(final Class<T> cls) {
-        return new AsmPatternCompiler<>(cls);
-    }
 
     private AsmPatternCompiler(final Class<T> cls) {
         this.cls = cls;
     }
 
-    @Override
-    public <P> PropertyPattern<T> build(final PropertyCondition<P> condition) {
-        return buildPattern(condition);
-    }
-
-    private <P> PropertyPattern<T> buildPattern(final PropertyCondition<P> condition) {
+    private Pattern<T> buildPattern(final Condition condition) {
 //        final Property<T> property = createProperty(condition.getProperty());
         final MatcherGenerator<T> compiler = new MatcherGenerator<>(cls, condition);
         return compiler.compilePattern();

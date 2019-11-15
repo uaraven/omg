@@ -25,7 +25,7 @@ import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.LogicalCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
-import net.ninjacat.omg.errors.OmgException;
+import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.*;
 
@@ -33,7 +33,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
@@ -50,7 +49,7 @@ class MatcherGenerator<T> {
             Type.getType(Property.class), Type.getType(Object.class));
     private static final String MATCHES_DESC = Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class));
     private static final String PACKAGE_NAME = MatcherGenerator.class.getPackage().getName() + ".generated";
-    private static final Pattern DOTS = Pattern.compile("\\.");
+    private static final java.util.regex.Pattern DOTS = java.util.regex.Pattern.compile("\\.");
     private static final String PACKAGE_DESC = DOTS.matcher(PACKAGE_NAME).replaceAll("/");
 
     private final Class<T> targetClass;
@@ -61,7 +60,7 @@ class MatcherGenerator<T> {
         this.condition = condition;
     }
 
-    PropertyPattern<T> compilePattern() {
+    Pattern<T> compilePattern() {
         final ClassReader classReader =
                 Try.of(() -> new ClassReader(BasePropertyPattern.class.getName()))
                         .getOrElseThrow(ex -> new CompilerException(ex, "Failed to read base class for compiling"));
@@ -70,7 +69,10 @@ class MatcherGenerator<T> {
         final String className = generateClassName();
         writer.visit(V1_8, ACC_PUBLIC, className, null, type.getInternalName(), null);
 
-//        ImmutableCodeGenerationContext.builder()
+        CodeGenerationContext<T> context = (CodeGenerationContext<T>) ImmutableCodeGenerationContext.builder()
+                .classVisitor(writer)
+                .targetClass((Class<Object>) targetClass)
+                .build();
 
         createConstructor(writer);
 
@@ -81,21 +83,22 @@ class MatcherGenerator<T> {
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(className), writer.toByteArray());
             CompileDebugger.dumpClass("/tmp/dump.class", writer.toByteArray());
             return instantiatePattern(patternClass);
-        }).getOrElseThrow(this::wrapException);
+        }).get();//.getOrElseThrow(this::wrapException);
     }
 
-    private RuntimeException wrapException(final Throwable ex) {
-        return Match(ex).of(
-                Case($(instanceOf(OmgException.class)), err -> err),
-                Case($(), err -> new CompilerException(err, "Failed to generate accessor for '%s'", property))
-        );
-    }
-
+    //
+//    private RuntimeException wrapException(final Throwable ex) {
+//        return Match(ex).of(
+//                Case($(instanceOf(OmgException.class)), err -> err),
+//                Case($(), err -> new CompilerException(err, "Failed to generate accessor for '%s'", property))
+//        );
+//    }
+////
     @SuppressWarnings("unchecked")
-    private PropertyPattern<T> instantiatePattern(final Class<?> patternClass) throws Throwable {
-        final MethodType constructorType = MethodType.methodType(void.class, Property.class, Object.class);
+    private Pattern<T> instantiatePattern(final Class<?> patternClass) throws Throwable {
+        final MethodType constructorType = MethodType.methodType(void.class);
         final MethodHandle constructor = MethodHandles.lookup().findConstructor(patternClass, constructorType);
-        return (PropertyPattern<T>) constructor.invoke(property, condition.getValue());
+        return (Pattern<T>) constructor.invoke();
     }
 
     /**
