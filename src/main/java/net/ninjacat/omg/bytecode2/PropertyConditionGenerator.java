@@ -18,8 +18,12 @@
 
 package net.ninjacat.omg.bytecode2;
 
+import net.ninjacat.omg.bytecode2.primitive.IntGeneratorProvider;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import org.objectweb.asm.MethodVisitor;
+
+import static io.vavr.API.Match;
+import static org.immutables.value.internal.$generator$.$Intrinsics.$;
 
 public class PropertyConditionGenerator<T, P, V> implements ConditionCodeGenerator<T, PropertyCondition<V>> {
 
@@ -29,14 +33,16 @@ public class PropertyConditionGenerator<T, P, V> implements ConditionCodeGenerat
                              final PropertyCondition<V> condition) {
         final Property<T, P> property = createProperty(condition.getProperty(), context.targetClass());
 
-        final TypedCodeGenerator<T, P, V> codeGen = getGeneratorFor(property.getType(), context);
+        final TypedCodeGenerator<T, P, V> codeGen = getGeneratorFor(property.getType(), condition, context);
 
         codeGen.prepareStackForCompare(property, condition, method);
         codeGen.compare(condition, method);
     }
 
-    private TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final CodeGenerationContext<T> context) {
-        return null;
+    private TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final PropertyCondition<V> condition, final CodeGenerationContext<T> context) {
+        return Match(type).of(
+                Case($(), x -> IntGeneratorProvider.getGenerator(condition, context))
+        );
     }
 
     private Property<T, P> createProperty(final String field, final Class<T> targetClass) {

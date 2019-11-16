@@ -20,6 +20,7 @@ package net.ninjacat.omg.bytecode2.primitive;
 
 import io.vavr.API;
 import jdk.nashorn.internal.codegen.types.Type;
+import net.ninjacat.omg.bytecode2.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.conditions.ConditionMethod;
@@ -34,6 +35,12 @@ import static io.vavr.API.Case;
 import static org.objectweb.asm.Opcodes.*;
 
 public class IntScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Integer> {
+
+    private final CodeGenerationContext<T> context;
+
+    IntScalarComparisonCodeGenerator(final CodeGenerationContext<T> context) {
+        this.context = context;
+    }
 
     @Override
     public void getPropertyValue(final Property<T, Integer> property, final MethodVisitor method) {
