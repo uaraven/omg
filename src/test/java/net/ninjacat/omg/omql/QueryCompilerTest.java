@@ -33,6 +33,18 @@ public class QueryCompilerTest {
     }
 
     @Test
+    public void shouldConvertSimpleMatchQuery() {
+        final QueryCompiler queryCompiler = QueryCompiler.of("match Person where age > 25", SOURCES);
+        final Condition condition = queryCompiler.getCondition();
+
+        final Condition expected = Conditions.matcher()
+                .property("age").gt(25)
+                .build();
+
+        assertThat(condition, is(expected));
+    }
+
+    @Test
     public void shouldConvertGteQuery() {
         final QueryCompiler queryCompiler = QueryCompiler.of("select * from JetPilot where age >= 25", SOURCES);
         final Condition condition = queryCompiler.getCondition();
