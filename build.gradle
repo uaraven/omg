@@ -48,7 +48,7 @@ jacocoTestReport {
 }
 
 group 'net.ninjacat'
-version '0.2.0-SNAPSHOT'
+version '0.1.6'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

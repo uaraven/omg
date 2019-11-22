@@ -42,9 +42,18 @@ where
  : K_WHERE expr
  ;
 
-select
+select_clause
  : K_SELECT '*'
-   K_FROM source_name
+   K_FROM
+ ;
+
+match_clause
+ : K_MATCH
+ ;
+
+select
+ : (select_clause | match_clause)
+   source_name
    where?
  ;
 
@@ -89,6 +98,7 @@ K_NULL: N U L L;
 K_OR: O R;
 K_REGEX: R E G E X;
 K_SELECT: S E L E C T;
+K_MATCH: M A T C H;
 K_WHERE : W H E R E;
 K_TRUE: T R U E;
 K_FALSE: F A L S E;
