@@ -10,14 +10,14 @@ own quirks.
     SELECT * FROM com.example.MyObject WHERE name ~= "John.*" AND friendsCount > 3 
 ```
 
-Only supported type of queries is `SELECT` and queries must follow followin pattern:
+Only supported type of SQL-like queries is `SELECT` and queries must follow following pattern:
 
 SELECT * FROM `<class-name>` WHERE `<list-of-conditions>`
 
- In current implementation only `*` can appear in SELECT clause.
+In current implementation only `*` can appear in SELECT clause.
  
- `<class-name>` is either a fully-qualified Java class name or a short name of registered class (see below).
- 
+`<class-name>` is either a fully-qualified Java class name or a short name of registered class (see below).
+
  `<list-of-conditions>` is a list (tree, to be precise) of conditions consisting of field comparison combined with logical 
  operators. List of supported operators depends on field type.
  
@@ -28,6 +28,17 @@ SELECT * FROM `<class-name>` WHERE `<list-of-conditions>`
  | String              | `=`, `!=`, `~=`, `IN (list)`           |
  | Enum                | `=`, `!=`, `~=`, `IN (list)`           |
  | Object              | `=`, `!=`, `~=`, `IN (subquery)`       |
+ 
+
+`SELECT * FROM` syntax is familiar from SQL and matches nicely to stream filtering paradigm, but it is a bit misleading 
+when predicate is created for a purpose of matching single object.
+
+`MATCH` clause is added as syntactic sugar replacement for `SELECT * FROM`, it clearly declares intent of producing matching predicate,
+not a filtering query:
+
+```
+    MATCH com.example.MyObject WHERE name ~= "John.*" AND friendsCount > 3 
+```
  
   
  ## Integrating queries into your code
