@@ -18,6 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.primitive;
 
+import io.vavr.collection.Stream;
 import jdk.nashorn.internal.codegen.types.Type;
 import net.ninjacat.omg.bytecode2.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.Property;
@@ -31,8 +32,7 @@ import org.objectweb.asm.Opcodes;
 import java.util.Collection;
 import java.util.Random;
 
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.*;
 
 public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Collection<Integer>> {
 
@@ -50,6 +50,10 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
      * <p>
      * If condition collection is empty no code will be generated. Otherwise static method to return Collection&lt;Integer&gt;
      * will be generated which returns collection in question
+     * <p>
+     * TODO: replace method call at comparision site with
+     * a) static field initialized in static initializer
+     * b) call to memoized supplier, so that collection is only initialized once.
      *
      * @param property  Property that needs to be matched
      * @param condition Condition describing how to match the property
@@ -61,19 +65,45 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
         if (value.isEmpty()) {
             return; // no code needed if checking against empty collection
         }
+        // create collection generation method and call it to put matching value on a stack
         final String name = createGetCollectionMethod(property, value);
         method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(context.targetClass()), name, GENERATOR_DESCRIPTOR, false);
 
         getPropertyValue(property, method);
-
     }
 
-    private String createGetCollectionMethod(final Property<T, Integer> property, final Collection<Integer> value) {
+    /**
+     * @param property
+     * @param values
+     * @return
+     */
+    private String createGetCollectionMethod(final Property<T, Integer> property, final Collection<Integer> values) {
         final String generatorName = "getCollection" + "_" + property.getPropertyName() + "_" + Long.toHexString(random.nextLong());
         // TODO: Generate collection
 
         final MethodVisitor generator = context.classVisitor().visitMethod(ACC_PRIVATE + ACC_STATIC, generatorName,
                 GENERATOR_DESCRIPTOR, null, null);
+
+        generator.visitCode();
+        // create array
+        Codes.pushInt(generator, values.size());
+        generator.visitIntInsn(NEWARRAY, T_INT);
+        // push all values into the array
+        Stream.ofAll(values).forEachWithIndex((val, idx) -> {
+            generator.visitInsn(DUP);
+            Codes.pushInt(generator, idx);
+            Codes.pushInt(generator, val);
+            generator.visitInsn(IASTORE);
+        });
+        // convert array into stream and collect into set
+        generator.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "stream", "([I)Ljava/util/stream/IntStream;", false);
+        generator.visitMethodInsn(INVOKEINTERFACE, "java/util/stream/IntStream", "boxed", "()Ljava/util/stream/Stream;", true);
+        generator.visitMethodInsn(INVOKESTATIC, "java/util/stream/Collectors", "toSet", "()Ljava/util/stream/Collector;", false);
+        generator.visitMethodInsn(INVOKEINTERFACE, "java/util/stream/Stream", "collect", "(Ljava/util/stream/Collector;)Ljava/lang/Object;", true);
+        generator.visitTypeInsn(CHECKCAST, "java/util/Collection");
+        generator.visitInsn(ARETURN);
+        generator.visitMaxs(0, 0);
+        generator.visitEnd();
 
         return generatorName;
     }
@@ -92,7 +122,7 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
 
     @Override
     public void getMatchingConstant(final PropertyCondition<Collection<Integer>> condition, final MethodVisitor method) {
-        // do nothing, all
+        // do nothing, all is done in .prepareStackForCompare()
     }
 
     /**

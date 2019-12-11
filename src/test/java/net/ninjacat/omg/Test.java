@@ -39,12 +39,12 @@ public class Test {
         set.add(20);
         set.add(30);
         set.add(40);
-        set.add(50);
+        set.add(454350);
         return Collections.unmodifiableSet(set);
     }
 
     public Collection<Integer> getInts3() {
-        return Arrays.stream(new int[]{10, 20, 30, 40, 50}).boxed().collect(Collectors.toSet());
+        return Arrays.stream(new int[]{10, 20, 30, 40, 50, 60, 70, 555555}).boxed().collect(Collectors.toSet());
     }
 
     public Collection<Integer> getInts4() {

@@ -35,14 +35,14 @@ public class IntGeneratorProvider {
             ConditionMethod.LT,
             ConditionMethod.IN);
 
-    public static <T, P, V> TypedCodeGenerator<T, P, V> getGenerator(final Condition condition, final CodeGenerationContext<T> context) {
+    public static <T> TypedCodeGenerator<T, Integer, ?> getGenerator(final Condition condition, final CodeGenerationContext<T> context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
             throw new CompilerException("Condition {} is not supported for type 'int'", condition);
         }
         if (condition.getMethod() == ConditionMethod.IN) {
-            return (TypedCodeGenerator<T, P, V>) new IntInCodeGenerator<>(context);
+            return new IntInCodeGenerator<>(context);
         } else {
-            return (TypedCodeGenerator<T, P, V>) new IntScalarComparisonCodeGenerator<>(context);
+            return new IntScalarComparisonCodeGenerator<>(context);
         }
     }
 }

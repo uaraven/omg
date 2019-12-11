@@ -21,8 +21,10 @@ package net.ninjacat.omg.bytecode2;
 import io.vavr.control.Try;
 import net.ninjacat.omg.bytecode.CompileDebugger;
 import net.ninjacat.omg.bytecode.CompiledClassLoader;
+import net.ninjacat.omg.bytecode2.primitive.Codes;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.LogicalCondition;
+import net.ninjacat.omg.conditions.NotCondition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.Pattern;
@@ -33,6 +35,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
@@ -69,7 +72,7 @@ class MatcherGenerator<T> {
         final String className = generateClassName();
         writer.visit(V1_8, ACC_PUBLIC, className, null, type.getInternalName(), null);
 
-        CodeGenerationContext<T> context = (CodeGenerationContext<T>) ImmutableCodeGenerationContext.builder()
+        final CodeGenerationContext<T> context = (CodeGenerationContext<T>) ImmutableCodeGenerationContext.builder()
                 .classVisitor(writer)
                 .targetClass((Class<Object>) targetClass)
                 .build();
@@ -138,8 +141,9 @@ class MatcherGenerator<T> {
         final Label end = new Label();
 
         match.visitCode();
+        match.visitLabel(start);
 
-        generateMatcherCode(match, targetClass, condition);
+        generateMatcherCode(match, condition);
 
         match.visitInsn(IRETURN);
         match.visitLabel(end);
@@ -151,7 +155,7 @@ class MatcherGenerator<T> {
         match.visitEnd();
     }
 
-    private void generateMatcherCode(final MethodVisitor match, final Class<?> targetClass, final Condition condition) {
+    private void generateMatcherCode(final MethodVisitor match, final Condition condition) {
         Match(condition).of(
                 Case($(instanceOf(LogicalCondition.class)), lc -> run(() -> generateLogicalCondition(match, lc))),
                 Case($(instanceOf(PropertyCondition.class)), pc -> run(() -> generatePropertyCondition(match, pc))),
@@ -161,11 +165,21 @@ class MatcherGenerator<T> {
         );
     }
 
-    private void generateLogicalCondition(MethodVisitor match, LogicalCondition oc) {
-
+    private void generateLogicalCondition(final MethodVisitor match, final LogicalCondition oc) {
+        if (oc instanceof NotCondition) {
+            if (oc.getChildren().size() != 1) {
+                throw new CompilerException("NOT condition only can contain one operand");
+            }
+            generateMatcherCode(match, oc.getChildren().get(0));
+            Codes.logicalNot(match);
+        } else {
+            // todo: rewrite with short-circuiting
+            oc.getChildren().forEach(cond -> generateMatcherCode(match, cond));
+            IntStream.range(0, oc.getChildren().size()).forEach($ -> match.visitInsn(IAND));
+        }
     }
 
-    private void generatePropertyCondition(MethodVisitor match, PropertyCondition oc) {
+    private void generatePropertyCondition(final MethodVisitor match, final PropertyCondition<T> oc) {
 
     }
 

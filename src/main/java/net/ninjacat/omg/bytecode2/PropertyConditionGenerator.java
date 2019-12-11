@@ -22,8 +22,7 @@ import net.ninjacat.omg.bytecode2.primitive.IntGeneratorProvider;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import org.objectweb.asm.MethodVisitor;
 
-import static io.vavr.API.Match;
-import static org.immutables.value.internal.$generator$.$Intrinsics.$;
+import static io.vavr.API.*;
 
 public class PropertyConditionGenerator<T, P, V> implements ConditionCodeGenerator<T, PropertyCondition<V>> {
 
@@ -39,9 +38,9 @@ public class PropertyConditionGenerator<T, P, V> implements ConditionCodeGenerat
         codeGen.compare(condition, method);
     }
 
-    private TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final PropertyCondition<V> condition, final CodeGenerationContext<T> context) {
+    private TypedCodeGenerator<T, P, V> getGeneratorFor(final Class<?> type, final PropertyCondition<V> condition, final CodeGenerationContext<T> context) {
         return Match(type).of(
-                Case($(), x -> IntGeneratorProvider.getGenerator(condition, context))
+                Case($(), x -> (TypedCodeGenerator<T, P, V>) IntGeneratorProvider.getGenerator(condition, context))
         );
     }
 

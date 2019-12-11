@@ -54,13 +54,7 @@ public class IntScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T
 
     @Override
     public void getMatchingConstant(final PropertyCondition<Integer> condition, final MethodVisitor method) {
-        if (condition.getValue() == -1) {
-            method.visitInsn(ICONST_M1);
-        } else if (condition.getValue() >= 0 && condition.getValue() <= 5) {
-            method.visitInsn(ICONST_0 + condition.getValue());
-        } else {
-            method.visitLdcInsn(condition.getValue());
-        }
+        Codes.pushInt(method, condition.getValue());
     }
 
     @Override
