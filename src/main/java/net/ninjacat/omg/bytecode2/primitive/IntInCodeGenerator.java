@@ -21,6 +21,7 @@ package net.ninjacat.omg.bytecode2.primitive;
 import io.vavr.collection.Stream;
 import jdk.nashorn.internal.codegen.types.Type;
 import net.ninjacat.omg.bytecode2.CodeGenerationContext;
+import net.ninjacat.omg.bytecode2.Codes;
 import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.conditions.ConditionMethod;
@@ -66,23 +67,20 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
             return; // no code needed if checking against empty collection
         }
         // create collection generation method and call it to put matching value on a stack
-        final String name = createGetCollectionMethod(property, value);
-        method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(context.targetClass()), name, GENERATOR_DESCRIPTOR, false);
+        final String generatorName = "getCollection" + "_" + property.getPropertyName() + "_" + Long.toHexString(random.nextLong());
+        createGetCollectionMethod(generatorName, value);
+        method.visitMethodInsn(Opcodes.INVOKESTATIC, context.matcherClassName(), generatorName, GENERATOR_DESCRIPTOR, false);
 
         getPropertyValue(property, method);
     }
 
     /**
-     * @param property
      * @param values
-     * @return
      */
-    private String createGetCollectionMethod(final Property<T, Integer> property, final Collection<Integer> values) {
-        final String generatorName = "getCollection" + "_" + property.getPropertyName() + "_" + Long.toHexString(random.nextLong());
-        // TODO: Generate collection
-
-        final MethodVisitor generator = context.classVisitor().visitMethod(ACC_PRIVATE + ACC_STATIC, generatorName,
-                GENERATOR_DESCRIPTOR, null, null);
+    private void createGetCollectionMethod(final String methodName, final Collection<Integer> values) {
+        final MethodVisitor generator = context.classVisitor()
+                .visitMethod(ACC_PRIVATE + ACC_STATIC + ACC_SYNTHETIC, methodName,
+                        GENERATOR_DESCRIPTOR, null, null);
 
         generator.visitCode();
         // create array
@@ -105,12 +103,11 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
         generator.visitMaxs(0, 0);
         generator.visitEnd();
 
-        return generatorName;
     }
 
     @Override
     public void getPropertyValue(final Property<T, Integer> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, 1); // property is always local #1
+        method.visitVarInsn(Opcodes.ALOAD, 0); // property is always local #0
         method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(property.getOwner()),
                 property.getMethod().getName(),

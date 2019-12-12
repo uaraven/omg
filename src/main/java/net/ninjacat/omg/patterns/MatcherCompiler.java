@@ -1,5 +1,5 @@
 /*
- * omg: Compiler.java
+ * omg: PropertyPatternCompiler.java
  *
  * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,7 +16,16 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.patterns;
 
-public class Compiler {
+import net.ninjacat.omg.conditions.Condition;
+
+/**
+ * Creates a {@link Pattern} from a {@link Condition}
+ *
+ * @param <T> Class against which the matching is performed
+ */
+@FunctionalInterface
+public interface MatcherCompiler<T> {
+    Pattern<T> build(Condition condition);
 }

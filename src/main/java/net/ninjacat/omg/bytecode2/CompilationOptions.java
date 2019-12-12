@@ -1,5 +1,5 @@
 /*
- * omg: Test.java
+ * omg: CompilationOptions.java
  *
  * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,24 +16,17 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg;
+package net.ninjacat.omg.bytecode2;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Collectors;
+import net.ninjacat.omg.annotations.Nullable;
+import org.immutables.value.Value;
 
-public class Test {
-    public Collection<Integer> getInts3() {
-        return Arrays.stream(new int[]{41, 42, 43, 44, 8012454}).boxed().collect(Collectors.toSet());
-    }
+@Value.Immutable
+public abstract class CompilationOptions {
+    @Nullable
+    public abstract String dumpToFile();
 
-    public static boolean matches(final TestClass instance) {
-        return instance != null;
-    }
-
-
-    public static class TestClass {
-
+    public static CompilationOptions getDefaults() {
+        return ImmutableCompilationOptions.builder().dumpToFile(null).build();
     }
 }
-

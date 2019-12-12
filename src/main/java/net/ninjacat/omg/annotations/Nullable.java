@@ -1,5 +1,5 @@
 /*
- * omg: BasePropertyPattern.java
+ * omg: Nullable.java
  *
  * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,28 +16,14 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.annotations;
 
-import net.ninjacat.omg.bytecode.Property;
-import net.ninjacat.omg.patterns.PropertyPattern;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * Base class for matching property value.
- *
- * @param <T> Type of object containing the property
- */
-public abstract class BasePropertyPattern<T> implements PropertyPattern<T> {
-    private final Property property;
-
-    public BasePropertyPattern(final Property property) {
-        this.property = property;
-    }
-
-    public Property getProperty() {
-        return property;
-    }
-
-    @Override
-    public abstract boolean matches(final T instance);
-
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.SOURCE)
+public @interface Nullable {
 }

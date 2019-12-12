@@ -21,6 +21,8 @@ package net.ninjacat.omg.bytecode2;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import org.objectweb.asm.MethodVisitor;
 
+import java.util.Collection;
+
 /**
  * Interface for a matcher code generator.
  *
@@ -29,11 +31,26 @@ import org.objectweb.asm.MethodVisitor;
  * @param <V> Type of the condition value (usually either P or Collection&lt;P&gt;)
  */
 public interface TypedCodeGenerator<T, P, V> {
-    // Retrieves value of the property and leaves it on stack
+
+    /**
+     * Generate synthetic helper methods
+     *
+     * @param method
+     */
+    default void generateHelpers(final Property<T, Integer> property, final PropertyCondition<Collection<Integer>> condition, final MethodVisitor method) {
+    }
+
+    ;
+
+    /**
+     * Retrieves value of the property and leaves it on stack
+     */
     void getPropertyValue(Property<T, P> property, MethodVisitor method);
 
-    // Retrieves value of the matching constant and leaves it on stack
-    // This can be any operation from simple CONST_XX to LDC or calling a synthetic method to create Pattern or Set
+    /**
+     * Retrieves value of the matching constant and leaves it on stack
+     * This can be any operation from simple CONST_XX to LDC or calling a synthetic method to create Pattern or Set
+     */
     void getMatchingConstant(PropertyCondition<V> condition, MethodVisitor method);
 
     /**

@@ -18,8 +18,6 @@
 
 package net.ninjacat.omg.bytecode2;
 
-import net.ninjacat.omg.conditions.LogicalCondition;
-import net.ninjacat.omg.conditions.PropertyCondition;
 import org.immutables.value.Value;
 import org.objectweb.asm.ClassVisitor;
 
@@ -29,13 +27,17 @@ import org.objectweb.asm.ClassVisitor;
  * @param <T> Type of target class
  */
 @Value.Immutable
-public interface CodeGenerationContext<T> {
-    ClassVisitor classVisitor();
+public abstract class CodeGenerationContext<T> {
+    private final Props props = new Props();
 
-    Class<T> targetClass();
+    public abstract ClassVisitor classVisitor();
 
-    ConditionCodeGenerator<T, LogicalCondition> logicalConditionGenerator();
+    public abstract String matcherClassName();
 
-    ConditionCodeGenerator<T, PropertyCondition<T>> propertyConditionGenerator();
+    public abstract Class<T> targetClass();
+
+    public Props props() {
+        return props;
+    }
 }
 

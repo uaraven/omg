@@ -21,12 +21,10 @@ package net.ninjacat.omg.bytecode2;
 import io.vavr.control.Try;
 import net.ninjacat.omg.bytecode.CompileDebugger;
 import net.ninjacat.omg.bytecode.CompiledClassLoader;
-import net.ninjacat.omg.bytecode2.primitive.Codes;
-import net.ninjacat.omg.conditions.Condition;
-import net.ninjacat.omg.conditions.LogicalCondition;
-import net.ninjacat.omg.conditions.NotCondition;
-import net.ninjacat.omg.conditions.PropertyCondition;
+import net.ninjacat.omg.bytecode2.primitive.IntGeneratorProvider;
+import net.ninjacat.omg.conditions.*;
 import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.errors.OmgException;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.*;
@@ -48,9 +46,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 class MatcherGenerator<T> {
 
-    private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class),
-            Type.getType(Property.class), Type.getType(Object.class));
-    private static final String MATCHES_DESC = Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class));
+    private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class));
     private static final String PACKAGE_NAME = MatcherGenerator.class.getPackage().getName() + ".generated";
     private static final java.util.regex.Pattern DOTS = java.util.regex.Pattern.compile("\\.");
     private static final String PACKAGE_DESC = DOTS.matcher(PACKAGE_NAME).replaceAll("/");
@@ -64,39 +60,41 @@ class MatcherGenerator<T> {
     }
 
     Pattern<T> compilePattern() {
-        final ClassReader classReader =
-                Try.of(() -> new ClassReader(BasePropertyPattern.class.getName()))
-                        .getOrElseThrow(ex -> new CompilerException(ex, "Failed to read base class for compiling"));
-        final ClassWriter writer = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS);
-        final Type type = Type.getType(BasePropertyPattern.class);
-        final String className = generateClassName();
-        writer.visit(V1_8, ACC_PUBLIC, className, null, type.getInternalName(), null);
+        return compilePattern(CompilationOptions.getDefaults());
+    }
 
-        final CodeGenerationContext<T> context = (CodeGenerationContext<T>) ImmutableCodeGenerationContext.builder()
+    Pattern<T> compilePattern(final CompilationOptions options) {
+        final ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS);
+        final String className = generateClassName();
+        writer.visit(V1_8, ACC_PUBLIC, className, null, Codes.OBJECT_NAME, new String[]{Type.getInternalName(PropertyPattern.class)});
+
+        final CodeGenerationContext<T> context = ImmutableCodeGenerationContext.<T>builder()
                 .classVisitor(writer)
-                .targetClass((Class<Object>) targetClass)
+                .matcherClassName(className)
+                .targetClass(targetClass)
                 .build();
 
         createConstructor(writer);
 
-        createMatches(writer);
+        createMatches(writer, context);
 
         writer.visitEnd();
         return Try.of(() -> {
+            if (options.dumpToFile() != null) {
+                CompileDebugger.dumpClass(options.dumpToFile(), writer.toByteArray());
+            }
             final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(className), writer.toByteArray());
-            CompileDebugger.dumpClass("/tmp/dump.class", writer.toByteArray());
             return instantiatePattern(patternClass);
-        }).get();//.getOrElseThrow(this::wrapException);
+        }).getOrElseThrow(ex -> wrapException(ex, context));
     }
 
-    //
-//    private RuntimeException wrapException(final Throwable ex) {
-//        return Match(ex).of(
-//                Case($(instanceOf(OmgException.class)), err -> err),
-//                Case($(), err -> new CompilerException(err, "Failed to generate accessor for '%s'", property))
-//        );
-//    }
-////
+    private RuntimeException wrapException(final Throwable ex, final CodeGenerationContext<T> context) {
+        return Match(ex).of(
+                Case($(instanceOf(OmgException.class)), err -> err),
+                Case($(), err -> new CompilerException(err, "Failed to generate matcher for '%s'", context.targetClass()))
+        );
+    }
+
     @SuppressWarnings("unchecked")
     private Pattern<T> instantiatePattern(final Class<?> patternClass) throws Throwable {
         final MethodType constructorType = MethodType.methodType(void.class);
@@ -110,16 +108,13 @@ class MatcherGenerator<T> {
      * @param cv {@link ClassVisitor} for which constructor will be generated
      */
     private void createConstructor(final ClassVisitor cv) {
-        final Class wrapperType = Object.class;
-        final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class), Type.getType(Property.class), Type.getType(wrapperType));
+        final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class));
         final MethodVisitor init = cv.visitMethod(ACC_PUBLIC, "<init>", initDescriptor, null, null);
         init.visitCode();
         init.visitVarInsn(ALOAD, 0);
-        init.visitVarInsn(ALOAD, 1);
-        init.visitVarInsn(ALOAD, 2);
         init.visitMethodInsn(
                 INVOKESPECIAL,
-                Type.getInternalName(BasePropertyPattern.class),
+                Codes.OBJECT_NAME,
                 "<init>",
                 BASE_INIT_DESCRIPTOR,
                 false);
@@ -134,65 +129,131 @@ class MatcherGenerator<T> {
      * Implementation reads property from passed object instance, performs null checks and then calls provided strategy
      * to generate casting and comparison code
      */
-    @SuppressWarnings({"FeatureEnvy"})
-    private void createMatches(final ClassVisitor cv) {
-        final MethodVisitor match = cv.visitMethod(ACC_PUBLIC, "matches", MATCHES_DESC, "(TT;)Z", null);
+    private void createMatches(final ClassVisitor cv, final CodeGenerationContext<T> context) {
+        final String matchesDesc = Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(context.targetClass()));
+
+        generateMatchesBootstrap(cv, context, matchesDesc);
+        generateStaticMatchMethod(cv, context, matchesDesc);
+
+        context.props().postGenerators().forEach(Runnable::run);
+    }
+
+    private void generateStaticMatchMethod(final ClassVisitor cv, final CodeGenerationContext<T> context, final String matchesDesc) {
+        final MethodVisitor match = cv.visitMethod(ACC_PUBLIC + ACC_STATIC, "_matches", matchesDesc, null, null);
         final Label start = new Label();
         final Label end = new Label();
 
         match.visitCode();
         match.visitLabel(start);
 
-        generateMatcherCode(match, condition);
+        generateMatcherCode(match, condition, context);
 
         match.visitInsn(IRETURN);
         match.visitLabel(end);
 
         match.visitMaxs(0, 0);
-        match.visitLocalVariable("this", "L" + generateClassName() + ";", null, start, end, 0);
-        match.visitLocalVariable("instance", Type.getDescriptor(Object.class), null, start, end, 1);
+        match.visitLocalVariable("instance", Type.getDescriptor(context.targetClass()), null, start, end, 0);
 
         match.visitEnd();
     }
 
-    private void generateMatcherCode(final MethodVisitor match, final Condition condition) {
+    /**
+     * Generates matches method which overrides {@link Pattern#matches(Object)}.
+     * <p>
+     * This method will cast parameter to correct type and call internal {@code _matches} method to perform actual matching
+     *
+     * @param cv          Class visitor used to generate methods
+     * @param context     Generation context containing various parameters
+     * @param matchesDesc Descriptor for _matches method
+     */
+    private void generateMatchesBootstrap(final ClassVisitor cv, final CodeGenerationContext<T> context, final String matchesDesc) {
+        final String bootstrapDesc = Type.getMethodDescriptor(Type.getType(boolean.class), Codes.OBJECT_TYPE);
+        final MethodVisitor match = cv.visitMethod(ACC_PUBLIC, "matches", bootstrapDesc, null, null);
+        match.visitAnnotation(Type.getDescriptor(Override.class), true);
+        final Label start = new Label();
+        final Label end = new Label();
+        match.visitLabel(start);
+        match.visitVarInsn(ALOAD, 1);
+        match.visitTypeInsn(CHECKCAST, Type.getInternalName(context.targetClass()));
+        match.visitMethodInsn(INVOKESTATIC, context.matcherClassName(), "_matches", matchesDesc, false);
+        match.visitLabel(end);
+        match.visitInsn(IRETURN);
+        match.visitMaxs(0, 0);
+        match.visitLocalVariable("this", "L" + generateClassName() + ";", null, start, end, 0);
+        match.visitLocalVariable("instance", Codes.OBJECT_DESC, null, start, end, 1);
+    }
+
+    private void generateMatcherCode(final MethodVisitor match, final Condition condition, final CodeGenerationContext<T> context) {
         Match(condition).of(
-                Case($(instanceOf(LogicalCondition.class)), lc -> run(() -> generateLogicalCondition(match, lc))),
-                Case($(instanceOf(PropertyCondition.class)), pc -> run(() -> generatePropertyCondition(match, pc))),
+                Case($(instanceOf(LogicalCondition.class)), lc -> run(() -> generateLogicalCondition(match, lc, context))),
+                Case($(instanceOf(PropertyCondition.class)), pc -> run(() -> generatePropertyCondition(match, pc, context))),
                 Case($(), other -> {
-                    throw new CompilerException("Unsupported condition type: {}", condition);
+                    throw new CompilerException("Unsupported condition type: %s", condition);
                 })
         );
     }
 
-    private void generateLogicalCondition(final MethodVisitor match, final LogicalCondition oc) {
-        if (oc instanceof NotCondition) {
-            if (oc.getChildren().size() != 1) {
+    private void generateLogicalCondition(final MethodVisitor match, final LogicalCondition lc, final CodeGenerationContext<T> context) {
+        if (lc instanceof NotCondition) {
+            if (lc.getChildren().size() != 1) {
                 throw new CompilerException("NOT condition only can contain one operand");
             }
-            generateMatcherCode(match, oc.getChildren().get(0));
+            generateMatcherCode(match, lc.getChildren().get(0), context);
             Codes.logicalNot(match);
         } else {
             // todo: rewrite with short-circuiting
-            oc.getChildren().forEach(cond -> generateMatcherCode(match, cond));
-            IntStream.range(0, oc.getChildren().size()).forEach($ -> match.visitInsn(IAND));
+            lc.getChildren().forEach(cond -> generateMatcherCode(match, cond, context));
+            final int opcode = operatorFromCondition(lc);
+            IntStream.range(0, lc.getChildren().size() - 1).forEach($ -> match.visitInsn(opcode));
         }
     }
 
-    private void generatePropertyCondition(final MethodVisitor match, final PropertyCondition<T> oc) {
+    private int operatorFromCondition(final LogicalCondition lc) {
+        return Match(lc).of(
+                Case($(instanceOf(AndCondition.class)), x -> IAND),
+                Case($(instanceOf(OrCondition.class)), x -> IOR),
+                Case($(), x -> {
+                    throw new CompilerException("Either AND or OR condition expected, but '%s' found", lc.getMethod());
+                })
+        );
+    }
 
+    private void generatePropertyCondition(final MethodVisitor match, final PropertyCondition<T> pc, final CodeGenerationContext<T> context) {
+        generateCode(context, match, pc);
     }
 
 
     private String generateClassName() {
-        return PACKAGE_DESC + "/" + Long.toHexString(new Random().nextLong()) + '$' + "Matcher";
+        return PACKAGE_DESC + "/" + "Gen" + Long.toHexString(new Random().nextLong()) + '$' + "Matcher";
     }
 
     private String generateBinaryClassName(final String className) {
         return className.replaceAll("/", ".");
     }
 
-    private Property<T, ?> createProperty(final String field) {
+
+    public <P, V> void generateCode(
+            final CodeGenerationContext<T> context,
+            final MethodVisitor method,
+            final PropertyCondition<V> condition) {
+        final Property<T, P> property = createProperty(condition.getProperty(), context.targetClass());
+
+        final TypedCodeGenerator<T, P, V> codeGen = getGeneratorFor(property.getType(), condition, context);
+
+        codeGen.prepareStackForCompare(property, condition, method);
+        codeGen.compare(condition, method);
+    }
+
+    private <P, V> TypedCodeGenerator<T, P, V> getGeneratorFor(final Class<?> type, final PropertyCondition<V> condition, final CodeGenerationContext<T> context) {
+        if (int.class.equals(type)) {
+            return (TypedCodeGenerator<T, P, V>) IntGeneratorProvider.getGenerator(condition, context);
+        } else {
+            throw new CompilerException("Type '%s' is not supported", type.getName());
+        }
+    }
+
+    private <T, P> Property<T, P> createProperty(final String field, final Class<T> targetClass) {
         return Property.fromPropertyName(field, targetClass);
     }
+
 }
