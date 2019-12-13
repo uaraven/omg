@@ -91,7 +91,7 @@ For `IN (list)` list is comma-separated list of literals. All literals must have
 ```
 ```sql
 SELECT * FROM Car WHERE 
-    passengerCapacity > 2 AND engine IN (SELECT * WHERE displacement < 3.2)
+    passengerCapacity > 2 AND engine IN (SELECT * FROM Engine WHERE displacement < 3.2)
 ```
 
 To create matcher from OMQL query use following code:
