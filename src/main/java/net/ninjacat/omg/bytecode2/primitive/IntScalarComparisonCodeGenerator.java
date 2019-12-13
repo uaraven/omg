@@ -20,10 +20,10 @@ package net.ninjacat.omg.bytecode2.primitive;
 
 import io.vavr.API;
 import jdk.nashorn.internal.codegen.types.Type;
-import net.ninjacat.omg.bytecode2.CodeGenerationContext;
-import net.ninjacat.omg.bytecode2.Codes;
 import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
+import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
+import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
@@ -37,15 +37,15 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class IntScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Integer> {
 
-    private final CodeGenerationContext<T> context;
+    private final CodeGenerationContext context;
 
-    IntScalarComparisonCodeGenerator(final CodeGenerationContext<T> context) {
+    IntScalarComparisonCodeGenerator(final CodeGenerationContext context) {
         this.context = context;
     }
 
     @Override
     public void getPropertyValue(final Property<T, Integer> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, 0); // property is always local #0
+        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL); // property is always local #2
         method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(property.getOwner()),
                 property.getMethod().getName(),

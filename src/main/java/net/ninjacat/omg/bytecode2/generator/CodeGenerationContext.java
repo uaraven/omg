@@ -16,25 +16,23 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.bytecode2.generator;
 
 import org.immutables.value.Value;
 import org.objectweb.asm.ClassVisitor;
 
 /**
  * Context for generating code for a matcher
- *
- * @param <T> Type of target class
  */
 @Value.Immutable
-public abstract class CodeGenerationContext<T> {
+public abstract class CodeGenerationContext {
     private final Props props = new Props();
 
     public abstract ClassVisitor classVisitor();
 
     public abstract String matcherClassName();
 
-    public abstract Class<T> targetClass();
+    public abstract Class targetClass();
 
     public Props props() {
         return props;

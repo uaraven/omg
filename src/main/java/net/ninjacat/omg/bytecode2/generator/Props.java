@@ -1,5 +1,5 @@
 /*
- * omg: Params.java
+ * omg: Props.java
  *
  * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.bytecode2.generator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,17 +27,16 @@ import java.util.stream.Stream;
 
 public class Props {
     private final Map<String, Object> props = new ConcurrentHashMap<>();
-    private final List<Runnable> postGenerators = new ArrayList<>();
+    private final List<ConstructorGenerator> constructorGenerators = new ArrayList<>();
 
     /**
-     * Add a block of code to be run after match method is generated. It can be used to generate helper methods, static
-     * code blocks etc.
+     * Add a block of code to be run during constructor generation. It can be used to generate initialization code
      *
-     * @param block {@link Runnable} to be executed at the final stage of code generation
+     * @param block {@link ConstructorGenerator} to be executed at the final stage of constructor generation
      * @return This Props object for fluent call chaining
      */
-    public Props postGenerator(final Runnable block) {
-        this.postGenerators.add(block);
+    public Props postConstructor(final ConstructorGenerator block) {
+        this.constructorGenerators.add(block);
         return this;
     }
 
@@ -50,7 +49,7 @@ public class Props {
         return Collections.unmodifiableMap(props);
     }
 
-    public Stream<Runnable> postGenerators() {
-        return postGenerators.stream();
+    public Stream<ConstructorGenerator> postConstructors() {
+        return (Stream<ConstructorGenerator>) constructorGenerators.stream();
     }
 }

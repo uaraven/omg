@@ -16,20 +16,34 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.bytecode2.generator;
 
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
+
+import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public final class Codes {
+    /**
+     * Index of local var which contains matched object typecast to correct type
+     */
+    public static final int MATCHED_LOCAL = 2;
     public static String OBJECT_DESC = Type.getDescriptor(Object.class);
     public static Type OBJECT_TYPE = Type.getType(Object.class);
     public static String OBJECT_NAME = Type.getInternalName(Object.class);
 
     private Codes() {
+    }
+
+
+    public static void createCollectionField(final ClassVisitor cv, final String fieldName) {
+        final FieldVisitor fieldVisitor = cv.visitField(
+                ACC_PRIVATE + ACC_FINAL + ACC_SYNTHETIC,
+                fieldName,
+                Type.getDescriptor(Collection.class),
+                null, null);
+        fieldVisitor.visitEnd();
     }
 
     public static void pushInt(final MethodVisitor mv, final int value) {

@@ -1,5 +1,5 @@
 /*
- * omg: ConditionCodeGenerator.java
+ * omg: ConstructorGenerator.java
  *
  * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.bytecode2.generator;
 
-import net.ninjacat.omg.conditions.Condition;
 import org.objectweb.asm.MethodVisitor;
 
-public interface ConditionCodeGenerator<T, C extends Condition> {
-    void generateCode(CodeGenerationContext<T> context, MethodVisitor matcherMethod, C condition);
+@FunctionalInterface
+public interface ConstructorGenerator {
+    void generateConstructorCode(MethodVisitor constructor, CodeGenerationContext context);
 }

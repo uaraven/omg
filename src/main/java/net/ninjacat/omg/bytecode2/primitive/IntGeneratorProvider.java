@@ -18,8 +18,8 @@
 
 package net.ninjacat.omg.bytecode2.primitive;
 
-import net.ninjacat.omg.bytecode2.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
+import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.errors.CompilerException;
@@ -35,7 +35,7 @@ public class IntGeneratorProvider {
             ConditionMethod.LT,
             ConditionMethod.IN);
 
-    public static <T> TypedCodeGenerator<T, Integer, ?> getGenerator(final Condition condition, final CodeGenerationContext<T> context) {
+    public static <T> TypedCodeGenerator<T, Integer, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
             throw new CompilerException("Condition {} is not supported for type 'int'", condition);
         }

@@ -19,16 +19,16 @@
 package net.ninjacat.omg.bytecode2.primitive;
 
 import io.vavr.collection.Stream;
-import jdk.nashorn.internal.codegen.types.Type;
-import net.ninjacat.omg.bytecode2.CodeGenerationContext;
-import net.ninjacat.omg.bytecode2.Codes;
 import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
+import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
+import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.Collection;
 import java.util.Random;
@@ -38,11 +38,13 @@ import static org.objectweb.asm.Opcodes.*;
 public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Collection<Integer>> {
 
     private static final Random random = new Random();
-    private static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Collection.class);
+    private static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Collection.class));
+    private static final String FIELD_DESCRIPTOR = Type.getDescriptor(Collection.class);
+    private static final String VALUE_OF_DESC = Type.getMethodDescriptor(Type.getType(Integer.class), Type.getType(int.class));
 
-    private final CodeGenerationContext<T> context;
+    private final CodeGenerationContext context;
 
-    public IntInCodeGenerator(final CodeGenerationContext<T> context) {
+    public IntInCodeGenerator(final CodeGenerationContext context) {
         this.context = context;
     }
 
@@ -67,9 +69,20 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
             return; // no code needed if checking against empty collection
         }
         // create collection generation method and call it to put matching value on a stack
-        final String generatorName = "getCollection" + "_" + property.getPropertyName() + "_" + Long.toHexString(random.nextLong());
+        final String fieldName = "collection" + "_" + property.getPropertyName() + "_" + Long.toHexString(random.nextLong());
+        final String generatorName = "getC" + fieldName.substring(1);
+
+        Codes.createCollectionField(context.classVisitor(), fieldName);
         createGetCollectionMethod(generatorName, value);
-        method.visitMethodInsn(Opcodes.INVOKESTATIC, context.matcherClassName(), generatorName, GENERATOR_DESCRIPTOR, false);
+
+        method.visitVarInsn(ALOAD, 0);
+        method.visitFieldInsn(GETFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
+        context.props().postConstructor((constructor, context) -> {
+            constructor.visitVarInsn(ALOAD, 0);
+            constructor.visitInsn(DUP);
+            constructor.visitMethodInsn(Opcodes.INVOKESTATIC, context.matcherClassName(), generatorName, GENERATOR_DESCRIPTOR, false);
+            constructor.visitFieldInsn(PUTFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
+        });
 
         getPropertyValue(property, method);
     }
@@ -107,14 +120,14 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
 
     @Override
     public void getPropertyValue(final Property<T, Integer> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, 0); // property is always local #0
+        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL);
         method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(property.getOwner()),
                 property.getMethod().getName(),
                 property.getMethod().getDescriptor(),
                 property.isInterface());
         // box value for collection.contains check
-        method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Integer.class), "valueOf", Type.getMethodDescriptor(Integer.class, int.class), false);
+        method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Integer.class), "valueOf", VALUE_OF_DESC, false);
     }
 
     @Override
@@ -142,7 +155,7 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
             method.visitMethodInsn(Opcodes.INVOKEINTERFACE,
                     Type.getInternalName(Collection.class),
                     "contains",
-                    Type.getMethodDescriptor(boolean.class, Object.class),
+                    Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class)),
                     true);
         }
     }
