@@ -31,17 +31,36 @@ import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
+/**
+ * Basic implementation of code generator for IN condition.
+ * <p>
+ * IN checks for all types follow the same pattern: create static collection field with literal values, call
+ * {@link Collection#contains(Object)} to check if property value is in the collection.
+ * <p>
+ * Customizations needed for different types:
+ * <ul>
+ *     <li>creation of actual collection</li>
+ *     <li>potentially boxing primitive values before calling "contains"</li>
+ * </ul>
+ *
+ * @param <T> Type of object that the matcher is generated for
+ * @param <P> Type of the property being checked
+ */
 public abstract class InCollectionCodeGenerator<T, P> implements TypedCodeGenerator<T, P, Collection<P>> {
 
-    private static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Collection.class));
-    private static final String FIELD_DESCRIPTOR = Type.getDescriptor(Collection.class);
-    private static final String FIELD_NAME = "fieldName";
-    private static final String EMPTY = "empty";
+    protected static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Collection.class));
+    protected static final String FIELD_DESCRIPTOR = Type.getDescriptor(Collection.class);
+    protected static final String FIELD_NAME = "fieldName";
+    protected static final String EMPTY = "empty";
 
     private final CodeGenerationContext context;
 
     public InCollectionCodeGenerator(final CodeGenerationContext context) {
         this.context = context;
+    }
+
+    public CodeGenerationContext getContext() {
+        return context;
     }
 
     @Override
@@ -57,6 +76,17 @@ public abstract class InCollectionCodeGenerator<T, P> implements TypedCodeGenera
         }
     }
 
+    /**
+     * Implementations need to override this method if property value needs to be boxed before the call to
+     * {@link Collection#contains(Object)}.
+     * <p>
+     * Implementation can be as simple as call to Integer.valueOf() or similar.
+     * <p>
+     * Value that needs to be boxed will be on the stack when this method is called.
+     *
+     * @param property {@link Property}
+     * @param method   Method visitor to generate code.
+     */
     protected abstract void boxIfNeeded(Property<T, P> property, MethodVisitor method);
 
     @Override
@@ -119,7 +149,17 @@ public abstract class InCollectionCodeGenerator<T, P> implements TypedCodeGenera
     }
 
     /**
-     * @param values Collection of values
+     * Implementations need to override this method to generate method that will create a collection of values.
+     * <p>
+     * The generated method must be static (and it is recommended for it to be synthetic) and it must return
+     * {@link Collection}. Recommended implementation of collection is a {@code Set} as it allows fastest "contains"
+     * checks.
+     * <p>
+     * Generated method must be free of any side-effects and must not make any assumptions of object state. It will
+     * be called inside constructor.
+     *
+     * @param methodName Name of the method to be generated
+     * @param values     Collection of values
      */
     protected abstract void createGetCollectionMethod(final String methodName, final Collection<P> values);
 }
