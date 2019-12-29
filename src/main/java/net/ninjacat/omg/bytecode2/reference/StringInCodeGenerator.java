@@ -20,101 +20,32 @@ package net.ninjacat.omg.bytecode2.reference;
 
 import io.vavr.collection.Stream;
 import net.ninjacat.omg.bytecode2.Property;
-import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
-import net.ninjacat.omg.conditions.ConditionMethod;
-import net.ninjacat.omg.conditions.PropertyCondition;
-import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.bytecode2.generator.InCollectionCodeGenerator;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class StringInCodeGenerator<T> implements TypedCodeGenerator<T, String, Collection<String>> {
-
-    private static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Collection.class));
-    private static final String FIELD_DESCRIPTOR = Type.getDescriptor(Collection.class);
-    private static final String FIELD_NAME = "fieldName";
-
-    private final CodeGenerationContext context;
+public class StringInCodeGenerator<T> extends InCollectionCodeGenerator<T, String> {
 
     public StringInCodeGenerator(final CodeGenerationContext context) {
-        this.context = context;
-    }
-
-
-    @Override
-    public void getPropertyValue(final Property<T, String> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL);
-        method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(property.getOwner()),
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                property.isInterface());
+        super(context);
     }
 
     @Override
-    public void getMatchingConstant(final PropertyCondition<Collection<String>> condition, final MethodVisitor method) {
-        final String fieldName = context.props().propAsString(FIELD_NAME);
-        method.visitVarInsn(ALOAD, 0);
-        method.visitFieldInsn(GETFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * If matching collection is empty, simple {@code ICONST_0} will be generated,
-     * otherwise call to {@link Collection#contains(Object)} will be used.
-     *
-     * @param condition {@link PropertyCondition} to check
-     * @param method    Method visitor to generate the code.
-     */
-    @Override
-    public void compare(final PropertyCondition<Collection<String>> condition, final MethodVisitor method) {
-        if (condition.getMethod() != ConditionMethod.IN) {
-            throw new CompilerException("Unsupported Condition for String type: %s", condition);
-        }
-        if (condition.getValue().isEmpty()) {
-            method.visitInsn(Opcodes.ICONST_0); // if target collection is empty, matching always fails
-        } else {
-            method.visitMethodInsn(Opcodes.INVOKEINTERFACE,
-                    Type.getInternalName(Collection.class),
-                    "contains",
-                    Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class)),
-                    true);
-        }
-    }
-
-    @Override
-    public void generateHelpers(final Property<T, String> property, final PropertyCondition<Collection<String>> condition) {
-        if (condition.getValue().isEmpty()) {
-            context.props().prop("empty", true); // do not generate any code if collection is empty
-            return;
-        }
-        context.props().prop("empty", false);
-        final String fieldName = "collection" + "_" + property.getPropertyName() + "_" + Long.toHexString(Codes.RNDG.nextLong());
-        context.props().prop(FIELD_NAME, fieldName);
-        final String generatorName = "getC" + fieldName.substring(1);
-
-        Codes.createField(context.classVisitor(), fieldName, Collection.class);
-        createGetCollectionMethod(generatorName, condition.getValue());
-
-        context.props().postConstructor((constructor, context) -> {
-            constructor.visitVarInsn(ALOAD, 0);
-            constructor.visitMethodInsn(Opcodes.INVOKESTATIC, context.matcherClassName(), generatorName, GENERATOR_DESCRIPTOR, false);
-            constructor.visitFieldInsn(PUTFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
-        });
+    protected void boxIfNeeded(final Property<T, String> property, final MethodVisitor method) {
+        // do nothing for String
     }
 
     /**
      * @param values Collection of values
      */
-    private void createGetCollectionMethod(final String methodName, final Collection<String> values) {
-        final MethodVisitor generator = context.classVisitor()
+    protected void createGetCollectionMethod(final String methodName, final Collection<String> values) {
+        final MethodVisitor generator = getContext().classVisitor()
                 .visitMethod(ACC_PRIVATE + ACC_STATIC + ACC_SYNTHETIC, methodName,
                         GENERATOR_DESCRIPTOR, null, null);
 

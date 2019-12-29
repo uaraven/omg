@@ -68,6 +68,21 @@ public class BytecodeCompilerIntIntegrationTest {
         assertThat(matcher.matches(new TestClass(60)), is(false));
     }
 
+
+    @Test
+    public void shouldMatchIntInEmpty() {
+        final Condition cond = Conditions.matcher()
+                .property("intProp").in()
+                .build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond, ImmutableCompilationOptions.builder().dumpToFile("/tmp/match_int_in_empty.class").build());
+
+        assertThat(matcher.matches(new TestClass(41)), is(false));
+        assertThat(matcher.matches(new TestClass(8012454)), is(false));
+        assertThat(matcher.matches(new TestClass(60)), is(false));
+    }
+
     public static class TestClass {
         private final int intProp;
 

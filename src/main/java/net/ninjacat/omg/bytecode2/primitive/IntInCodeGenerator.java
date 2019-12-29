@@ -20,12 +20,9 @@ package net.ninjacat.omg.bytecode2.primitive;
 
 import io.vavr.collection.Stream;
 import net.ninjacat.omg.bytecode2.Property;
-import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
-import net.ninjacat.omg.conditions.ConditionMethod;
-import net.ninjacat.omg.conditions.PropertyCondition;
-import net.ninjacat.omg.errors.CompilerException;
+import net.ninjacat.omg.bytecode2.generator.InCollectionCodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -34,62 +31,25 @@ import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Collection<Integer>> {
+public class IntInCodeGenerator<T> extends InCollectionCodeGenerator<T, Integer> {
 
-    private static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Collection.class));
-    private static final String FIELD_DESCRIPTOR = Type.getDescriptor(Collection.class);
     private static final String VALUE_OF_DESC = Type.getMethodDescriptor(Type.getType(Integer.class), Type.getType(int.class));
 
-    private final CodeGenerationContext context;
-
     public IntInCodeGenerator(final CodeGenerationContext context) {
-        this.context = context;
+        super(context);
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * If condition collection is empty no code will be generated. Otherwise static method to return Collection&lt;Integer&gt;
-     * will be generated which returns collection in question
-     * <p>
-     * TODO: replace method call at comparision site with
-     * a) static field initialized in static initializer
-     * b) call to memoized supplier, so that collection is only initialized once.
-     *
-     * @param property  Property that needs to be matched
-     * @param condition Condition describing how to match the property
-     * @param method    {@link MethodVisitor} to generate the code in
-     */
     @Override
-    public void prepareStackForCompare(final Property<T, Integer> property, final PropertyCondition<Collection<Integer>> condition, final MethodVisitor method) {
-        final Collection<Integer> value = condition.getValue();
-        if (value.isEmpty()) {
-            return; // no code needed if checking against empty collection
-        }
-        // create collection generation method and call it to put matching value on a stack
-        final String fieldName = "collection" + "_" + property.getPropertyName() + "_" + Long.toHexString(Codes.RNDG.nextLong());
-        final String generatorName = "getC" + fieldName.substring(1);
-
-        Codes.createCollectionField(context.classVisitor(), fieldName);
-        createGetCollectionMethod(generatorName, value);
-
-        method.visitVarInsn(ALOAD, 0);
-        method.visitFieldInsn(GETFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
-        context.props().postConstructor((constructor, context) -> {
-            constructor.visitVarInsn(ALOAD, 0);
-//            constructor.visitInsn(DUP); // ? why DUP here?
-            constructor.visitMethodInsn(Opcodes.INVOKESTATIC, context.matcherClassName(), generatorName, GENERATOR_DESCRIPTOR, false);
-            constructor.visitFieldInsn(PUTFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
-        });
-
-        getPropertyValue(property, method);
+    protected void boxIfNeeded(final Property<T, Integer> property, final MethodVisitor method) {
+        method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Integer.class), "valueOf", VALUE_OF_DESC, false);
     }
 
     /**
      * @param values Collection of values
      */
-    private void createGetCollectionMethod(final String methodName, final Collection<Integer> values) {
-        final MethodVisitor generator = context.classVisitor()
+    @Override
+    protected void createGetCollectionMethod(final String methodName, final Collection<Integer> values) {
+        final MethodVisitor generator = getContext().classVisitor()
                 .visitMethod(ACC_PRIVATE + ACC_STATIC + ACC_SYNTHETIC, methodName,
                         GENERATOR_DESCRIPTOR, null, null);
 
@@ -113,47 +73,5 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
         generator.visitInsn(ARETURN);
         generator.visitMaxs(0, 0);
         generator.visitEnd();
-    }
-
-    @Override
-    public void getPropertyValue(final Property<T, Integer> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL);
-        method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(property.getOwner()),
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                property.isInterface());
-        // box value for collection.contains check
-        method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Integer.class), "valueOf", VALUE_OF_DESC, false);
-    }
-
-    @Override
-    public void getMatchingConstant(final PropertyCondition<Collection<Integer>> condition, final MethodVisitor method) {
-        // do nothing, all is done in .prepareStackForCompare()
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * If matching collection is empty, simple {@code ICONST_0} will be generated,
-     * otherwise call to {@link Collection#contains(Object)} will be used.
-     *
-     * @param condition {@link PropertyCondition} to check
-     * @param method    Method visitor to generate the code.
-     */
-    @Override
-    public void compare(final PropertyCondition<Collection<Integer>> condition, final MethodVisitor method) {
-        if (condition.getMethod() != ConditionMethod.IN) {
-            throw new CompilerException("Unsupported Condition for int type: %s", condition);
-        }
-        if (condition.getValue().isEmpty()) {
-            method.visitInsn(Opcodes.ICONST_0); // if target collection is empty, matching always fails
-        } else {
-            method.visitMethodInsn(Opcodes.INVOKEINTERFACE,
-                    Type.getInternalName(Collection.class),
-                    "contains",
-                    Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class)),
-                    true);
-        }
     }
 }

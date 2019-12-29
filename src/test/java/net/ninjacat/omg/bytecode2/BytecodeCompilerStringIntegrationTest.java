@@ -94,6 +94,20 @@ public class BytecodeCompilerStringIntegrationTest {
         assertThat(matcher.matches(new TestClass("xyz")), is(false));
     }
 
+    @Test
+    public void shouldMatchStrInEmpty() {
+        final Condition cond = Conditions.matcher()
+                .property("strProp").in()
+                .build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond, ImmutableCompilationOptions.builder().dumpToFile("/tmp/match_str_in_empty.class").build());
+
+        assertThat(matcher.matches(new TestClass("a")), is(false));
+        assertThat(matcher.matches(new TestClass("b")), is(false));
+        assertThat(matcher.matches(new TestClass("xyz")), is(false));
+    }
+
     public static class TestClass {
         private final String strProp;
 

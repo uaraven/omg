@@ -20,7 +20,6 @@ package net.ninjacat.omg.bytecode2.generator;
 
 import org.objectweb.asm.*;
 
-import java.util.Collection;
 import java.util.Random;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -39,15 +38,6 @@ public final class Codes {
     private Codes() {
     }
 
-
-    public static void createCollectionField(final ClassVisitor cv, final String fieldName) {
-        final FieldVisitor fieldVisitor = cv.visitField(
-                ACC_PRIVATE + ACC_FINAL + ACC_SYNTHETIC,
-                fieldName,
-                Type.getDescriptor(Collection.class),
-                null, null);
-        fieldVisitor.visitEnd();
-    }
 
     public static <T> void createField(final ClassVisitor cv,
                                        final String fieldName,
