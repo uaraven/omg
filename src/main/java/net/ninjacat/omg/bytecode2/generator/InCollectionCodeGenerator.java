@@ -1,5 +1,5 @@
 /*
- * omg: StringInCodeGenerator.java
+ * omg: IntInCodeGenerator.java
  *
  * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,13 +16,10 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2.reference;
+package net.ninjacat.omg.bytecode2.generator;
 
-import io.vavr.collection.Stream;
 import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
-import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
-import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
@@ -34,22 +31,21 @@ import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class StringInCodeGenerator<T> implements TypedCodeGenerator<T, String, Collection<String>> {
+public abstract class InCollectionCodeGenerator<T, P> implements TypedCodeGenerator<T, P, Collection<P>> {
 
     private static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Collection.class));
     private static final String FIELD_DESCRIPTOR = Type.getDescriptor(Collection.class);
     private static final String FIELD_NAME = "fieldName";
-    public static final String EMPTY = "empty";
+    private static final String EMPTY = "empty";
 
     private final CodeGenerationContext context;
 
-    public StringInCodeGenerator(final CodeGenerationContext context) {
+    public InCollectionCodeGenerator(final CodeGenerationContext context) {
         this.context = context;
     }
 
-
     @Override
-    public void getPropertyValue(final Property<T, String> property, final MethodVisitor method) {
+    public void getPropertyValue(final Property<T, P> property, final MethodVisitor method) {
         if (!context.props().get(EMPTY, Boolean.class)) {
             method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL);
             method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
@@ -57,11 +53,14 @@ public class StringInCodeGenerator<T> implements TypedCodeGenerator<T, String, C
                     property.getMethod().getName(),
                     property.getMethod().getDescriptor(),
                     property.isInterface());
+            boxIfNeeded(property, method);
         }
     }
 
+    protected abstract void boxIfNeeded(Property<T, P> property, MethodVisitor method);
+
     @Override
-    public void getMatchingConstant(final PropertyCondition<Collection<String>> condition, final MethodVisitor method) {
+    public void getMatchingConstant(final PropertyCondition<Collection<P>> condition, final MethodVisitor method) {
         if (!context.props().get(EMPTY, Boolean.class)) {
             final String fieldName = context.props().propAsString(FIELD_NAME);
             method.visitVarInsn(ALOAD, 0);
@@ -79,11 +78,11 @@ public class StringInCodeGenerator<T> implements TypedCodeGenerator<T, String, C
      * @param method    Method visitor to generate the code.
      */
     @Override
-    public void compare(final PropertyCondition<Collection<String>> condition, final MethodVisitor method) {
+    public void compare(final PropertyCondition<Collection<P>> condition, final MethodVisitor method) {
         if (condition.getMethod() != ConditionMethod.IN) {
-            throw new CompilerException("Unsupported Condition for String type: %s", condition);
+            throw new CompilerException("Unsupported Condition for int type: %s", condition);
         }
-        if (context.props().get(EMPTY, Boolean.class)) {
+        if (condition.getValue().isEmpty()) {
             method.visitInsn(Opcodes.ICONST_0); // if target collection is empty, matching always fails
         } else {
             method.visitMethodInsn(Opcodes.INVOKEINTERFACE,
@@ -95,54 +94,32 @@ public class StringInCodeGenerator<T> implements TypedCodeGenerator<T, String, C
     }
 
     @Override
-    public void generateHelpers(final Property<T, String> property, final PropertyCondition<Collection<String>> condition) {
-        if (condition.getValue().isEmpty()) {
+    public void generateHelpers(final Property<T, P> property, final PropertyCondition<Collection<P>> condition) {
+        final Collection<P> value = condition.getValue();
+        if (value.isEmpty()) {
             context.props().prop(EMPTY, true);
             return;
         }
         context.props().prop(EMPTY, false);
-
+        // create collection generation method and call it to put matching value on a stack
         final String fieldName = "collection" + "_" + property.getPropertyName() + "_" + Long.toHexString(Codes.RNDG.nextLong());
         final String generatorName = "getC" + fieldName.substring(1);
 
         context.props().prop(FIELD_NAME, fieldName);
 
         Codes.createField(context.classVisitor(), fieldName, Collection.class);
-        createGetCollectionMethod(generatorName, condition.getValue());
+        createGetCollectionMethod(generatorName, value);
 
         context.props().postConstructor((constructor, context) -> {
             constructor.visitVarInsn(ALOAD, 0);
             constructor.visitMethodInsn(Opcodes.INVOKESTATIC, context.matcherClassName(), generatorName, GENERATOR_DESCRIPTOR, false);
             constructor.visitFieldInsn(PUTFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
         });
+
     }
 
     /**
      * @param values Collection of values
      */
-    private void createGetCollectionMethod(final String methodName, final Collection<String> values) {
-        final MethodVisitor generator = context.classVisitor()
-                .visitMethod(ACC_PRIVATE + ACC_STATIC + ACC_SYNTHETIC, methodName,
-                        GENERATOR_DESCRIPTOR, null, null);
-
-        generator.visitCode();
-        // create array
-        Codes.pushInt(generator, values.size());
-        generator.visitTypeInsn(ANEWARRAY, Type.getInternalName(String.class));
-        // push all values into the array
-        Stream.ofAll(values).forEachWithIndex((val, idx) -> {
-            generator.visitInsn(DUP);
-            Codes.pushInt(generator, idx);
-            generator.visitLdcInsn(val);
-            generator.visitInsn(AASTORE);
-        });
-        // convert array into stream and collect into set
-        generator.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "stream", "([Ljava/lang/Object;)Ljava/util/stream/Stream;", false);
-        generator.visitMethodInsn(INVOKESTATIC, "java/util/stream/Collectors", "toSet", "()Ljava/util/stream/Collector;", false);
-        generator.visitMethodInsn(INVOKEINTERFACE, "java/util/stream/Stream", "collect", "(Ljava/util/stream/Collector;)Ljava/lang/Object;", true);
-        generator.visitTypeInsn(CHECKCAST, "java/util/Collection");
-        generator.visitInsn(ARETURN);
-        generator.visitMaxs(0, 0);
-        generator.visitEnd();
-    }
+    protected abstract void createGetCollectionMethod(final String methodName, final Collection<P> values);
 }
