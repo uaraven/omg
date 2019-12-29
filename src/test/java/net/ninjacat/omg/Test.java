@@ -18,8 +18,10 @@
 
 package net.ninjacat.omg;
 
+
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Test {
@@ -27,10 +29,23 @@ public class Test {
         return Arrays.stream(new int[]{41, 42, 43, 44, 8012454}).boxed().collect(Collectors.toSet());
     }
 
+    public Collection<String> getStrings() {
+        return Arrays.stream(new String[]{"a", "b", "c", "d"}).collect(Collectors.toSet());
+    }
+
+    public static Pattern getPattern(final String value) {
+        return Pattern.compile(value);
+    }
+
     public static boolean matches(final TestClass instance) {
         return instance != null;
     }
 
+
+    public static boolean test() {
+        final Pattern ptrn = getPattern(".*");
+        return ptrn.matcher("abc").matches();
+    }
 
     public static class TestClass {
 

@@ -47,6 +47,7 @@ gradle-app.setting
 
 # User-specific stuff
 .idea/
+.idea/misc.xml
 *.iml
 
 # Gradle and Maven with auto-import

@@ -18,8 +18,6 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
-import com.sun.org.apache.bcel.internal.generic.INVOKEVIRTUAL;
-import jdk.nashorn.internal.codegen.types.Type;
 import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
@@ -28,7 +26,15 @@ import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
+/**
+ * Generates code to perform equalTo/notEqualTo comparision on objects. Relies on properly implemented
+ * {@link Object#equals(Object)} method
+ *
+ * @param <T>
+ * @param <P>
+ */
 public class ObjectEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> {
     private final CodeGenerationContext context;
 
@@ -53,9 +59,13 @@ public class ObjectEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> 
 
     @Override
     public void compare(final PropertyCondition<P> condition, final MethodVisitor method) {
-        method.visitMethodInsn(INVOKEVIRTUAL, );
-        if (condition.getMethod() == ConditionMethod.EQ) {
-
+        method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Codes.OBJECT_NAME,
+                "equals",
+                Type.getMethodDescriptor(Type.getType(boolean.class), Type.getType(Object.class)),
+                false);
+        if (condition.getMethod() == ConditionMethod.NEQ) {
+            Codes.logicalNot(method);
         }
 
     }

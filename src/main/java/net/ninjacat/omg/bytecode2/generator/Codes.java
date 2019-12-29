@@ -21,6 +21,7 @@ package net.ninjacat.omg.bytecode2.generator;
 import org.objectweb.asm.*;
 
 import java.util.Collection;
+import java.util.Random;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -29,9 +30,11 @@ public final class Codes {
      * Index of local var which contains matched object typecast to correct type
      */
     public static final int MATCHED_LOCAL = 2;
-    public static String OBJECT_DESC = Type.getDescriptor(Object.class);
-    public static Type OBJECT_TYPE = Type.getType(Object.class);
-    public static String OBJECT_NAME = Type.getInternalName(Object.class);
+    public static final String OBJECT_DESC = Type.getDescriptor(Object.class);
+    public static final Type OBJECT_TYPE = Type.getType(Object.class);
+    public static final String OBJECT_NAME = Type.getInternalName(Object.class);
+
+    public static final Random RNDG = new Random();
 
     private Codes() {
     }
@@ -42,6 +45,17 @@ public final class Codes {
                 ACC_PRIVATE + ACC_FINAL + ACC_SYNTHETIC,
                 fieldName,
                 Type.getDescriptor(Collection.class),
+                null, null);
+        fieldVisitor.visitEnd();
+    }
+
+    public static <T> void createField(final ClassVisitor cv,
+                                       final String fieldName,
+                                       final Class<T> fieldClass) {
+        final FieldVisitor fieldVisitor = cv.visitField(
+                ACC_PRIVATE + ACC_FINAL + ACC_SYNTHETIC,
+                fieldName,
+                Type.getDescriptor(fieldClass),
                 null, null);
         fieldVisitor.visitEnd();
     }
@@ -69,10 +83,10 @@ public final class Codes {
         final Label notZero = new Label();
         final Label end = new Label();
         match.visitJumpInsn(IFNE, notZero);
-        match.visitInsn(ICONST_0);
+        match.visitInsn(ICONST_1);
         match.visitJumpInsn(GOTO, end);
         match.visitLabel(notZero);
-        match.visitInsn(ICONST_1);
+        match.visitInsn(ICONST_0);
         match.visitLabel(end);
     }
 }

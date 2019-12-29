@@ -31,13 +31,11 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.Collection;
-import java.util.Random;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Collection<Integer>> {
 
-    private static final Random random = new Random();
     private static final String GENERATOR_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(Collection.class));
     private static final String FIELD_DESCRIPTOR = Type.getDescriptor(Collection.class);
     private static final String VALUE_OF_DESC = Type.getMethodDescriptor(Type.getType(Integer.class), Type.getType(int.class));
@@ -69,7 +67,7 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
             return; // no code needed if checking against empty collection
         }
         // create collection generation method and call it to put matching value on a stack
-        final String fieldName = "collection" + "_" + property.getPropertyName() + "_" + Long.toHexString(random.nextLong());
+        final String fieldName = "collection" + "_" + property.getPropertyName() + "_" + Long.toHexString(Codes.RNDG.nextLong());
         final String generatorName = "getC" + fieldName.substring(1);
 
         Codes.createCollectionField(context.classVisitor(), fieldName);
@@ -79,7 +77,7 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
         method.visitFieldInsn(GETFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
         context.props().postConstructor((constructor, context) -> {
             constructor.visitVarInsn(ALOAD, 0);
-            constructor.visitInsn(DUP);
+//            constructor.visitInsn(DUP); // ? why DUP here?
             constructor.visitMethodInsn(Opcodes.INVOKESTATIC, context.matcherClassName(), generatorName, GENERATOR_DESCRIPTOR, false);
             constructor.visitFieldInsn(PUTFIELD, context.matcherClassName(), fieldName, FIELD_DESCRIPTOR);
         });
@@ -88,7 +86,7 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
     }
 
     /**
-     * @param values
+     * @param values Collection of values
      */
     private void createGetCollectionMethod(final String methodName, final Collection<Integer> values) {
         final MethodVisitor generator = context.classVisitor()
@@ -115,7 +113,6 @@ public class IntInCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Col
         generator.visitInsn(ARETURN);
         generator.visitMaxs(0, 0);
         generator.visitEnd();
-
     }
 
     @Override

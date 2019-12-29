@@ -21,8 +21,6 @@ package net.ninjacat.omg.bytecode2;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import org.objectweb.asm.MethodVisitor;
 
-import java.util.Collection;
-
 /**
  * Interface for a matcher code generator.
  *
@@ -33,14 +31,12 @@ import java.util.Collection;
 public interface TypedCodeGenerator<T, P, V> {
 
     /**
-     * Generate synthetic helper methods
-     *
-     * @param method
+     * Generate synthetic helper methods. This is called before any other code is generated
+     * and allows to create synthetic fields and methods needed
      */
-    default void generateHelpers(final Property<T, Integer> property, final PropertyCondition<Collection<Integer>> condition, final MethodVisitor method) {
+    default void generateHelpers(final Property<T, P> property, final PropertyCondition<V> condition) {
+        // Do nothing by default
     }
-
-    ;
 
     /**
      * Retrieves value of the property and leaves it on stack
@@ -75,6 +71,7 @@ public interface TypedCodeGenerator<T, P, V> {
      * @param method    {@link MethodVisitor} to generate the code in
      */
     default void prepareStackForCompare(final Property<T, P> property, final PropertyCondition<V> condition, final MethodVisitor method) {
+        generateHelpers(property, condition);
         getMatchingConstant(condition, method);
         getPropertyValue(property, method);
     }

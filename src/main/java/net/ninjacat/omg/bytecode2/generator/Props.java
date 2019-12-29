@@ -45,6 +45,10 @@ public class Props {
         return this;
     }
 
+    public String propAsString(final String name) {
+        return (String) props.get(name);
+    }
+
     public Map<String, Object> props() {
         return Collections.unmodifiableMap(props);
     }

@@ -25,6 +25,7 @@ import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
 import net.ninjacat.omg.bytecode2.primitive.IntGeneratorProvider;
+import net.ninjacat.omg.bytecode2.reference.StringGeneratorProvider;
 import net.ninjacat.omg.conditions.*;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.OmgException;
@@ -40,6 +41,7 @@ import java.util.stream.IntStream;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
+import static io.vavr.Predicates.is;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -97,7 +99,7 @@ class MatcherGenerator<T> {
         }).getOrElseThrow(ex -> wrapException(ex, context));
     }
 
-    private RuntimeException wrapException(final Throwable ex, final CodeGenerationContext context) {
+    private static RuntimeException wrapException(final Throwable ex, final CodeGenerationContext context) {
         return Match(ex).of(
                 Case($(instanceOf(OmgException.class)), err -> err),
                 Case($(), err -> new CompilerException(err, "Failed to generate matcher for '%s'", context.targetClass()))
@@ -117,7 +119,7 @@ class MatcherGenerator<T> {
      * @param cv      {@link ClassVisitor} for which constructor will be generated
      * @param context
      */
-    private void createConstructor(final ClassVisitor cv, final CodeGenerationContext context) {
+    private static void createConstructor(final ClassVisitor cv, final CodeGenerationContext context) {
         final String initDescriptor = Type.getMethodDescriptor(Type.getType(void.class));
         final MethodVisitor init = cv.visitMethod(ACC_PUBLIC, "<init>", initDescriptor, null, null);
         init.visitCode();
@@ -196,7 +198,7 @@ class MatcherGenerator<T> {
         }
     }
 
-    private int operatorFromCondition(final LogicalCondition lc) {
+    private static int operatorFromCondition(final LogicalCondition lc) {
         return Match(lc).of(
                 Case($(instanceOf(AndCondition.class)), x -> IAND),
                 Case($(instanceOf(OrCondition.class)), x -> IOR),
@@ -211,15 +213,16 @@ class MatcherGenerator<T> {
     }
 
 
-    private String generateClassName() {
+    private static String generateClassName() {
         return PACKAGE_DESC + "/" + "Gen" + Long.toHexString(new Random().nextLong()) + '$' + "Matcher";
     }
 
-    private String generateBinaryClassName(final String className) {
+    private static String generateBinaryClassName(final String className) {
         return className.replaceAll("/", ".");
     }
 
 
+    @SuppressWarnings("unchecked")
     public <P, V> void generateCode(
             final CodeGenerationContext context,
             final MethodVisitor method,
@@ -232,15 +235,28 @@ class MatcherGenerator<T> {
         codeGen.compare(condition, method);
     }
 
-    private <P, V> TypedCodeGenerator<T, P, V> getGeneratorFor(final Class<?> type, final PropertyCondition<V> condition, final CodeGenerationContext context) {
-        if (int.class.equals(type)) {
-            return (TypedCodeGenerator<T, P, V>) IntGeneratorProvider.getGenerator(condition, context);
-        } else {
-            throw new CompilerException("Type '%s' is not supported", type.getName());
-        }
+    @SuppressWarnings("rawtypes")
+    private <P, V> TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return Match(type).of(
+                Case($(is(int.class)), i -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(String.class)), s -> getStringGenerator(condition, context)),
+                Case($(), e -> {
+                    throw new CompilerException("Type '%s' is not supported", type.getName());
+                })
+        );
     }
 
-    private <T, P> Property<T, P> createProperty(final String field, final Class<T> targetClass) {
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveIntGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) IntGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getStringGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) StringGeneratorProvider.getGenerator(condition, context);
+    }
+
+    private static <T, P> Property<T, P> createProperty(final String field, final Class<T> targetClass) {
         return Property.fromPropertyName(field, targetClass);
     }
 

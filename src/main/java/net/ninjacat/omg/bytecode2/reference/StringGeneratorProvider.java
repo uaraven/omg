@@ -18,6 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
+import io.vavr.API;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.conditions.Condition;
@@ -27,20 +28,29 @@ import net.ninjacat.omg.errors.CompilerException;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class StringGeneratorProvider {
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+import static io.vavr.Predicates.is;
+
+public final class StringGeneratorProvider {
     private static final Set<ConditionMethod> SUPPORTED_METHODS = EnumSet.of(
             ConditionMethod.EQ,
             ConditionMethod.NEQ,
+            ConditionMethod.IN,
             ConditionMethod.REGEX);
+
+    private StringGeneratorProvider() {
+    }
 
     public static <T> TypedCodeGenerator<T, String, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
             throw new CompilerException("Condition {} is not supported for type 'String'", condition);
         }
-        if (condition.getMethod() == ConditionMethod.REGEX) {
-            return new StringRegexCodeGenerator<>(context);
-        } else {
-            return new ObjectEqCodeGenerator<>(context);
-        }
+        return Match(condition.getMethod()).of(
+                Case(API.$(is(ConditionMethod.REGEX)), x -> new StringRegexCodeGenerator<>(context)),
+                Case(API.$(is(ConditionMethod.IN)), x -> new StringInCodeGenerator<>(context)),
+                Case(API.$(), $_ -> new ObjectEqCodeGenerator<>(context))
+
+        );
     }
 }
