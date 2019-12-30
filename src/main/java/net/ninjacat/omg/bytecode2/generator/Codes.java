@@ -62,6 +62,17 @@ public final class Codes {
         }
     }
 
+
+    public static void pushDouble(final MethodVisitor mv, final double val) {
+        if (val == 0) {
+            mv.visitInsn(DCONST_0);
+        } else if (val == 1) {
+            mv.visitInsn(DCONST_1);
+        } else {
+            mv.visitLdcInsn(val);
+        }
+    }
+
     /**
      * Performs logical NOT on the integer value on the stack.
      * <p>
@@ -79,4 +90,5 @@ public final class Codes {
         match.visitInsn(ICONST_0);
         match.visitLabel(end);
     }
+
 }

@@ -24,6 +24,7 @@ import net.ninjacat.omg.bytecode.CompiledClassLoader;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
+import net.ninjacat.omg.bytecode2.primitive.DoubleGeneratorProvider;
 import net.ninjacat.omg.bytecode2.primitive.IntGeneratorProvider;
 import net.ninjacat.omg.bytecode2.reference.StringGeneratorProvider;
 import net.ninjacat.omg.conditions.*;
@@ -239,6 +240,7 @@ class MatcherGenerator<T> {
     private <P, V> TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return Match(type).of(
                 Case($(is(int.class)), i -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(double.class)), i -> getPrimitiveDoubleGenerator(condition, context)),
                 Case($(is(String.class)), s -> getStringGenerator(condition, context)),
                 Case($(), e -> {
                     throw new CompilerException("Type '%s' is not supported", type.getName());
@@ -249,6 +251,11 @@ class MatcherGenerator<T> {
     @SuppressWarnings("unchecked")
     private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveIntGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return (TypedCodeGenerator<T, P, V>) IntGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveDoubleGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) DoubleGeneratorProvider.getGenerator(condition, context);
     }
 
     @SuppressWarnings("unchecked")

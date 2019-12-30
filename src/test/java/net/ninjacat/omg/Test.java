@@ -29,6 +29,19 @@ public class Test {
         return Arrays.stream(new int[]{41, 42, 43, 44, 8012454}).boxed().collect(Collectors.toSet());
     }
 
+    public Collection<Double> getDouble() {
+        return Arrays.stream(new double[]{41.0, 0.0, 4.3, 4.4, 801245.4}).boxed().collect(Collectors.toSet());
+    }
+
+    public int getDoubleCmp(double a, double b) {
+        if (a > b) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
+
     public Collection<String> getStrings() {
         return Arrays.stream(new String[]{"a", "b", "c", "d"}).collect(Collectors.toSet());
     }
