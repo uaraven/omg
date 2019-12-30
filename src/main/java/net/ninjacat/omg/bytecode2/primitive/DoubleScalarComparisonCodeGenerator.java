@@ -19,8 +19,6 @@
 package net.ninjacat.omg.bytecode2.primitive;
 
 import io.vavr.API;
-import jdk.nashorn.internal.codegen.types.Type;
-import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
@@ -29,7 +27,6 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -44,16 +41,6 @@ public class DoubleScalarComparisonCodeGenerator<T> implements TypedCodeGenerato
     }
 
     @Override
-    public void getPropertyValue(final Property<T, Double> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL); // property is always local #2
-        method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(property.getOwner()),
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                property.isInterface());
-    }
-
-    @Override
     public void getMatchingConstant(final PropertyCondition<Double> condition, final MethodVisitor method) {
         Codes.pushDouble(method, condition.getValue());
     }
@@ -63,8 +50,8 @@ public class DoubleScalarComparisonCodeGenerator<T> implements TypedCodeGenerato
         final int opcode = API.Match(condition.getMethod()).of(
                 Case($(ConditionMethod.EQ), eq -> IFEQ),
                 Case($(ConditionMethod.NEQ), eq -> IFNE),
-                Case($(ConditionMethod.GT), eq -> IFGT),
-                Case($(ConditionMethod.LT), eq -> IFLT),
+                Case($(ConditionMethod.GT), eq -> IFLT),
+                Case($(ConditionMethod.LT), eq -> IFGT),
                 Case($(), () -> {
                             throw new CompilerException("Unsupported Condition for double type: %s", condition);
                         }

@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.is;
 public class BytecodeCompilerDoubleIntegrationTest {
 
     @Test
-    public void shouldMatchSimpleDouble() {
+    public void shouldMatchDoubleEq() {
         final Condition cond = Conditions.matcher().property("dblProp").eq(4.0).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
@@ -37,6 +37,40 @@ public class BytecodeCompilerDoubleIntegrationTest {
 
         assertThat(matcher.matches(new TestClass(4.0)), is(true));
         assertThat(matcher.matches(new TestClass(4.3)), is(false));
+    }
+
+
+    @Test
+    public void shouldMatchDoubleNeq() {
+        final Condition cond = Conditions.matcher().property("dblProp").neq(432.0).build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass(432.0)), is(false));
+        assertThat(matcher.matches(new TestClass(431.0)), is(true));
+    }
+
+    @Test
+    public void shouldMatchDoubleLt() {
+        final Condition cond = Conditions.matcher().property("dblProp").lt(43.2).build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass(43.2)), is(false));
+        assertThat(matcher.matches(new TestClass(43.1)), is(true));
+    }
+
+    @Test
+    public void shouldMatchIntGt() {
+        final Condition cond = Conditions.matcher().property("dblProp").gt(43.2).build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass(43.2)), is(false));
+        assertThat(matcher.matches(new TestClass(43.3)), is(true));
     }
 
     @Test

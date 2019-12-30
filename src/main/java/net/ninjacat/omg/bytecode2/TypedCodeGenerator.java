@@ -18,8 +18,11 @@
 
 package net.ninjacat.omg.bytecode2;
 
+import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * Interface for a matcher code generator.
@@ -41,7 +44,14 @@ public interface TypedCodeGenerator<T, P, V> {
     /**
      * Retrieves value of the property and leaves it on stack
      */
-    void getPropertyValue(Property<T, P> property, MethodVisitor method);
+    default void getPropertyValue(final Property<T, P> property, final MethodVisitor method) {
+        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL); // property is always local #2
+        method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(property.getOwner()),
+                property.getMethod().getName(),
+                property.getMethod().getDescriptor(),
+                property.isInterface());
+    }
 
     /**
      * Retrieves value of the matching constant and leaves it on stack

@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.is;
 public class BytecodeCompilerIntIntegrationTest {
 
     @Test
-    public void shouldMatchSimpleInt() {
+    public void shouldMatchIntEq() {
         final Condition cond = Conditions.matcher().property("intProp").eq(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
@@ -37,6 +37,39 @@ public class BytecodeCompilerIntIntegrationTest {
 
         assertThat(matcher.matches(new TestClass(432)), is(true));
         assertThat(matcher.matches(new TestClass(431)), is(false));
+    }
+
+    @Test
+    public void shouldMatchIntNeq() {
+        final Condition cond = Conditions.matcher().property("intProp").neq(432).build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass(432)), is(false));
+        assertThat(matcher.matches(new TestClass(431)), is(true));
+    }
+
+    @Test
+    public void shouldMatchIntLt() {
+        final Condition cond = Conditions.matcher().property("intProp").lt(432).build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass(432)), is(false));
+        assertThat(matcher.matches(new TestClass(431)), is(true));
+    }
+
+    @Test
+    public void shouldMatchIntGt() {
+        final Condition cond = Conditions.matcher().property("intProp").gt(432).build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass(432)), is(false));
+        assertThat(matcher.matches(new TestClass(433)), is(true));
     }
 
     @Test

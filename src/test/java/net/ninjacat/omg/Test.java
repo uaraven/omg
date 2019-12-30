@@ -41,7 +41,6 @@ public class Test {
         }
     }
 
-
     public Collection<String> getStrings() {
         return Arrays.stream(new String[]{"a", "b", "c", "d"}).collect(Collectors.toSet());
     }

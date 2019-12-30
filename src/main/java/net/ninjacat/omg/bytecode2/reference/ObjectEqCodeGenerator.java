@@ -18,7 +18,6 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
-import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
@@ -40,16 +39,6 @@ public class ObjectEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> 
 
     public ObjectEqCodeGenerator(final CodeGenerationContext context) {
         this.context = context;
-    }
-
-    @Override
-    public void getPropertyValue(final Property<T, P> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL); // property is always local #2
-        method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(property.getOwner()),
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                property.isInterface());
     }
 
     @Override

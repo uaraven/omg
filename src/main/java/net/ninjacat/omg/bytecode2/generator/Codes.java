@@ -18,6 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.generator;
 
+import io.vavr.control.Try;
 import org.objectweb.asm.*;
 
 import java.util.Random;
@@ -89,6 +90,16 @@ public final class Codes {
         match.visitLabel(notZero);
         match.visitInsn(ICONST_0);
         match.visitLabel(end);
+    }
+
+    /**
+     * Reads string as either Long or Double and returns it as {@link Number}
+     *
+     * @param numberRepr String containing numeric literal
+     * @return Number
+     */
+    public static Number strToNumber(final String numberRepr) {
+        return Try.of(() -> (Number) Long.parseLong(numberRepr)).getOrElseTry(() -> Double.parseDouble(numberRepr));
     }
 
 }

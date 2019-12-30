@@ -19,8 +19,6 @@
 package net.ninjacat.omg.bytecode2.primitive;
 
 import io.vavr.API;
-import jdk.nashorn.internal.codegen.types.Type;
-import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
@@ -29,7 +27,6 @@ import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -43,15 +40,6 @@ public class IntScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T
         this.context = context;
     }
 
-    @Override
-    public void getPropertyValue(final Property<T, Integer> property, final MethodVisitor method) {
-        method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL); // property is always local #2
-        method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(property.getOwner()),
-                property.getMethod().getName(),
-                property.getMethod().getDescriptor(),
-                property.isInterface());
-    }
 
     @Override
     public void getMatchingConstant(final PropertyCondition<Integer> condition, final MethodVisitor method) {
@@ -63,8 +51,8 @@ public class IntScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T
         final int opcode = API.Match(condition.getMethod()).of(
                 Case($(ConditionMethod.EQ), eq -> IF_ICMPEQ),
                 Case($(ConditionMethod.NEQ), eq -> IF_ICMPNE),
-                Case($(ConditionMethod.GT), eq -> IF_ICMPGT),
-                Case($(ConditionMethod.LT), eq -> IF_ICMPLT),
+                Case($(ConditionMethod.GT), eq -> IF_ICMPLT), // swapped because of order of operands
+                Case($(ConditionMethod.LT), eq -> IF_ICMPGT),
                 Case($(), () -> {
                             throw new CompilerException("Unsupported Condition for int type: %s", condition);
                         }
