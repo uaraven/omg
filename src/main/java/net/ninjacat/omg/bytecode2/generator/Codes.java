@@ -104,6 +104,24 @@ public final class Codes {
     }
 
     /**
+     * Based on execution of Opcode (one of IFEQ, IFNE, IFLT, or IFGT)
+     * puts either 0 or 1 on stack. If opcode is "true" then stack will contain 1
+     *
+     * @param method {@link MethodVisitor}
+     * @param opcode Comparision opcode
+     */
+    public static void compareWithOpcode(final MethodVisitor method, final int opcode) {
+        final Label trueLbl = new Label();
+        final Label finalLbl = new Label();
+        method.visitJumpInsn(opcode, trueLbl);
+        method.visitInsn(ICONST_0);
+        method.visitJumpInsn(GOTO, finalLbl);
+        method.visitLabel(trueLbl);
+        method.visitInsn(ICONST_1);
+        method.visitLabel(finalLbl);
+    }
+
+    /**
      * Reads string as either Long or Double and returns it as {@link Number}
      *
      * @param numberRepr String containing numeric literal

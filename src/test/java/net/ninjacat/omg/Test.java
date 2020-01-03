@@ -19,6 +19,8 @@
 package net.ninjacat.omg;
 
 
+import net.ninjacat.omg.conditions.ConditionMethod;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
@@ -39,6 +41,20 @@ public class Test {
         } else {
             return 2;
         }
+    }
+
+    public boolean comparableCmp(Comparable a, Object b, ConditionMethod m) {
+        switch (m) {
+            case EQ:
+                return a.compareTo(b) == 0;
+            case NEQ:
+                return a.compareTo(b) != 0;
+            case LT:
+                return a.compareTo(b) > 0;
+            case GT:
+                return a.compareTo(b) < 0;
+        }
+        return false;
     }
 
     public Collection<String> getStrings() {

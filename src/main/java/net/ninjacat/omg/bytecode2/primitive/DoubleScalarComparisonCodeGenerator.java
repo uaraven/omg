@@ -25,7 +25,6 @@ import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static io.vavr.API.$;
@@ -57,13 +56,6 @@ public class DoubleScalarComparisonCodeGenerator<T> implements TypedCodeGenerato
                         }
                 ));
         method.visitInsn(DCMPL);
-        final Label trueLbl = new Label();
-        final Label finalLbl = new Label();
-        method.visitJumpInsn(opcode, trueLbl);
-        method.visitInsn(ICONST_0);
-        method.visitJumpInsn(GOTO, finalLbl);
-        method.visitLabel(trueLbl);
-        method.visitInsn(ICONST_1);
-        method.visitLabel(finalLbl);
+        Codes.compareWithOpcode(method, opcode);
     }
 }
