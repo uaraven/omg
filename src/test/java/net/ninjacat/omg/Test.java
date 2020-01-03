@@ -29,8 +29,8 @@ public class Test {
         return Arrays.stream(new int[]{41, 42, 43, 44, 8012454}).boxed().collect(Collectors.toSet());
     }
 
-    public Collection<Double> getDouble() {
-        return Arrays.stream(new double[]{41.0, 0.0, 4.3, 4.4, 801245.4}).boxed().collect(Collectors.toSet());
+    public Collection<Long> getLongStream() {
+        return Arrays.stream(new long[]{41L, 0L, 4L, 8L, 8012454L}).boxed().collect(Collectors.toSet());
     }
 
     public int getDoubleCmp(double a, double b) {

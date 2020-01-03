@@ -74,6 +74,17 @@ public final class Codes {
         }
     }
 
+
+    public static void pushLong(final MethodVisitor mv, final long val) {
+        if (val == 0) {
+            mv.visitInsn(LCONST_0);
+        } else if (val == 1) {
+            mv.visitInsn(LCONST_1);
+        } else {
+            mv.visitLdcInsn(val);
+        }
+    }
+
     /**
      * Performs logical NOT on the integer value on the stack.
      * <p>
