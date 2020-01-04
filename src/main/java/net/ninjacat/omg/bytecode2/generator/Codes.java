@@ -21,6 +21,7 @@ package net.ninjacat.omg.bytecode2.generator;
 import io.vavr.control.Try;
 import org.objectweb.asm.*;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -144,5 +145,11 @@ public final class Codes {
      */
     public static Number strToNumber(final String numberRepr) {
         return Try.of(() -> (Number) Long.parseLong(numberRepr)).getOrElseTry(() -> Double.parseDouble(numberRepr));
+    }
+
+    public static String getMethodDescriptor(final Class<?> returnClass, final Class<?>... parameterClasses) {
+        final Type returnType = Type.getType(returnClass);
+        final Type[] paramTypes = Arrays.stream(parameterClasses).map(Type::getType).toArray(Type[]::new);
+        return Type.getMethodDescriptor(returnType, paramTypes);
     }
 }

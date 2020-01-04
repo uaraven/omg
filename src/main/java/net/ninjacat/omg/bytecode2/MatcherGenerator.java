@@ -25,6 +25,8 @@ import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
 import net.ninjacat.omg.bytecode2.primitive.*;
+import net.ninjacat.omg.bytecode2.reference.ComparableGeneratorProvider;
+import net.ninjacat.omg.bytecode2.reference.ObjectGeneratorProvider;
 import net.ninjacat.omg.bytecode2.reference.StringGeneratorProvider;
 import net.ninjacat.omg.conditions.*;
 import net.ninjacat.omg.errors.CompilerException;
@@ -37,6 +39,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static io.vavr.API.*;
@@ -247,10 +250,24 @@ class MatcherGenerator<T> {
                 Case($(is(double.class)), i -> getPrimitiveDoubleGenerator(condition, context)),
                 Case($(is(boolean.class)), i -> getPrimitiveBooleanGenerator(condition, context)),
                 Case($(is(String.class)), s -> getStringGenerator(condition, context)),
-                Case($(), e -> {
-                    throw new CompilerException("Type '%s' is not supported", type.getName());
-                })
+                Case($(isComparableNumber()), t -> getComparableGenerator(condition, context)),
+                Case($(), e -> getObjectGenerator(condition, context))
         );
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static Predicate<Class> isComparableNumber() {
+        return type -> Number.class.isAssignableFrom(type) && Comparable.class.isAssignableFrom(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getObjectGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) ObjectGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getComparableGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) ComparableGeneratorProvider.getGenerator(condition, context);
     }
 
     @SuppressWarnings("unchecked")

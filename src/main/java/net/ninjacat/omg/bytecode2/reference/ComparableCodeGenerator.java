@@ -19,7 +19,6 @@
 package net.ninjacat.omg.bytecode2.reference;
 
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
-import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -44,10 +43,7 @@ public class ComparableCodeGenerator<T, P extends Comparable> implements TypedCo
     private static final String COMPARE_TO = "compareTo";
     private static final String COMPARE_TO_DESC = "(Ljava/lang/Object;)I";
 
-    private final CodeGenerationContext context;
-
-    public ComparableCodeGenerator(final CodeGenerationContext context) {
-        this.context = context;
+    public ComparableCodeGenerator() {
     }
 
     @Override

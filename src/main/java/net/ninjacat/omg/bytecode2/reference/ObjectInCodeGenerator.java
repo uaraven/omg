@@ -30,21 +30,21 @@ import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class StringInCodeGenerator<T> extends InCollectionCodeGenerator<T, String> {
+public class ObjectInCodeGenerator<T, P> extends InCollectionCodeGenerator<T, P> {
 
-    public StringInCodeGenerator(final CodeGenerationContext context) {
+    public ObjectInCodeGenerator(final CodeGenerationContext context) {
         super(context);
     }
 
     @Override
-    protected void boxIfNeeded(final Property<T, String> property, final MethodVisitor method) {
+    protected void boxIfNeeded(final Property<T, P> property, final MethodVisitor method) {
         // do nothing for String
     }
 
     /**
      * @param values Collection of values
      */
-    protected void createGetCollectionMethod(final String methodName, final Collection<String> values) {
+    protected void createGetCollectionMethod(final String methodName, final Collection<P> values) {
         final MethodVisitor generator = getContext().classVisitor()
                 .visitMethod(ACC_PRIVATE + ACC_STATIC + ACC_SYNTHETIC, methodName,
                         GENERATOR_DESCRIPTOR, null, null);
@@ -52,7 +52,7 @@ public class StringInCodeGenerator<T> extends InCollectionCodeGenerator<T, Strin
         generator.visitCode();
         // create array
         Codes.pushInt(generator, values.size());
-        generator.visitTypeInsn(ANEWARRAY, Type.getInternalName(String.class));
+        generator.visitTypeInsn(ANEWARRAY, Type.getInternalName(Object.class));
         // push all values into the array
         Stream.ofAll(values).forEachWithIndex((val, idx) -> {
             generator.visitInsn(DUP);

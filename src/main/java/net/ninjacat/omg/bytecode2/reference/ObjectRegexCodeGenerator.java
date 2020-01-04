@@ -35,25 +35,29 @@ import java.util.regex.Pattern;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
-public class StringRegexCodeGenerator<T> implements TypedCodeGenerator<T, String, String> {
+public class ObjectRegexCodeGenerator<T, P> implements TypedCodeGenerator<T, P, String> {
     private static final String GENERATOR_DESCRIPTOR = getMethodDescriptor(getType(Pattern.class));
     private static final String FIELD_DESCRIPTOR = getDescriptor(Pattern.class);
     private static final String FIELD_NAME = "fieldName";
 
     private final CodeGenerationContext context;
 
-    public StringRegexCodeGenerator(final CodeGenerationContext context) {
+    public ObjectRegexCodeGenerator(final CodeGenerationContext context) {
         this.context = context;
     }
 
     @Override
-    public void getPropertyValue(final Property<T, String> property, final MethodVisitor method) {
+    public void getPropertyValue(final Property<T, P> property, final MethodVisitor method) {
         method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL); // property is always local #2
         method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 getInternalName(property.getOwner()),
                 property.getMethod().getName(),
                 property.getMethod().getDescriptor(),
                 property.isInterface());
+        if (!String.class.equals(property.getType())) {
+            method.visitMethodInsn(INVOKEVIRTUAL, Codes.OBJECT_NAME, "toString",
+                    Codes.getMethodDescriptor(String.class), false);
+        }
     }
 
     @Override
@@ -104,7 +108,7 @@ public class StringRegexCodeGenerator<T> implements TypedCodeGenerator<T, String
     }
 
     @Override
-    public void generateHelpers(final Property<T, String> property, final PropertyCondition<String> condition) {
+    public void generateHelpers(final Property<T, P> property, final PropertyCondition<String> condition) {
         final String fieldName = "pattern" + "_" + property.getPropertyName() + "_" + Long.toHexString(Codes.RNDG.nextLong());
         context.props().prop(FIELD_NAME, fieldName);
         final String generatorName = "getP" + fieldName.substring(1);

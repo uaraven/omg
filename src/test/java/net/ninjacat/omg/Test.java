@@ -30,6 +30,10 @@ public class Test {
         int i = Integer.valueOf(getByte());
     }
 
+    public static void toStringTest() {
+        final Object o = new Integer(123);
+        o.toString();
+    }
 
     public static class TestClass {
 
