@@ -26,105 +26,105 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BytecodeCompilerIntIntegrationTest {
+public class BytecodeCompilerShortIntegrationTest {
 
     @Test
-    public void shouldMatchIntEq() {
-        final Condition cond = Conditions.matcher().property("intProp").eq(432).build();
+    public void shouldMatchShortEq() {
+        final Condition cond = Conditions.matcher().property("shortProp").eq(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(true));
-        assertThat(matcher.matches(new TestClass(431)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 432)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 431)), is(false));
     }
 
     @Test
-    public void shouldMatchIntNeq() {
-        final Condition cond = Conditions.matcher().property("intProp").neq(432).build();
+    public void shouldMatchShortNeq() {
+        final Condition cond = Conditions.matcher().property("shortProp").neq(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(false));
-        assertThat(matcher.matches(new TestClass(431)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 432)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 431)), is(true));
     }
 
     @Test
-    public void shouldMatchIntLt() {
-        final Condition cond = Conditions.matcher().property("intProp").lt(432).build();
+    public void shouldMatchShortLt() {
+        final Condition cond = Conditions.matcher().property("shortProp").lt(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(false));
-        assertThat(matcher.matches(new TestClass(431)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 432)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 431)), is(true));
     }
 
     @Test
-    public void shouldMatchIntGt() {
-        final Condition cond = Conditions.matcher().property("intProp").gt(432).build();
+    public void shouldMatchShortGt() {
+        final Condition cond = Conditions.matcher().property("shortProp").gt(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(false));
-        assertThat(matcher.matches(new TestClass(433)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 432)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 433)), is(true));
     }
 
     @Test
-    public void shouldMatchIntOrInt() {
+    public void shouldMatchShortOrShort() {
         final Condition cond = Conditions.matcher()
-                .or(or -> or.property("intProp").eq(432)
-                        .property("intProp").eq(538))
+                .or(or -> or.property("shortProp").eq(432)
+                        .property("shortProp").eq(538))
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(true));
-        assertThat(matcher.matches(new TestClass(538)), is(true));
-        assertThat(matcher.matches(new TestClass(431)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 432)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 538)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 431)), is(false));
     }
 
     @Test
-    public void shouldMatchIntIn() {
+    public void shouldMatchShortIn() {
         final Condition cond = Conditions.matcher()
-                .property("intProp").in(41, 42, 43, 44, 8012454)
+                .property("shortProp").in(-41, 42, 43, 44, 8012)
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(41)), is(true));
-        assertThat(matcher.matches(new TestClass(8012454)), is(true));
-        assertThat(matcher.matches(new TestClass(60)), is(false));
+        assertThat(matcher.matches(new TestClass((short) -41)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 8012)), is(true));
+        assertThat(matcher.matches(new TestClass((short) 60)), is(false));
     }
 
 
     @Test
-    public void shouldMatchIntInEmpty() {
+    public void shouldMatchShortInEmpty() {
         final Condition cond = Conditions.matcher()
-                .property("intProp").in()
+                .property("shortProp").in()
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(41)), is(false));
-        assertThat(matcher.matches(new TestClass(8012454)), is(false));
-        assertThat(matcher.matches(new TestClass(60)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 41)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 20124)), is(false));
+        assertThat(matcher.matches(new TestClass((short) 60)), is(false));
     }
 
     public static class TestClass {
-        private final int intProp;
+        private final short shortProp;
 
-        public TestClass(final int intProp) {
-            this.intProp = intProp;
+        public TestClass(final short shortProp) {
+            this.shortProp = shortProp;
         }
 
-        public int getIntProp() {
-            return intProp;
+        public short getShortProp() {
+            return shortProp;
         }
     }
 }

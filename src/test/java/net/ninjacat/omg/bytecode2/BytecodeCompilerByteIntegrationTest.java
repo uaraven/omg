@@ -26,105 +26,105 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BytecodeCompilerIntIntegrationTest {
+public class BytecodeCompilerByteIntegrationTest {
 
     @Test
-    public void shouldMatchIntEq() {
-        final Condition cond = Conditions.matcher().property("intProp").eq(432).build();
+    public void shouldMatchByteEq() {
+        final Condition cond = Conditions.matcher().property("byteProp").eq(32).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(true));
-        assertThat(matcher.matches(new TestClass(431)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 32)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) 31)), is(false));
     }
 
     @Test
-    public void shouldMatchIntNeq() {
-        final Condition cond = Conditions.matcher().property("intProp").neq(432).build();
+    public void shouldMatchByteNeq() {
+        final Condition cond = Conditions.matcher().property("byteProp").neq(43).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(false));
-        assertThat(matcher.matches(new TestClass(431)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) 43)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 42)), is(true));
     }
 
     @Test
-    public void shouldMatchIntLt() {
-        final Condition cond = Conditions.matcher().property("intProp").lt(432).build();
+    public void shouldMatchByteLt() {
+        final Condition cond = Conditions.matcher().property("byteProp").lt(42).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(false));
-        assertThat(matcher.matches(new TestClass(431)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) 42)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 41)), is(true));
     }
 
     @Test
-    public void shouldMatchIntGt() {
-        final Condition cond = Conditions.matcher().property("intProp").gt(432).build();
+    public void shouldMatchByteGt() {
+        final Condition cond = Conditions.matcher().property("byteProp").gt(42).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(false));
-        assertThat(matcher.matches(new TestClass(433)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) 42)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 43)), is(true));
     }
 
     @Test
-    public void shouldMatchIntOrInt() {
+    public void shouldMatchByteOrByte() {
         final Condition cond = Conditions.matcher()
-                .or(or -> or.property("intProp").eq(432)
-                        .property("intProp").eq(538))
+                .or(or -> or.property("byteProp").eq(42)
+                        .property("byteProp").eq(53))
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432)), is(true));
-        assertThat(matcher.matches(new TestClass(538)), is(true));
-        assertThat(matcher.matches(new TestClass(431)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 42)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) 53)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) 43)), is(false));
     }
 
     @Test
-    public void shouldMatchIntIn() {
+    public void shouldMatchByteIn() {
         final Condition cond = Conditions.matcher()
-                .property("intProp").in(41, 42, 43, 44, 8012454)
+                .property("byteProp").in(41, 42, 43, 44, -124)
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(41)), is(true));
-        assertThat(matcher.matches(new TestClass(8012454)), is(true));
-        assertThat(matcher.matches(new TestClass(60)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 41)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) -124)), is(true));
+        assertThat(matcher.matches(new TestClass((byte) 60)), is(false));
     }
 
 
     @Test
-    public void shouldMatchIntInEmpty() {
+    public void shouldMatchByteInEmpty() {
         final Condition cond = Conditions.matcher()
-                .property("intProp").in()
+                .property("byteProp").in()
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(41)), is(false));
-        assertThat(matcher.matches(new TestClass(8012454)), is(false));
-        assertThat(matcher.matches(new TestClass(60)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 41)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 124)), is(false));
+        assertThat(matcher.matches(new TestClass((byte) 60)), is(false));
     }
 
     public static class TestClass {
-        private final int intProp;
+        private final byte byteProp;
 
-        public TestClass(final int intProp) {
-            this.intProp = intProp;
+        public TestClass(final byte byteProp) {
+            this.byteProp = byteProp;
         }
 
-        public int getIntProp() {
-            return intProp;
+        public byte getByteProp() {
+            return byteProp;
         }
     }
 }

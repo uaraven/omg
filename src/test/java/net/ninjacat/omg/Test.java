@@ -19,61 +19,16 @@
 package net.ninjacat.omg;
 
 
-import net.ninjacat.omg.conditions.ConditionMethod;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 public class Test {
-    public Collection<Integer> getInts3() {
-        return Arrays.stream(new int[]{41, 42, 43, 44, 8012454}).boxed().collect(Collectors.toSet());
+
+    public static short getByte() {
+        return 1;
     }
 
-    public Collection<Long> getLongStream() {
-        return Arrays.stream(new long[]{41L, 0L, 4L, 8L, 8012454L}).boxed().collect(Collectors.toSet());
+    public static void convert() {
+        int i = Integer.valueOf(getByte());
     }
 
-    public int getDoubleCmp(double a, double b) {
-        if (a > b) {
-            return 1;
-        } else {
-            return 2;
-        }
-    }
-
-    public boolean comparableCmp(Comparable a, Object b, ConditionMethod m) {
-        switch (m) {
-            case EQ:
-                return a.compareTo(b) == 0;
-            case NEQ:
-                return a.compareTo(b) != 0;
-            case LT:
-                return a.compareTo(b) > 0;
-            case GT:
-                return a.compareTo(b) < 0;
-        }
-        return false;
-    }
-
-    public Collection<String> getStrings() {
-        return Arrays.stream(new String[]{"a", "b", "c", "d"}).collect(Collectors.toSet());
-    }
-
-    public static Pattern getPattern(final String value) {
-        return Pattern.compile(value);
-    }
-
-    public static boolean matches(final TestClass instance) {
-        return instance != null;
-    }
-
-
-    public static boolean test() {
-        final Pattern ptrn = getPattern(".*");
-        return ptrn.matcher("abc").matches();
-    }
 
     public static class TestClass {
 

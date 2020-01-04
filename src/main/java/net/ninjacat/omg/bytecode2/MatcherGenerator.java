@@ -241,6 +241,8 @@ class MatcherGenerator<T> {
     private <P, V> TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return Match(type).of(
                 Case($(is(int.class)), i -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(byte.class)), i -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(short.class)), i -> getPrimitiveIntGenerator(condition, context)),
                 Case($(is(long.class)), i -> getPrimitiveLongGenerator(condition, context)),
                 Case($(is(double.class)), i -> getPrimitiveDoubleGenerator(condition, context)),
                 Case($(is(String.class)), s -> getStringGenerator(condition, context)),
