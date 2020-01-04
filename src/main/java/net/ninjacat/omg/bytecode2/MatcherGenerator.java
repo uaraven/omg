@@ -25,6 +25,7 @@ import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
 import net.ninjacat.omg.bytecode2.primitive.DoubleGeneratorProvider;
+import net.ninjacat.omg.bytecode2.primitive.FloatGeneratorProvider;
 import net.ninjacat.omg.bytecode2.primitive.IntGeneratorProvider;
 import net.ninjacat.omg.bytecode2.primitive.LongGeneratorProvider;
 import net.ninjacat.omg.bytecode2.reference.StringGeneratorProvider;
@@ -243,7 +244,9 @@ class MatcherGenerator<T> {
                 Case($(is(int.class)), i -> getPrimitiveIntGenerator(condition, context)),
                 Case($(is(byte.class)), i -> getPrimitiveIntGenerator(condition, context)),
                 Case($(is(short.class)), i -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(char.class)), i -> getPrimitiveIntGenerator(condition, context)),
                 Case($(is(long.class)), i -> getPrimitiveLongGenerator(condition, context)),
+                Case($(is(float.class)), i -> getPrimitiveFloatGenerator(condition, context)),
                 Case($(is(double.class)), i -> getPrimitiveDoubleGenerator(condition, context)),
                 Case($(is(String.class)), s -> getStringGenerator(condition, context)),
                 Case($(), e -> {
@@ -266,6 +269,12 @@ class MatcherGenerator<T> {
     private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveDoubleGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return (TypedCodeGenerator<T, P, V>) DoubleGeneratorProvider.getGenerator(condition, context);
     }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveFloatGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) FloatGeneratorProvider.getGenerator(condition, context);
+    }
+
 
     @SuppressWarnings("unchecked")
     private <P, V> TypedCodeGenerator<T, P, V> getStringGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {

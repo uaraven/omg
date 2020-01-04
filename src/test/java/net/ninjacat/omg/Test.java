@@ -21,6 +21,7 @@ package net.ninjacat.omg;
 
 public class Test {
 
+
     public static short getByte() {
         return 1;
     }

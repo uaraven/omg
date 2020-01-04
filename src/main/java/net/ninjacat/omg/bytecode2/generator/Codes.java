@@ -74,6 +74,17 @@ public final class Codes {
         }
     }
 
+    public static void pushFloat(final MethodVisitor mv, final float val) {
+        if (val == 0) {
+            mv.visitInsn(FCONST_0);
+        } else if (val == 1) {
+            mv.visitInsn(FCONST_1);
+        } else if (val == 2) {
+            mv.visitInsn(FCONST_2);
+        } else {
+            mv.visitLdcInsn(val);
+        }
+    }
 
     public static void pushLong(final MethodVisitor mv, final long val) {
         if (val == 0) {

@@ -27,7 +27,7 @@ import net.ninjacat.omg.errors.CompilerException;
 import java.util.EnumSet;
 import java.util.Set;
 
-public final class DoubleGeneratorProvider {
+public final class FloatGeneratorProvider {
     private static final Set<ConditionMethod> SUPPORTED_METHODS = EnumSet.of(
             ConditionMethod.EQ,
             ConditionMethod.NEQ,
@@ -35,17 +35,17 @@ public final class DoubleGeneratorProvider {
             ConditionMethod.LT,
             ConditionMethod.IN);
 
-    private DoubleGeneratorProvider() {
+    private FloatGeneratorProvider() {
     }
 
-    public static <T> TypedCodeGenerator<T, Double, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
+    public static <T> TypedCodeGenerator<T, Float, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
-            throw new CompilerException("Condition {} is not supported for type 'double'", condition);
+            throw new CompilerException("Condition {} is not supported for type 'float'", condition);
         }
         if (condition.getMethod() == ConditionMethod.IN) {
-            return new DoubleInCodeGenerator<>(context);
+            return new FloatInCodeGenerator<>(context);
         } else {
-            return new DoubleScalarComparisonCodeGenerator<>(context);
+            return new FloatScalarComparisonCodeGenerator<>(context);
         }
     }
 }
