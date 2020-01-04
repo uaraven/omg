@@ -96,6 +96,10 @@ public final class Codes {
         }
     }
 
+    public static void pushBoolean(final MethodVisitor mv, final boolean value) {
+        pushInt(mv, value ? 1 : 0);
+    }
+
     /**
      * Performs logical NOT on the integer value on the stack.
      * <p>
@@ -141,5 +145,4 @@ public final class Codes {
     public static Number strToNumber(final String numberRepr) {
         return Try.of(() -> (Number) Long.parseLong(numberRepr)).getOrElseTry(() -> Double.parseDouble(numberRepr));
     }
-
 }
