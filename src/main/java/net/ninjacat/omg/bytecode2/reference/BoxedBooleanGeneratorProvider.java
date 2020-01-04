@@ -27,24 +27,18 @@ import net.ninjacat.omg.errors.CompilerException;
 import java.util.EnumSet;
 import java.util.Set;
 
-public final class ComparableGeneratorProvider {
+public final class BoxedBooleanGeneratorProvider {
     private static final Set<ConditionMethod> SUPPORTED_METHODS = EnumSet.of(
             ConditionMethod.EQ,
-            ConditionMethod.NEQ,
-            ConditionMethod.LT,
-            ConditionMethod.GT,
-            ConditionMethod.IN);
+            ConditionMethod.NEQ);
 
-    private ComparableGeneratorProvider() {
+    private BoxedBooleanGeneratorProvider() {
     }
 
-    public static <T> TypedCodeGenerator<T, Object, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
+    public static <T> TypedCodeGenerator<T, Boolean, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
-            throw new CompilerException("Condition {} is not supported for type 'Comparable'", condition);
+            throw new CompilerException("Condition {} is not supported for type 'Boolean'", condition);
         }
-        if (condition.getMethod() == ConditionMethod.IN) {
-            return new ComparableInCodeGenerator<>(context);
-        }
-        return new ComparableCodeGenerator(context);
+        return new BooleanComparisonCodeGenerator<>();
     }
 }

@@ -19,7 +19,6 @@
 package net.ninjacat.omg.bytecode2.reference;
 
 import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
-import net.ninjacat.omg.bytecode2.ImmutableCompilationOptions;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
@@ -75,7 +74,7 @@ public class BytecodeCompilerObjectTest {
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-        final Pattern<TestClass> matcher = compiler.build(cond, ImmutableCompilationOptions.builder().dumpToFile("/tmp/match_obj_regex.class").build());
+        final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abd")), is(true));
         assertThat(matcher.matches(new TestClass("acd")), is(true));

@@ -1,5 +1,5 @@
 /*
- * omg: BytecodeCompilerDoubleIntegrationTest.java
+ * omg: BytecodeCompilerLongIntegrationTest.java
  *
  * Copyright 2020 Oleksiy Voronin <me@ovoronin.info>
  *
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2.primitive;
+package net.ninjacat.omg.bytecode2.reference;
 
 import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
@@ -27,106 +27,105 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BytecodeCompilerDoubleTest {
+public class BytecodeCompilerLongTest {
 
     @Test
-    public void shouldMatchDoubleEq() {
-        final Condition cond = Conditions.matcher().property("dblProp").eq(4.0).build();
+    public void shouldMatchLongEq() {
+        final Condition cond = Conditions.matcher().property("longProp").eq(432L).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(4.0)), is(true));
-        assertThat(matcher.matches(new TestClass(4.3)), is(false));
+        assertThat(matcher.matches(new TestClass(432L)), is(true));
+        assertThat(matcher.matches(new TestClass(431L)), is(false));
     }
 
-
     @Test
-    public void shouldMatchDoubleNeq() {
-        final Condition cond = Conditions.matcher().property("dblProp").neq(432.0).build();
+    public void shouldMatchLongNeq() {
+        final Condition cond = Conditions.matcher().property("longProp").neq(432L).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432.0)), is(false));
-        assertThat(matcher.matches(new TestClass(431.0)), is(true));
+        assertThat(matcher.matches(new TestClass(432L)), is(false));
+        assertThat(matcher.matches(new TestClass(431L)), is(true));
     }
 
     @Test
-    public void shouldMatchDoubleLt() {
-        final Condition cond = Conditions.matcher().property("dblProp").lt(43.2).build();
+    public void shouldMatchLongLt() {
+        final Condition cond = Conditions.matcher().property("longProp").lt(432L).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(43.2)), is(false));
-        assertThat(matcher.matches(new TestClass(43.1)), is(true));
+        assertThat(matcher.matches(new TestClass(432L)), is(false));
+        assertThat(matcher.matches(new TestClass(431L)), is(true));
     }
 
     @Test
-    public void shouldMatchIntGt() {
-        final Condition cond = Conditions.matcher().property("dblProp").gt(43.2).build();
+    public void shouldMatchLongGt() {
+        final Condition cond = Conditions.matcher().property("longProp").gt(432L).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(43.2)), is(false));
-        assertThat(matcher.matches(new TestClass(43.3)), is(true));
+        assertThat(matcher.matches(new TestClass(432L)), is(false));
+        assertThat(matcher.matches(new TestClass(433L)), is(true));
     }
 
     @Test
-    public void shouldMatchDoubleOrDouble() {
+    public void shouldMatchLongOrLong() {
         final Condition cond = Conditions.matcher()
-                .or(or -> or.property("dblProp").eq(4.32)
-                        .property("dblProp").eq(5.38))
+                .or(or -> or.property("longProp").eq(432L)
+                        .property("longProp").eq(538L))
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(4.32)), is(true));
-        assertThat(matcher.matches(new TestClass(5.38)), is(true));
-        assertThat(matcher.matches(new TestClass(4.31)), is(false));
+        assertThat(matcher.matches(new TestClass(432L)), is(true));
+        assertThat(matcher.matches(new TestClass(538L)), is(true));
+        assertThat(matcher.matches(new TestClass(431L)), is(false));
     }
 
     @Test
-    public void shouldMatchDoubleIn() {
+    public void shouldMatchLongIn() {
         final Condition cond = Conditions.matcher()
-                .property("dblProp").in(4.1, 4.2, 4.3, 4.4, 8012454.0)
+                .property("longProp").in(41L, 42L, 43L, 44L, 9998012454L)
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(4.1)), is(true));
-        assertThat(matcher.matches(new TestClass(8012454)), is(true));
-        assertThat(matcher.matches(new TestClass(60)), is(false));
+        assertThat(matcher.matches(new TestClass(41L)), is(true));
+        assertThat(matcher.matches(new TestClass(9998012454L)), is(true));
+        assertThat(matcher.matches(new TestClass(60L)), is(false));
     }
 
 
     @Test
-    public void shouldMatchDoubleInEmpty() {
+    public void shouldMatchLongInEmpty() {
         final Condition cond = Conditions.matcher()
-                .property("dblProp").in()
+                .property("longProp").in()
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(4.1)), is(false));
-        assertThat(matcher.matches(new TestClass(8012454)), is(false));
-        assertThat(matcher.matches(new TestClass(60)), is(false));
+        assertThat(matcher.matches(new TestClass(41L)), is(false));
+        assertThat(matcher.matches(new TestClass(8012454L)), is(false));
+        assertThat(matcher.matches(new TestClass(60L)), is(false));
     }
 
     public static class TestClass {
-        private final double dblProp;
+        private final Long longProp;
 
-        public TestClass(final double prop) {
-            this.dblProp = prop;
+        public TestClass(final long longProp) {
+            this.longProp = longProp;
         }
 
-        public double getDblProp() {
-            return dblProp;
+        public Long getLongProp() {
+            return longProp;
         }
     }
 }

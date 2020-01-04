@@ -25,6 +25,7 @@ import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
 import net.ninjacat.omg.bytecode2.primitive.*;
+import net.ninjacat.omg.bytecode2.reference.BoxedBooleanGeneratorProvider;
 import net.ninjacat.omg.bytecode2.reference.ComparableGeneratorProvider;
 import net.ninjacat.omg.bytecode2.reference.ObjectGeneratorProvider;
 import net.ninjacat.omg.bytecode2.reference.StringGeneratorProvider;
@@ -251,6 +252,8 @@ class MatcherGenerator<T> {
                 Case($(is(boolean.class)), i -> getPrimitiveBooleanGenerator(condition, context)),
                 Case($(is(String.class)), s -> getStringGenerator(condition, context)),
                 Case($(isComparableNumber()), t -> getComparableGenerator(condition, context)),
+                Case($(is(Character.class)), t -> getComparableGenerator(condition, context)),
+                Case($(is(Boolean.class)), t -> getBoxedBooleanGenerator(condition, context)),
                 Case($(), e -> getObjectGenerator(condition, context))
         );
     }
@@ -268,6 +271,11 @@ class MatcherGenerator<T> {
     @SuppressWarnings("unchecked")
     private <P, V> TypedCodeGenerator<T, P, V> getComparableGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return (TypedCodeGenerator<T, P, V>) ComparableGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getBoxedBooleanGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) BoxedBooleanGeneratorProvider.getGenerator(condition, context);
     }
 
     @SuppressWarnings("unchecked")

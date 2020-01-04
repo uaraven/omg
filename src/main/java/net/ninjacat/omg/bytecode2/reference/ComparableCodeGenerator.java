@@ -18,13 +18,16 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
+import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
+import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import static io.vavr.API.*;
 import static java.util.function.Predicate.isEqual;
@@ -42,13 +45,23 @@ public class ComparableCodeGenerator<T, P extends Comparable> implements TypedCo
     private static final String JAVA_LANG_COMPARABLE = "java/lang/Comparable";
     private static final String COMPARE_TO = "compareTo";
     private static final String COMPARE_TO_DESC = "(Ljava/lang/Object;)I";
+    private final CodeGenerationContext context;
 
-    public ComparableCodeGenerator() {
+    public ComparableCodeGenerator(final CodeGenerationContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public void generateHelpers(final Property<T, P> property, final PropertyCondition<P> condition) {
+        context.props().prop("class", property.getType());
     }
 
     @Override
     public void getMatchingConstant(final PropertyCondition<P> condition, final MethodVisitor method) {
+        final Class propClass = context.props().get("class", Class.class);
         method.visitLdcInsn(condition.getValue());
+        method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(propClass), "valueOf",
+                Codes.getMethodDescriptor(propClass, Codes.unboxedType(propClass)), false);
     }
 
     @Override
@@ -64,6 +77,5 @@ public class ComparableCodeGenerator<T, P extends Comparable> implements TypedCo
                 })
         );
         Codes.compareWithOpcode(method, opcode);
-        method.visitInsn(Opcodes.IRETURN);
     }
 }

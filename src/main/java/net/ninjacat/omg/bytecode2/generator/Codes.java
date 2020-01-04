@@ -19,11 +19,14 @@
 package net.ninjacat.omg.bytecode2.generator;
 
 import io.vavr.control.Try;
+import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.*;
 
 import java.util.Arrays;
 import java.util.Random;
 
+import static io.vavr.API.*;
+import static io.vavr.Predicates.is;
 import static org.objectweb.asm.Opcodes.*;
 
 public final class Codes {
@@ -151,5 +154,27 @@ public final class Codes {
         final Type returnType = Type.getType(returnClass);
         final Type[] paramTypes = Arrays.stream(parameterClasses).map(Type::getType).toArray(Type[]::new);
         return Type.getMethodDescriptor(returnType, paramTypes);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Class<?> unboxedType(final Class boxed) {
+        return Match(boxed).of(
+                Case($(is(Integer.class)), c -> int.class),
+                Case($(is(Byte.class)), c -> byte.class),
+                Case($(is(Short.class)), c -> short.class),
+                Case($(is(Character.class)), c -> char.class),
+                Case($(is(Long.class)), c -> long.class),
+                Case($(is(Float.class)), c -> float.class),
+                Case($(is(Double.class)), c -> double.class),
+                Case($(is(Boolean.class)), c -> boolean.class),
+                Case($(), c -> {
+                            throw new CompilerException("Class '%s' cannot be unboxed", boxed);
+                        }
+                )
+        );
+    }
+
+    public static boolean isComparableNumber(final Class<?> propClass) {
+        return Number.class.isAssignableFrom(propClass) && Comparable.class.isAssignableFrom(propClass);
     }
 }

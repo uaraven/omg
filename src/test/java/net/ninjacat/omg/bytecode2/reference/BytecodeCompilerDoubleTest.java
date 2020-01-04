@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2.primitive;
+package net.ninjacat.omg.bytecode2.reference;
 
 import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
@@ -119,13 +119,13 @@ public class BytecodeCompilerDoubleTest {
     }
 
     public static class TestClass {
-        private final double dblProp;
+        private final Double dblProp;
 
         public TestClass(final double prop) {
             this.dblProp = prop;
         }
 
-        public double getDblProp() {
+        public Double getDblProp() {
             return dblProp;
         }
     }
