@@ -45,7 +45,7 @@ public final class DoubleGeneratorProvider {
         if (condition.getMethod() == ConditionMethod.IN) {
             return new DoubleInCodeGenerator<>(context);
         } else {
-            return new DoubleScalarComparisonCodeGenerator<>(context);
+            return new DoubleScalarComparisonCodeGenerator<>();
         }
     }
 }

@@ -45,7 +45,7 @@ public final class FloatGeneratorProvider {
         if (condition.getMethod() == ConditionMethod.IN) {
             return new FloatInCodeGenerator<>(context);
         } else {
-            return new FloatScalarComparisonCodeGenerator<>(context);
+            return new FloatScalarComparisonCodeGenerator<>();
         }
     }
 }

@@ -49,7 +49,7 @@ public final class StringGeneratorProvider {
         return Match(condition.getMethod()).of(
                 Case(API.$(is(ConditionMethod.REGEX)), x -> new StringRegexCodeGenerator<>(context)),
                 Case(API.$(is(ConditionMethod.IN)), x -> new StringInCodeGenerator<>(context)),
-                Case(API.$(), $_ -> new ObjectEqCodeGenerator<>(context))
+                Case(API.$(), $_ -> new ObjectEqCodeGenerator<>())
 
         );
     }

@@ -19,7 +19,6 @@
 package net.ninjacat.omg.bytecode2.reference;
 
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
-import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -35,10 +34,8 @@ import org.objectweb.asm.Type;
  * @param <P>
  */
 public class ObjectEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> {
-    private final CodeGenerationContext context;
 
-    public ObjectEqCodeGenerator(final CodeGenerationContext context) {
-        this.context = context;
+    public ObjectEqCodeGenerator() {
     }
 
     @Override

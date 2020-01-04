@@ -45,7 +45,7 @@ public final class LongGeneratorProvider {
         if (condition.getMethod() == ConditionMethod.IN) {
             return new LongInCodeGenerator<>(context);
         } else {
-            return new LongScalarComparisonCodeGenerator<>(context);
+            return new LongScalarComparisonCodeGenerator<>();
         }
     }
 }

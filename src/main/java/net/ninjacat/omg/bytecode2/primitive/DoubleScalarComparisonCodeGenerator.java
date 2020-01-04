@@ -20,7 +20,6 @@ package net.ninjacat.omg.bytecode2.primitive;
 
 import io.vavr.API;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
-import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -33,10 +32,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class DoubleScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Double, Double> {
 
-    private final CodeGenerationContext context;
-
-    DoubleScalarComparisonCodeGenerator(final CodeGenerationContext context) {
-        this.context = context;
+    DoubleScalarComparisonCodeGenerator() {
     }
 
     @Override
