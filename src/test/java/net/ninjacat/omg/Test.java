@@ -19,6 +19,10 @@
 package net.ninjacat.omg;
 
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 public class Test {
 
 
@@ -35,8 +39,24 @@ public class Test {
         o.toString();
     }
 
+    public static boolean matchesEnum(String s) {
+        try {
+            return En.E1 == En.valueOf(s);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static Collection<Enum> makeEnumArray(String s) {
+        return Arrays.asList(new En[]{En.E1, En.E2}).stream().collect(Collectors.toSet());
+    }
+
     public static class TestClass {
 
+    }
+
+    public enum En {
+        E1, E2, E3, E4;
     }
 }
 

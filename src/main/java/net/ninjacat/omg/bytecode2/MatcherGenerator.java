@@ -25,10 +25,7 @@ import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
 import net.ninjacat.omg.bytecode2.primitive.*;
-import net.ninjacat.omg.bytecode2.reference.BoxedBooleanGeneratorProvider;
-import net.ninjacat.omg.bytecode2.reference.ComparableGeneratorProvider;
-import net.ninjacat.omg.bytecode2.reference.ObjectGeneratorProvider;
-import net.ninjacat.omg.bytecode2.reference.StringGeneratorProvider;
+import net.ninjacat.omg.bytecode2.reference.*;
 import net.ninjacat.omg.conditions.*;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.OmgException;
@@ -242,25 +239,31 @@ class MatcherGenerator<T> {
     @SuppressWarnings("rawtypes")
     private <P, V> TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return Match(type).of(
-                Case($(is(int.class)), i -> getPrimitiveIntGenerator(condition, context)),
-                Case($(is(byte.class)), i -> getPrimitiveIntGenerator(condition, context)),
-                Case($(is(short.class)), i -> getPrimitiveIntGenerator(condition, context)),
-                Case($(is(char.class)), i -> getPrimitiveIntGenerator(condition, context)),
-                Case($(is(long.class)), i -> getPrimitiveLongGenerator(condition, context)),
-                Case($(is(float.class)), i -> getPrimitiveFloatGenerator(condition, context)),
-                Case($(is(double.class)), i -> getPrimitiveDoubleGenerator(condition, context)),
-                Case($(is(boolean.class)), i -> getPrimitiveBooleanGenerator(condition, context)),
-                Case($(is(String.class)), s -> getStringGenerator(condition, context)),
-                Case($(isComparableNumber()), t -> getComparableGenerator(condition, context)),
-                Case($(is(Character.class)), t -> getComparableGenerator(condition, context)),
-                Case($(is(Boolean.class)), t -> getBoxedBooleanGenerator(condition, context)),
-                Case($(), e -> getObjectGenerator(condition, context))
+                Case($(is(int.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(byte.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(short.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(char.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(long.class)), () -> getPrimitiveLongGenerator(condition, context)),
+                Case($(is(float.class)), () -> getPrimitiveFloatGenerator(condition, context)),
+                Case($(is(double.class)), () -> getPrimitiveDoubleGenerator(condition, context)),
+                Case($(is(boolean.class)), () -> getPrimitiveBooleanGenerator(condition, context)),
+                Case($(is(String.class)), () -> getStringGenerator(condition, context)),
+                Case($(isComparableNumber()), () -> getComparableGenerator(condition, context)),
+                Case($(is(Character.class)), () -> getComparableGenerator(condition, context)),
+                Case($(is(Boolean.class)), () -> getBoxedBooleanGenerator(condition, context)),
+                Case($(isEnum()), () -> getEnumGenerator(condition, context)),
+                Case($(), () -> getObjectGenerator(condition, context))
         );
     }
 
     @SuppressWarnings("rawtypes")
     private static Predicate<Class> isComparableNumber() {
         return type -> Number.class.isAssignableFrom(type) && Comparable.class.isAssignableFrom(type);
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    private static Predicate<Class> isEnum() {
+        return Enum.class::isAssignableFrom;
     }
 
     @SuppressWarnings("unchecked")
@@ -303,11 +306,16 @@ class MatcherGenerator<T> {
         return (TypedCodeGenerator<T, P, V>) FloatGeneratorProvider.getGenerator(condition, context);
     }
 
-
     @SuppressWarnings("unchecked")
     private <P, V> TypedCodeGenerator<T, P, V> getStringGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return (TypedCodeGenerator<T, P, V>) StringGeneratorProvider.getGenerator(condition, context);
     }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getEnumGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) EnumGeneratorProvider.getGenerator(condition, context);
+    }
+
 
     private static <T, P> Property<T, P> createProperty(final String field, final Class<T> targetClass) {
         return Property.fromPropertyName(field, targetClass);

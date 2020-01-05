@@ -18,6 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.generator;
 
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.*;
@@ -105,6 +106,37 @@ public final class Codes {
     }
 
     /**
+     * Pushes enum instance to the stack.
+     * <p>
+     * Gets static field of given enum value of given enum type and pushes it to the stack. If enum class does not have
+     * a value with provided name loads {@link NeverMatchingEnum#INSTANCE} instead which should not match any
+     * of known enum values.
+     *
+     * @param mv        {@link MethodVisitor}
+     * @param enumClass Enum class
+     * @param enumName  Name of the enum constant
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void pushEnum(final MethodVisitor mv, final Class<Enum> enumClass, final String enumName) {
+        final Enum<?> enumConst = Try.of(() -> Enum.valueOf(enumClass, enumName)).getOrElse(NeverMatchingEnum.INSTANCE);
+        mv.visitFieldInsn(Opcodes.GETSTATIC,
+                Type.getInternalName(enumConst.getClass()),
+                enumConst.name(),
+                Type.getDescriptor(enumConst.getClass()));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void pushEnumIfExist(final MethodVisitor mv, final Class<Enum> enumClass, final String enumName) {
+        final Option<Enum> enumConst = Try.of(() -> Enum.valueOf(enumClass, enumName)).toOption();
+        enumConst.forEach(e -> {
+            mv.visitFieldInsn(Opcodes.GETSTATIC,
+                    Type.getInternalName(enumConst.getClass()),
+                    e.name(),
+                    Type.getDescriptor(enumConst.getClass()));
+        });
+    }
+
+    /**
      * Performs logical NOT on the integer value on the stack.
      * <p>
      * If value on the stack is zero, then it will be replaced with 1, otherwise it will be replaced with zero
@@ -177,4 +209,6 @@ public final class Codes {
     public static boolean isComparableNumber(final Class<?> propClass) {
         return Number.class.isAssignableFrom(propClass) && Comparable.class.isAssignableFrom(propClass);
     }
+
+
 }
