@@ -21,36 +21,24 @@ package net.ninjacat.omg.bytecode2.reference;
 import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
+import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.patterns.Pattern;
 import org.junit.Test;
+
+import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class BytecodeCompilerObjectTest {
-//
-//    @Test
-//    public void shouldMatchSimpleStr() {
-//        final Condition cond = Conditions.matcher().property("strProp").eq("abc").build();
-//
-//        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-//        final Pattern<TestClass> matcher = compiler.build(cond);
-//
-//        assertThat(matcher.matches(new TestClass("abc")), is(true));
-//        assertThat(matcher.matches(new TestClass("xyz")), is(false));
-//    }
-//
-//    @Test
-//    public void shouldMatchNotStr() {
-//        final Condition cond = Conditions.matcher().property("strProp").neq("abc").build();
-//
-//        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-//        final Pattern<TestClass> matcher = compiler.build(cond);
-//
-//        assertThat(matcher.matches(new TestClass("abc")), is(false));
-//        assertThat(matcher.matches(new TestClass("xyz")), is(true));
-//    }
-//
+
+    @Test(expected = CompilerException.class)
+    public void shouldFailEqMatch() {
+        final Condition cond = Conditions.matcher().property("internalProp").eq(new Internal("abc")).build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        compiler.build(cond);
+    }
 //
 //    @Test
 //    public void shouldMatchStrOrStr() {
@@ -122,6 +110,19 @@ public class BytecodeCompilerObjectTest {
 
 
         @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final Internal internal = (Internal) o;
+            return Objects.equals(strProp, internal.strProp);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(strProp);
+        }
+
+        @Override
         public String toString() {
             return "Internal{" +
                     "strProp='" + strProp + '\'' +
@@ -140,5 +141,17 @@ public class BytecodeCompilerObjectTest {
             return internalProp;
         }
 
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final TestClass testClass = (TestClass) o;
+            return Objects.equals(internalProp, testClass.internalProp);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(internalProp);
+        }
     }
 }

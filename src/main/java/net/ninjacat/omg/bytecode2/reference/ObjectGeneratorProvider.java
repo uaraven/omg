@@ -50,6 +50,6 @@ public final class ObjectGeneratorProvider {
     }
 
     private static <T> TypedCodeGenerator<T, Object, ?> fail(final Condition condition) {
-        throw new CompilerException("Condition {} is not supported for generic objects", condition);
+        throw new CompilerException("Condition '%s' is not supported for generic objects", condition.getMethod());
     }
 }
