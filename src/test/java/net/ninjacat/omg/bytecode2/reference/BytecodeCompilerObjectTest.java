@@ -39,21 +39,6 @@ public class BytecodeCompilerObjectTest {
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         compiler.build(cond);
     }
-//
-//    @Test
-//    public void shouldMatchStrOrStr() {
-//        final Condition cond = Conditions.matcher()
-//                .or(or -> or.property("strProp").eq("abc")
-//                        .property("strProp").eq("def"))
-//                .build();
-//
-//        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-//        final Pattern<TestClass> matcher = compiler.build(cond);
-//
-//        assertThat(matcher.matches(new TestClass("abc")), is(true));
-//        assertThat(matcher.matches(new TestClass("def")), is(true));
-//        assertThat(matcher.matches(new TestClass("xyz")), is(false));
-//    }
 
     @Test
     public void shouldMatchStrRegex() {

@@ -18,7 +18,6 @@
 
 package net.ninjacat.omg.bytecode2.generator;
 
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.*;
@@ -118,22 +117,11 @@ public final class Codes {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void pushEnum(final MethodVisitor mv, final Class<Enum> enumClass, final String enumName) {
-        final Enum<?> enumConst = Try.of(() -> Enum.valueOf(enumClass, enumName)).getOrElse(NeverMatchingEnum.INSTANCE);
+        final Enum enumConst = (Enum) Try.of(() -> Enum.valueOf(enumClass, enumName)).getOrElse(NeverMatchingEnum.INSTANCE);
         mv.visitFieldInsn(Opcodes.GETSTATIC,
                 Type.getInternalName(enumConst.getClass()),
                 enumConst.name(),
                 Type.getDescriptor(enumConst.getClass()));
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public static void pushEnumIfExist(final MethodVisitor mv, final Class<Enum> enumClass, final String enumName) {
-        final Option<Enum> enumConst = Try.of(() -> Enum.valueOf(enumClass, enumName)).toOption();
-        enumConst.forEach(e -> {
-            mv.visitFieldInsn(Opcodes.GETSTATIC,
-                    Type.getInternalName(enumConst.getClass()),
-                    e.name(),
-                    Type.getDescriptor(enumConst.getClass()));
-        });
     }
 
     /**

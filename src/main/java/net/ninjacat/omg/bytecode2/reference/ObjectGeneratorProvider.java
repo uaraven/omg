@@ -29,7 +29,6 @@ import java.util.Set;
 
 public final class ObjectGeneratorProvider {
     private static final Set<ConditionMethod> SUPPORTED_METHODS = EnumSet.of(
-            ConditionMethod.IN,
             ConditionMethod.REGEX,
             ConditionMethod.MATCH);
 
@@ -40,9 +39,7 @@ public final class ObjectGeneratorProvider {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
             return fail(condition);
         }
-        if (condition.getMethod() == ConditionMethod.IN) {
-            return new ObjectInCodeGenerator<>(context);
-        } else if (condition.getMethod() == ConditionMethod.REGEX) {
+        if (condition.getMethod() == ConditionMethod.REGEX) {
             return new ObjectRegexCodeGenerator<>(context);
         } else {
             return fail(condition);
