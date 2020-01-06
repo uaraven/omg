@@ -1,7 +1,7 @@
 /*
- * omg: BytecodeCompilerIntegrationTest.java
+ * omg: BytecodeCompilerStringIntegrationTest.java
  *
- * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
+ * Copyright 2020 Oleksiy Voronin <me@ovoronin.info>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.bytecode2.reference;
 
+import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
@@ -26,7 +27,7 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BytecodeCompilerStringIntegrationTest {
+public class BytecodeCompilerStringTest {
 
     @Test
     public void shouldMatchSimpleStr() {
@@ -44,7 +45,7 @@ public class BytecodeCompilerStringIntegrationTest {
         final Condition cond = Conditions.matcher().property("strProp").neq("abc").build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-        final Pattern<TestClass> matcher = compiler.build(cond, ImmutableCompilationOptions.builder().dumpToFile("/tmp/match_str_neq.class").build());
+        final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abc")), is(false));
         assertThat(matcher.matches(new TestClass("xyz")), is(true));
@@ -73,7 +74,7 @@ public class BytecodeCompilerStringIntegrationTest {
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-        final Pattern<TestClass> matcher = compiler.build(cond, ImmutableCompilationOptions.builder().dumpToFile("/tmp/match_str_regex.class").build());
+        final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abd")), is(true));
         assertThat(matcher.matches(new TestClass("acd")), is(true));
@@ -87,7 +88,7 @@ public class BytecodeCompilerStringIntegrationTest {
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-        final Pattern<TestClass> matcher = compiler.build(cond, ImmutableCompilationOptions.builder().dumpToFile("/tmp/match_str_in.class").build());
+        final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abd")), is(true));
         assertThat(matcher.matches(new TestClass("abc")), is(true));
@@ -101,7 +102,7 @@ public class BytecodeCompilerStringIntegrationTest {
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-        final Pattern<TestClass> matcher = compiler.build(cond, ImmutableCompilationOptions.builder().dumpToFile("/tmp/match_str_in_empty.class").build());
+        final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("a")), is(false));
         assertThat(matcher.matches(new TestClass("b")), is(false));

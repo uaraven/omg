@@ -30,21 +30,22 @@ import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class StringInCodeGenerator<T> extends InCollectionCodeGenerator<T, String> {
+public class EnumInCodeGenerator<T> extends InCollectionCodeGenerator<T, Enum<?>> {
 
-    public StringInCodeGenerator(final CodeGenerationContext context) {
+    public EnumInCodeGenerator(final CodeGenerationContext context) {
         super(context);
     }
 
     @Override
-    protected void boxIfNeeded(final Property<T, String> property, final MethodVisitor method) {
-        // do nothing for String
+    protected void boxIfNeeded(final Property<T, Enum<?>> property, final MethodVisitor method) {
+        // boxing is not needed
     }
 
     /**
      * @param values Collection of values
      */
-    protected void createGetCollectionMethod(final String methodName, final Collection<String> values) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected void createGetCollectionMethod(final String methodName, final Collection<Enum<?>> values) {
         final MethodVisitor generator = getContext().classVisitor()
                 .visitMethod(ACC_PRIVATE + ACC_STATIC + ACC_SYNTHETIC, methodName,
                         GENERATOR_DESCRIPTOR, null, null);
@@ -52,19 +53,21 @@ public class StringInCodeGenerator<T> extends InCollectionCodeGenerator<T, Strin
         generator.visitCode();
         // create array
         Codes.pushInt(generator, values.size());
-        generator.visitTypeInsn(ANEWARRAY, Type.getInternalName(String.class));
+        generator.visitTypeInsn(ANEWARRAY, Type.getInternalName(Object.class));
         // push all values into the array
         Stream.ofAll(values).forEachWithIndex((val, idx) -> {
             generator.visitInsn(DUP);
             Codes.pushInt(generator, idx);
-            generator.visitLdcInsn(val);
+            Codes.pushEnum(generator, (Class<Enum>) val.getClass(), val.name());
             generator.visitInsn(AASTORE);
         });
         // convert array into stream and collect into set
-        generator.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "stream", "([Ljava/lang/Object;)Ljava/util/stream/Stream;", false);
+        generator.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "asList", "([Ljava/lang/Object;)Ljava/util/List;", false);
+        generator.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "stream", "()Ljava/util/stream/Stream;", true);
         generator.visitMethodInsn(INVOKESTATIC, "java/util/stream/Collectors", "toSet", "()Ljava/util/stream/Collector;", false);
         generator.visitMethodInsn(INVOKEINTERFACE, "java/util/stream/Stream", "collect", "(Ljava/util/stream/Collector;)Ljava/lang/Object;", true);
         generator.visitTypeInsn(CHECKCAST, "java/util/Collection");
+
         generator.visitInsn(ARETURN);
         generator.visitMaxs(0, 0);
         generator.visitEnd();

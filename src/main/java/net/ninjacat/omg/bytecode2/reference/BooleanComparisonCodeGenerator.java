@@ -31,20 +31,21 @@ import org.objectweb.asm.Type;
  * {@link Object#equals(Object)} method
  *
  * @param <T>
- * @param <P>
  */
-public class ObjectEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> {
+public class BooleanComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Boolean, Boolean> {
 
-    public ObjectEqCodeGenerator() {
+    public BooleanComparisonCodeGenerator() {
     }
 
     @Override
-    public void getMatchingConstant(final PropertyCondition<P> condition, final MethodVisitor method) {
-        method.visitLdcInsn(condition.getValue());
+    public void getMatchingConstant(final PropertyCondition<Boolean> condition, final MethodVisitor method) {
+        Codes.pushBoolean(method, condition.getValue());
+        method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Boolean.class), "valueOf",
+                Codes.getMethodDescriptor(Boolean.class, boolean.class), false);
     }
 
     @Override
-    public void compare(final PropertyCondition<P> condition, final MethodVisitor method) {
+    public void compare(final PropertyCondition<Boolean> condition, final MethodVisitor method) {
         method.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Codes.OBJECT_NAME,
                 "equals",

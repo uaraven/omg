@@ -19,10 +19,14 @@
 package net.ninjacat.omg.bytecode2.generator;
 
 import io.vavr.control.Try;
+import net.ninjacat.omg.errors.CompilerException;
 import org.objectweb.asm.*;
 
+import java.util.Arrays;
 import java.util.Random;
 
+import static io.vavr.API.*;
+import static io.vavr.Predicates.is;
 import static org.objectweb.asm.Opcodes.*;
 
 public final class Codes {
@@ -74,6 +78,17 @@ public final class Codes {
         }
     }
 
+    public static void pushFloat(final MethodVisitor mv, final float val) {
+        if (val == 0) {
+            mv.visitInsn(FCONST_0);
+        } else if (val == 1) {
+            mv.visitInsn(FCONST_1);
+        } else if (val == 2) {
+            mv.visitInsn(FCONST_2);
+        } else {
+            mv.visitLdcInsn(val);
+        }
+    }
 
     public static void pushLong(final MethodVisitor mv, final long val) {
         if (val == 0) {
@@ -83,6 +98,30 @@ public final class Codes {
         } else {
             mv.visitLdcInsn(val);
         }
+    }
+
+    public static void pushBoolean(final MethodVisitor mv, final boolean value) {
+        pushInt(mv, value ? 1 : 0);
+    }
+
+    /**
+     * Pushes enum instance to the stack.
+     * <p>
+     * Gets static field of given enum value of given enum type and pushes it to the stack. If enum class does not have
+     * a value with provided name loads {@link NeverMatchingEnum#INSTANCE} instead which should not match any
+     * of known enum values.
+     *
+     * @param mv        {@link MethodVisitor}
+     * @param enumClass Enum class
+     * @param enumName  Name of the enum constant
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void pushEnum(final MethodVisitor mv, final Class<Enum> enumClass, final String enumName) {
+        final Enum enumConst = (Enum) Try.of(() -> Enum.valueOf(enumClass, enumName)).getOrElse(NeverMatchingEnum.INSTANCE);
+        mv.visitFieldInsn(Opcodes.GETSTATIC,
+                Type.getInternalName(enumConst.getClass()),
+                enumConst.name(),
+                Type.getDescriptor(enumConst.getClass()));
     }
 
     /**
@@ -104,6 +143,24 @@ public final class Codes {
     }
 
     /**
+     * Based on execution of Opcode (one of IFEQ, IFNE, IFLT, or IFGT)
+     * puts either 0 or 1 on stack. If opcode is "true" then stack will contain 1
+     *
+     * @param method {@link MethodVisitor}
+     * @param opcode Comparision opcode
+     */
+    public static void compareWithOpcode(final MethodVisitor method, final int opcode) {
+        final Label trueLbl = new Label();
+        final Label finalLbl = new Label();
+        method.visitJumpInsn(opcode, trueLbl);
+        method.visitInsn(ICONST_0);
+        method.visitJumpInsn(GOTO, finalLbl);
+        method.visitLabel(trueLbl);
+        method.visitInsn(ICONST_1);
+        method.visitLabel(finalLbl);
+    }
+
+    /**
      * Reads string as either Long or Double and returns it as {@link Number}
      *
      * @param numberRepr String containing numeric literal
@@ -112,5 +169,34 @@ public final class Codes {
     public static Number strToNumber(final String numberRepr) {
         return Try.of(() -> (Number) Long.parseLong(numberRepr)).getOrElseTry(() -> Double.parseDouble(numberRepr));
     }
+
+    public static String getMethodDescriptor(final Class<?> returnClass, final Class<?>... parameterClasses) {
+        final Type returnType = Type.getType(returnClass);
+        final Type[] paramTypes = Arrays.stream(parameterClasses).map(Type::getType).toArray(Type[]::new);
+        return Type.getMethodDescriptor(returnType, paramTypes);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Class<?> unboxedType(final Class boxed) {
+        return Match(boxed).of(
+                Case($(is(Integer.class)), c -> int.class),
+                Case($(is(Byte.class)), c -> byte.class),
+                Case($(is(Short.class)), c -> short.class),
+                Case($(is(Character.class)), c -> char.class),
+                Case($(is(Long.class)), c -> long.class),
+                Case($(is(Float.class)), c -> float.class),
+                Case($(is(Double.class)), c -> double.class),
+                Case($(is(Boolean.class)), c -> boolean.class),
+                Case($(), c -> {
+                            throw new CompilerException("Class '%s' cannot be unboxed", boxed);
+                        }
+                )
+        );
+    }
+
+    public static boolean isComparableNumber(final Class<?> propClass) {
+        return Number.class.isAssignableFrom(propClass) && Comparable.class.isAssignableFrom(propClass);
+    }
+
 
 }

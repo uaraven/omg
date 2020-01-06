@@ -30,28 +30,28 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static org.objectweb.asm.Opcodes.*;
 
-public class DoubleScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Double, Double> {
+public class FloatScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Float, Float> {
 
-    DoubleScalarComparisonCodeGenerator() {
+    FloatScalarComparisonCodeGenerator() {
     }
 
     @Override
-    public void getMatchingConstant(final PropertyCondition<Double> condition, final MethodVisitor method) {
-        Codes.pushDouble(method, condition.getValue());
+    public void getMatchingConstant(final PropertyCondition<Float> condition, final MethodVisitor method) {
+        Codes.pushFloat(method, condition.getValue());
     }
 
     @Override
-    public void compare(final PropertyCondition<Double> condition, final MethodVisitor method) {
+    public void compare(final PropertyCondition<Float> condition, final MethodVisitor method) {
         final int opcode = API.Match(condition.getMethod()).of(
                 Case($(ConditionMethod.EQ), eq -> IFEQ),
                 Case($(ConditionMethod.NEQ), eq -> IFNE),
                 Case($(ConditionMethod.GT), eq -> IFLT),
                 Case($(ConditionMethod.LT), eq -> IFGT),
                 Case($(), () -> {
-                            throw new CompilerException("Unsupported Condition for double type: %s", condition);
+                            throw new CompilerException("Unsupported Condition for float type: %s", condition);
                         }
                 ));
-        method.visitInsn(DCMPL);
+        method.visitInsn(FCMPL);
         Codes.compareWithOpcode(method, opcode);
     }
 }

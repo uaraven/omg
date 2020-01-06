@@ -47,9 +47,9 @@ public final class StringGeneratorProvider {
             throw new CompilerException("Condition {} is not supported for type 'String'", condition);
         }
         return Match(condition.getMethod()).of(
-                Case(API.$(is(ConditionMethod.REGEX)), x -> new StringRegexCodeGenerator<>(context)),
-                Case(API.$(is(ConditionMethod.IN)), x -> new StringInCodeGenerator<>(context)),
-                Case(API.$(), $_ -> new ObjectEqCodeGenerator<>(context))
+                Case(API.$(is(ConditionMethod.REGEX)), x -> new ObjectRegexCodeGenerator<>(context)),
+                Case(API.$(is(ConditionMethod.IN)), x -> new ObjectInCodeGenerator<>(context)),
+                Case(API.$(), $_ -> new ObjectEqCodeGenerator<>())
 
         );
     }

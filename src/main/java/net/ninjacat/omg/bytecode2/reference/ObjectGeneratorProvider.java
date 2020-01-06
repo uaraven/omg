@@ -1,7 +1,7 @@
 /*
- * omg: IntGeneratorProvider.java
+ * omg: ComparableGeneratorProvider.java
  *
- * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
+ * Copyright 2020 Oleksiy Voronin <me@ovoronin.info>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2.primitive;
+package net.ninjacat.omg.bytecode2.reference;
 
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
@@ -27,25 +27,26 @@ import net.ninjacat.omg.errors.CompilerException;
 import java.util.EnumSet;
 import java.util.Set;
 
-public final class LongGeneratorProvider {
+public final class ObjectGeneratorProvider {
     private static final Set<ConditionMethod> SUPPORTED_METHODS = EnumSet.of(
-            ConditionMethod.EQ,
-            ConditionMethod.NEQ,
-            ConditionMethod.GT,
-            ConditionMethod.LT,
-            ConditionMethod.IN);
+            ConditionMethod.REGEX,
+            ConditionMethod.MATCH);
 
-    private LongGeneratorProvider() {
+    private ObjectGeneratorProvider() {
     }
 
-    public static <T> TypedCodeGenerator<T, Long, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
+    public static <T> TypedCodeGenerator<T, Object, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
-            throw new CompilerException("Condition {} is not supported for type 'long'", condition);
+            return fail(condition);
         }
-        if (condition.getMethod() == ConditionMethod.IN) {
-            return new LongInCodeGenerator<>(context);
+        if (condition.getMethod() == ConditionMethod.REGEX) {
+            return new ObjectRegexCodeGenerator<>(context);
         } else {
-            return new LongScalarComparisonCodeGenerator<>();
+            return fail(condition);
         }
+    }
+
+    private static <T> TypedCodeGenerator<T, Object, ?> fail(final Condition condition) {
+        throw new CompilerException("Condition '%s' is not supported for generic objects", condition.getMethod());
     }
 }

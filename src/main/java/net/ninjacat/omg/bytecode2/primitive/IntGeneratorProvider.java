@@ -45,7 +45,7 @@ public final class IntGeneratorProvider {
         if (condition.getMethod() == ConditionMethod.IN) {
             return new IntInCodeGenerator<>(context);
         } else {
-            return new IntScalarComparisonCodeGenerator<>(context);
+            return new IntScalarComparisonCodeGenerator<>();
         }
     }
 }

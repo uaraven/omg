@@ -18,7 +18,9 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
+import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
+import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.ConditionMethod;
 import net.ninjacat.omg.conditions.PropertyCondition;
@@ -33,14 +35,24 @@ import org.objectweb.asm.Type;
  * @param <T>
  * @param <P>
  */
-public class ObjectEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> {
+public class EnumEqCodeGenerator<T, P> implements TypedCodeGenerator<T, Enum<?>, P> {
 
-    public ObjectEqCodeGenerator() {
+    private final CodeGenerationContext context;
+
+    public EnumEqCodeGenerator(final CodeGenerationContext context) {
+        this.context = context;
     }
 
     @Override
+    public void generateHelpers(final Property<T, Enum<?>> property, final PropertyCondition<P> condition) {
+        context.props().prop("class", property.getType());
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
     public void getMatchingConstant(final PropertyCondition<P> condition, final MethodVisitor method) {
-        method.visitLdcInsn(condition.getValue());
+        final Class<Enum> propClass = (Class<Enum>) context.props().get("class", Class.class);
+        Codes.pushEnum(method, propClass, condition.getValue().toString());
     }
 
     @Override

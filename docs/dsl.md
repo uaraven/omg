@@ -6,7 +6,9 @@ OMG works by defining tree of conditions which matching objects must satisfy and
 compiling those conditions to a `Pattern` which implements `Predicate` interface and can 
 be used wherever `Predicate` can be used, for example in `.filter()` operation on a `Stream`.
 
-Make no mistake, OMG DSL is a low level tool and if you can go with [OMQL](omql.md) that is most certainly will be a better choice. Main benefit of using OMQL is type checks. 
+Make no mistake, OMG DSL is a low level tool and if you can go with [OMQL](omql.md) that is most certainly will be a better choice. Main benefit of using OMQL is type checks.
+
+Also note that OMG API **can change at any time** before official release version. 
 
 JSON representation is more verbose than OMQL and does not provide type-checking thus is not recommended for production use. 
 

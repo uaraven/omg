@@ -24,16 +24,19 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class DoubleInCodeGenerator<T> extends FloatingPointInCodeGenerator<T, Double> {
+import static org.objectweb.asm.Opcodes.F2D;
+
+public class FloatInCodeGenerator<T> extends FloatingPointInCodeGenerator<T, Float> {
 
     private static final String VALUE_OF_DESC = Type.getMethodDescriptor(Type.getType(Double.class), Type.getType(double.class));
 
-    public DoubleInCodeGenerator(final CodeGenerationContext context) {
+    public FloatInCodeGenerator(final CodeGenerationContext context) {
         super(context);
     }
 
     @Override
-    protected void boxIfNeeded(final Property<T, Double> property, final MethodVisitor method) {
+    protected void boxIfNeeded(final Property<T, Float> property, final MethodVisitor method) {
+        method.visitInsn(F2D);
         method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Double.class), "valueOf", VALUE_OF_DESC, false);
     }
 

@@ -28,30 +28,29 @@ import org.objectweb.asm.MethodVisitor;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
+import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 
-public class DoubleScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Double, Double> {
+public class BooleanComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Boolean, Boolean> {
 
-    DoubleScalarComparisonCodeGenerator() {
+    BooleanComparisonCodeGenerator() {
+    }
+
+
+    @Override
+    public void getMatchingConstant(final PropertyCondition<Boolean> condition, final MethodVisitor method) {
+        Codes.pushBoolean(method, condition.getValue());
     }
 
     @Override
-    public void getMatchingConstant(final PropertyCondition<Double> condition, final MethodVisitor method) {
-        Codes.pushDouble(method, condition.getValue());
-    }
-
-    @Override
-    public void compare(final PropertyCondition<Double> condition, final MethodVisitor method) {
+    public void compare(final PropertyCondition<Boolean> condition, final MethodVisitor method) {
         final int opcode = API.Match(condition.getMethod()).of(
-                Case($(ConditionMethod.EQ), eq -> IFEQ),
-                Case($(ConditionMethod.NEQ), eq -> IFNE),
-                Case($(ConditionMethod.GT), eq -> IFLT),
-                Case($(ConditionMethod.LT), eq -> IFGT),
+                Case($(ConditionMethod.EQ), eq -> IF_ICMPEQ),
+                Case($(ConditionMethod.NEQ), eq -> IF_ICMPNE),
                 Case($(), () -> {
-                            throw new CompilerException("Unsupported Condition for double type: %s", condition);
+                            throw new CompilerException("Unsupported Condition for boolean type: %s", condition);
                         }
                 ));
-        method.visitInsn(DCMPL);
         Codes.compareWithOpcode(method, opcode);
     }
 }

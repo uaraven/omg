@@ -40,12 +40,12 @@ public final class DoubleGeneratorProvider {
 
     public static <T> TypedCodeGenerator<T, Double, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
-            throw new CompilerException("Condition {} is not supported for type 'int'", condition);
+            throw new CompilerException("Condition {} is not supported for type 'double'", condition);
         }
         if (condition.getMethod() == ConditionMethod.IN) {
             return new DoubleInCodeGenerator<>(context);
         } else {
-            return new DoubleScalarComparisonCodeGenerator<>(context);
+            return new DoubleScalarComparisonCodeGenerator<>();
         }
     }
 }

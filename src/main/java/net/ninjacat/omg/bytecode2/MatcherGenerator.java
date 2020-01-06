@@ -24,10 +24,8 @@ import net.ninjacat.omg.bytecode.CompiledClassLoader;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
 import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
-import net.ninjacat.omg.bytecode2.primitive.DoubleGeneratorProvider;
-import net.ninjacat.omg.bytecode2.primitive.IntGeneratorProvider;
-import net.ninjacat.omg.bytecode2.primitive.LongGeneratorProvider;
-import net.ninjacat.omg.bytecode2.reference.StringGeneratorProvider;
+import net.ninjacat.omg.bytecode2.primitive.*;
+import net.ninjacat.omg.bytecode2.reference.*;
 import net.ninjacat.omg.conditions.*;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.OmgException;
@@ -39,6 +37,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static io.vavr.API.*;
@@ -240,19 +239,56 @@ class MatcherGenerator<T> {
     @SuppressWarnings("rawtypes")
     private <P, V> TypedCodeGenerator<T, P, V> getGeneratorFor(final Class type, final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return Match(type).of(
-                Case($(is(int.class)), i -> getPrimitiveIntGenerator(condition, context)),
-                Case($(is(long.class)), i -> getPrimitiveLongGenerator(condition, context)),
-                Case($(is(double.class)), i -> getPrimitiveDoubleGenerator(condition, context)),
-                Case($(is(String.class)), s -> getStringGenerator(condition, context)),
-                Case($(), e -> {
-                    throw new CompilerException("Type '%s' is not supported", type.getName());
-                })
+                Case($(is(int.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(byte.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(short.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(char.class)), () -> getPrimitiveIntGenerator(condition, context)),
+                Case($(is(long.class)), () -> getPrimitiveLongGenerator(condition, context)),
+                Case($(is(float.class)), () -> getPrimitiveFloatGenerator(condition, context)),
+                Case($(is(double.class)), () -> getPrimitiveDoubleGenerator(condition, context)),
+                Case($(is(boolean.class)), () -> getPrimitiveBooleanGenerator(condition, context)),
+                Case($(is(String.class)), () -> getStringGenerator(condition, context)),
+                Case($(isComparableNumber()), () -> getComparableGenerator(condition, context)),
+                Case($(is(Character.class)), () -> getComparableGenerator(condition, context)),
+                Case($(is(Boolean.class)), () -> getBoxedBooleanGenerator(condition, context)),
+                Case($(isEnum()), () -> getEnumGenerator(condition, context)),
+                Case($(), () -> getObjectGenerator(condition, context))
         );
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static Predicate<Class> isComparableNumber() {
+        return type -> Number.class.isAssignableFrom(type) && Comparable.class.isAssignableFrom(type);
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    private static Predicate<Class> isEnum() {
+        return Enum.class::isAssignableFrom;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getObjectGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) ObjectGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getComparableGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) ComparableGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getBoxedBooleanGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) BoxedBooleanGeneratorProvider.getGenerator(condition, context);
     }
 
     @SuppressWarnings("unchecked")
     private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveIntGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return (TypedCodeGenerator<T, P, V>) IntGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveBooleanGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) BooleanGeneratorProvider.getGenerator(condition, context);
     }
 
     @SuppressWarnings("unchecked")
@@ -266,9 +302,20 @@ class MatcherGenerator<T> {
     }
 
     @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getPrimitiveFloatGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) FloatGeneratorProvider.getGenerator(condition, context);
+    }
+
+    @SuppressWarnings("unchecked")
     private <P, V> TypedCodeGenerator<T, P, V> getStringGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
         return (TypedCodeGenerator<T, P, V>) StringGeneratorProvider.getGenerator(condition, context);
     }
+
+    @SuppressWarnings("unchecked")
+    private <P, V> TypedCodeGenerator<T, P, V> getEnumGenerator(final PropertyCondition<V> condition, final CodeGenerationContext context) {
+        return (TypedCodeGenerator<T, P, V>) EnumGeneratorProvider.getGenerator(condition, context);
+    }
+
 
     private static <T, P> Property<T, P> createProperty(final String field, final Class<T> targetClass) {
         return Property.fromPropertyName(field, targetClass);

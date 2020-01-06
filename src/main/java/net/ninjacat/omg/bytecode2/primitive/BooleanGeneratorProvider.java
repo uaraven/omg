@@ -27,25 +27,18 @@ import net.ninjacat.omg.errors.CompilerException;
 import java.util.EnumSet;
 import java.util.Set;
 
-public final class LongGeneratorProvider {
+public final class BooleanGeneratorProvider {
     private static final Set<ConditionMethod> SUPPORTED_METHODS = EnumSet.of(
             ConditionMethod.EQ,
-            ConditionMethod.NEQ,
-            ConditionMethod.GT,
-            ConditionMethod.LT,
-            ConditionMethod.IN);
+            ConditionMethod.NEQ);
 
-    private LongGeneratorProvider() {
+    private BooleanGeneratorProvider() {
     }
 
-    public static <T> TypedCodeGenerator<T, Long, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
+    public static <T> TypedCodeGenerator<T, Boolean, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
-            throw new CompilerException("Condition {} is not supported for type 'long'", condition);
+            throw new CompilerException("Condition {} is not supported for type 'boolean'", condition);
         }
-        if (condition.getMethod() == ConditionMethod.IN) {
-            return new LongInCodeGenerator<>(context);
-        } else {
-            return new LongScalarComparisonCodeGenerator<>();
-        }
+        return new BooleanComparisonCodeGenerator<>();
     }
 }

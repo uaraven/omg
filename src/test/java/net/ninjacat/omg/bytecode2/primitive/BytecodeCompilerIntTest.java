@@ -1,7 +1,7 @@
 /*
- * omg: BytecodeCompilerIntegrationTest.java
+ * omg: BytecodeCompilerIntIntegrationTest.java
  *
- * Copyright 2019 Oleksiy Voronin <me@ovoronin.info>
+ * Copyright 2020 Oleksiy Voronin <me@ovoronin.info>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package net.ninjacat.omg.bytecode2;
+package net.ninjacat.omg.bytecode2.primitive;
 
+import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
@@ -26,105 +27,105 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BytecodeCompilerLongIntegrationTest {
+public class BytecodeCompilerIntTest {
 
     @Test
-    public void shouldMatchLongEq() {
-        final Condition cond = Conditions.matcher().property("longProp").eq(432L).build();
+    public void shouldMatchIntEq() {
+        final Condition cond = Conditions.matcher().property("intProp").eq(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432L)), is(true));
-        assertThat(matcher.matches(new TestClass(431L)), is(false));
+        assertThat(matcher.matches(new TestClass(432)), is(true));
+        assertThat(matcher.matches(new TestClass(431)), is(false));
     }
 
     @Test
-    public void shouldMatchLongNeq() {
-        final Condition cond = Conditions.matcher().property("longProp").neq(432L).build();
+    public void shouldMatchIntNeq() {
+        final Condition cond = Conditions.matcher().property("intProp").neq(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432L)), is(false));
-        assertThat(matcher.matches(new TestClass(431L)), is(true));
+        assertThat(matcher.matches(new TestClass(432)), is(false));
+        assertThat(matcher.matches(new TestClass(431)), is(true));
     }
 
     @Test
-    public void shouldMatchLongLt() {
-        final Condition cond = Conditions.matcher().property("longProp").lt(432L).build();
+    public void shouldMatchIntLt() {
+        final Condition cond = Conditions.matcher().property("intProp").lt(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432L)), is(false));
-        assertThat(matcher.matches(new TestClass(431L)), is(true));
+        assertThat(matcher.matches(new TestClass(432)), is(false));
+        assertThat(matcher.matches(new TestClass(431)), is(true));
     }
 
     @Test
-    public void shouldMatchLongGt() {
-        final Condition cond = Conditions.matcher().property("longProp").gt(432L).build();
+    public void shouldMatchIntGt() {
+        final Condition cond = Conditions.matcher().property("intProp").gt(432).build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432L)), is(false));
-        assertThat(matcher.matches(new TestClass(433L)), is(true));
+        assertThat(matcher.matches(new TestClass(432)), is(false));
+        assertThat(matcher.matches(new TestClass(433)), is(true));
     }
 
     @Test
-    public void shouldMatchLongOrLong() {
+    public void shouldMatchIntOrInt() {
         final Condition cond = Conditions.matcher()
-                .or(or -> or.property("longProp").eq(432L)
-                        .property("longProp").eq(538L))
+                .or(or -> or.property("intProp").eq(432)
+                        .property("intProp").eq(538))
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(432L)), is(true));
-        assertThat(matcher.matches(new TestClass(538L)), is(true));
-        assertThat(matcher.matches(new TestClass(431L)), is(false));
+        assertThat(matcher.matches(new TestClass(432)), is(true));
+        assertThat(matcher.matches(new TestClass(538)), is(true));
+        assertThat(matcher.matches(new TestClass(431)), is(false));
     }
 
     @Test
-    public void shouldMatchLongIn() {
+    public void shouldMatchIntIn() {
         final Condition cond = Conditions.matcher()
-                .property("longProp").in(41L, 42L, 43L, 44L, 9998012454L)
+                .property("intProp").in(41, 42, 43, 44, 8012454)
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(41L)), is(true));
-        assertThat(matcher.matches(new TestClass(9998012454L)), is(true));
-        assertThat(matcher.matches(new TestClass(60L)), is(false));
+        assertThat(matcher.matches(new TestClass(41)), is(true));
+        assertThat(matcher.matches(new TestClass(8012454)), is(true));
+        assertThat(matcher.matches(new TestClass(60)), is(false));
     }
 
 
     @Test
-    public void shouldMatchLongInEmpty() {
+    public void shouldMatchIntInEmpty() {
         final Condition cond = Conditions.matcher()
-                .property("longProp").in()
+                .property("intProp").in()
                 .build();
 
         final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
-        assertThat(matcher.matches(new TestClass(41L)), is(false));
-        assertThat(matcher.matches(new TestClass(8012454L)), is(false));
-        assertThat(matcher.matches(new TestClass(60L)), is(false));
+        assertThat(matcher.matches(new TestClass(41)), is(false));
+        assertThat(matcher.matches(new TestClass(8012454)), is(false));
+        assertThat(matcher.matches(new TestClass(60)), is(false));
     }
 
     public static class TestClass {
-        private final long longProp;
+        private final int intProp;
 
-        public TestClass(final long longProp) {
-            this.longProp = longProp;
+        public TestClass(final int intProp) {
+            this.intProp = intProp;
         }
 
-        public long getLongProp() {
-            return longProp;
+        public int getIntProp() {
+            return intProp;
         }
     }
 }

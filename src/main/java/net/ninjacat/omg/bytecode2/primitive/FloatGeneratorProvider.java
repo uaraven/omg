@@ -27,7 +27,7 @@ import net.ninjacat.omg.errors.CompilerException;
 import java.util.EnumSet;
 import java.util.Set;
 
-public final class LongGeneratorProvider {
+public final class FloatGeneratorProvider {
     private static final Set<ConditionMethod> SUPPORTED_METHODS = EnumSet.of(
             ConditionMethod.EQ,
             ConditionMethod.NEQ,
@@ -35,17 +35,17 @@ public final class LongGeneratorProvider {
             ConditionMethod.LT,
             ConditionMethod.IN);
 
-    private LongGeneratorProvider() {
+    private FloatGeneratorProvider() {
     }
 
-    public static <T> TypedCodeGenerator<T, Long, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
+    public static <T> TypedCodeGenerator<T, Float, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
-            throw new CompilerException("Condition {} is not supported for type 'long'", condition);
+            throw new CompilerException("Condition {} is not supported for type 'float'", condition);
         }
         if (condition.getMethod() == ConditionMethod.IN) {
-            return new LongInCodeGenerator<>(context);
+            return new FloatInCodeGenerator<>(context);
         } else {
-            return new LongScalarComparisonCodeGenerator<>();
+            return new FloatScalarComparisonCodeGenerator<>();
         }
     }
 }
