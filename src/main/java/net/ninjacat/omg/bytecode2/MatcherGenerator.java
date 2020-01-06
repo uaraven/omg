@@ -56,6 +56,7 @@ class MatcherGenerator<T> {
     private static final String PACKAGE_NAME = MatcherGenerator.class.getPackage().getName() + ".generated";
     private static final java.util.regex.Pattern DOTS = java.util.regex.Pattern.compile("\\.");
     private static final String PACKAGE_DESC = DOTS.matcher(PACKAGE_NAME).replaceAll("/");
+    private static final CompiledClassLoader LOADER = new CompiledClassLoader();
 
     private final Class<T> targetClass;
     private final Condition condition;
@@ -70,6 +71,12 @@ class MatcherGenerator<T> {
     }
 
     Pattern<T> compilePattern(final CompilationOptions options) {
+        final Try<Class<Pattern<T>>> tryPatternClass = generatePatternClass(options);
+        return tryPatternClass.mapTry(this::instantiatePattern).getOrElseThrow(this::wrapException);
+    }
+
+    @SuppressWarnings("unchecked")
+    Try<Class<Pattern<T>>> generatePatternClass(final CompilationOptions options) {
         final ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS);
         final String className = generateClassName();
         writer.visit(
@@ -95,15 +102,15 @@ class MatcherGenerator<T> {
             if (options.dumpToFile() != null) {
                 CompileDebugger.dumpClass(options.dumpToFile(), writer.toByteArray());
             }
-            final Class<?> patternClass = new CompiledClassLoader().defineClass(generateBinaryClassName(className), writer.toByteArray());
-            return instantiatePattern(patternClass);
-        }).getOrElseThrow(ex -> wrapException(ex, context));
+            final String generatedClassName = generateBinaryClassName(className);
+            return (Class<Pattern<T>>) LOADER.defineClass(generatedClassName, writer.toByteArray());
+        });
     }
 
-    private static RuntimeException wrapException(final Throwable ex, final CodeGenerationContext context) {
+    private RuntimeException wrapException(final Throwable ex) {
         return Match(ex).of(
                 Case($(instanceOf(OmgException.class)), err -> err),
-                Case($(), err -> new CompilerException(err, "Failed to generate matcher for '%s'", context.targetClass()))
+                Case($(), err -> new CompilerException(err, "Failed to generate matcher for '%s'", targetClass))
         );
     }
 
