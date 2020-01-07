@@ -53,34 +53,37 @@ public class BytecodeCompilerObjectTest {
         assertThat(matcher.matches(new TestClass("acd")), is(true));
         assertThat(matcher.matches(new TestClass("xyz")), is(false));
     }
-//
-//    @Test
-//    public void shouldMatchStrIn() {
-//        final Condition cond = Conditions.matcher()
-//                .property("strProp").in("abc", "abd", "def")
-//                .build();
-//
-//        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-//        final Pattern<TestClass> matcher = compiler.build(cond);
-//
-//        assertThat(matcher.matches(new TestClass("abd")), is(true));
-//        assertThat(matcher.matches(new TestClass("abc")), is(true));
-//        assertThat(matcher.matches(new TestClass("xyz")), is(false));
-//    }
-//
-//    @Test
-//    public void shouldMatchStrInEmpty() {
-//        final Condition cond = Conditions.matcher()
-//                .property("strProp").in()
-//                .build();
-//
-//        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
-//        final Pattern<TestClass> matcher = compiler.build(cond);
-//
-//        assertThat(matcher.matches(new TestClass("a")), is(false));
-//        assertThat(matcher.matches(new TestClass("b")), is(false));
-//        assertThat(matcher.matches(new TestClass("xyz")), is(false));
-//    }
+
+    @Test
+    public void shouldMatchObject() {
+        final Condition cond = Conditions.matcher()
+                .property("internalProp")
+                .match(obj -> obj.property("strProp").eq("123"))
+                .build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass("123")), is(true));
+        assertThat(matcher.matches(new TestClass("321")), is(false));
+    }
+
+    @Test
+    public void shouldMatchObjectAndInt() {
+        final Condition cond = Conditions.matcher()
+                .property("intProp").eq(1)
+                .property("internalProp").match(
+                        obj -> obj.property("strProp").eq("123"))
+                .build();
+
+        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final Pattern<TestClass> matcher = compiler.build(cond);
+
+        assertThat(matcher.matches(new TestClass("123", 1)), is(true));
+        assertThat(matcher.matches(new TestClass("123", 0)), is(false));
+        assertThat(matcher.matches(new TestClass("321", 1)), is(false));
+        assertThat(matcher.matches(new TestClass("321", 0)), is(false));
+    }
 
     public static class Internal {
         private final String strProp;
@@ -117,13 +120,23 @@ public class BytecodeCompilerObjectTest {
 
     public static class TestClass {
         private final Internal internalProp;
+        private final int intProp;
 
         public TestClass(final String strProp) {
+            this(strProp, 0);
+        }
+
+        public TestClass(final String strProp, final int intProp) {
             this.internalProp = new Internal(strProp);
+            this.intProp = intProp;
         }
 
         public Internal getInternalProp() {
             return internalProp;
+        }
+
+        public int getIntProp() {
+            return intProp;
         }
 
         @Override

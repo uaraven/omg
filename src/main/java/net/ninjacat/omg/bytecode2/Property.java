@@ -43,7 +43,7 @@ public final class Property<T, P> {
         this.isInterface = isInterface;
     }
 
-    static <T, P> Property<T, P> fromPropertyName(final String propertyName, final Class<T> cls) {
+    public static <T, P> Property<T, P> fromPropertyName(final String propertyName, final Class<T> cls) {
         final java.lang.reflect.Method getter = findMethod(cls, propertyName).orElseGet(() -> findGetter(cls, propertyName));
         final Method method = Method.getMethod(getter);
         final Class<P> propertyType = (Class<P>) getter.getReturnType();

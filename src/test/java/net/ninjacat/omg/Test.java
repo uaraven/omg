@@ -27,7 +27,7 @@ public class Test {
 
 
     public static short getByte() {
-        return 1;
+        return new Short((short) 1);
     }
 
     public static void convert() {

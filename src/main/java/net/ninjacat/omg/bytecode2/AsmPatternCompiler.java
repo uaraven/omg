@@ -43,4 +43,13 @@ public final class AsmPatternCompiler<T> implements MatcherCompiler<T> {
         final MatcherGenerator<T> compiler = new MatcherGenerator<>(cls, condition);
         return compiler.compilePattern(options);
     }
+
+    public Class<Pattern<T>> getClass(final Condition condition) {
+        return getClass(condition, CompilationOptions.getDefaults());
+    }
+
+    public Class<Pattern<T>> getClass(final Condition condition, final CompilationOptions options) {
+        final MatcherGenerator<T> compiler = new MatcherGenerator<>(cls, condition);
+        return compiler.compilePatternClass(options);
+    }
 }

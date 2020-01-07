@@ -41,6 +41,8 @@ public final class ObjectGeneratorProvider {
         }
         if (condition.getMethod() == ConditionMethod.REGEX) {
             return new ObjectRegexCodeGenerator<>(context);
+        } else if (condition.getMethod() == ConditionMethod.MATCH) {
+            return new ObjectMatchGenerator<>(context);
         } else {
             return fail(condition);
         }

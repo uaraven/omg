@@ -50,7 +50,7 @@ import static org.objectweb.asm.Opcodes.*;
  *
  * @param <T> Type of object to match property on
  */
-class MatcherGenerator<T> {
+public class MatcherGenerator<T> {
 
     private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class));
     private static final String PACKAGE_NAME = MatcherGenerator.class.getPackage().getName() + ".generated";
@@ -61,7 +61,7 @@ class MatcherGenerator<T> {
     private final Class<T> targetClass;
     private final Condition condition;
 
-    MatcherGenerator(final Class<T> targetClass, final Condition condition) {
+    public MatcherGenerator(final Class<T> targetClass, final Condition condition) {
         this.targetClass = targetClass;
         this.condition = condition;
     }
@@ -73,6 +73,15 @@ class MatcherGenerator<T> {
     Pattern<T> compilePattern(final CompilationOptions options) {
         final Try<Class<Pattern<T>>> tryPatternClass = generatePatternClass(options);
         return tryPatternClass.mapTry(this::instantiatePattern).getOrElseThrow(this::wrapException);
+    }
+
+    public Class<Pattern<T>> compilePatternClass() {
+        return compilePatternClass(CompilationOptions.getDefaults());
+    }
+
+    Class<Pattern<T>> compilePatternClass(final CompilationOptions options) {
+        final Try<Class<Pattern<T>>> tryPatternClass = generatePatternClass(options);
+        return tryPatternClass.getOrElseThrow(this::wrapException);
     }
 
     @SuppressWarnings("unchecked")
