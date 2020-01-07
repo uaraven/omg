@@ -34,9 +34,9 @@ Byte code generator v2 is set to fix some of the problems:
 
 Bytecode generator v2 makes very simple bytecode which follows pattern:
 
-- 1. put matching constant onto the stack
-- 2. read property value to stack
-- 3. compare them
+- 1 - put matching constant onto the stack
+- 2 - read property value to stack
+- 3 - compare them
 
 This three simple steps are repeated for each condition, and as a result of these steps there is either 0 or 1 left on 
 the stack (boolean `false` or `true`). AND and OR operations are injected into byte code as simple `IAND` or `IOR` 
@@ -79,7 +79,7 @@ This way at the time of execution of `matches` method fields are populated with 
 
 #### Read property value to stack
 
-Object to match is always stored in local #2, so this is as sximple as 
+Object to match is always stored in local #2, so this is as simple as 
 
 ```
 aload 2 // load instance
