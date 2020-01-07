@@ -33,9 +33,9 @@ import org.objectweb.asm.Type;
  * @param <T>
  * @param <P>
  */
-public class ObjectEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> {
+public class StringEqCodeGenerator<T, P> implements TypedCodeGenerator<T, P, P> {
 
-    public ObjectEqCodeGenerator() {
+    public StringEqCodeGenerator() {
     }
 
     @Override

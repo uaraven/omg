@@ -48,9 +48,8 @@ public final class StringGeneratorProvider {
         }
         return Match(condition.getMethod()).of(
                 Case(API.$(is(ConditionMethod.REGEX)), x -> new ObjectRegexCodeGenerator<>(context)),
-                Case(API.$(is(ConditionMethod.IN)), x -> new ObjectInCodeGenerator<>(context)),
-                Case(API.$(), $_ -> new ObjectEqCodeGenerator<>())
-
+                Case(API.$(is(ConditionMethod.IN)), x -> new StringInCodeGenerator<>(context)),
+                Case(API.$(), $_ -> new StringEqCodeGenerator<>())
         );
     }
 }

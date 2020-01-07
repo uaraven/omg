@@ -35,6 +35,12 @@ import java.util.regex.Pattern;
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.*;
 
+/**
+ * Generates code for "regex" operation. This class allows regex to be used on any object, not only on strings.
+ *
+ * @param <T> Type of object matched
+ * @param <P> Type of property
+ */
 public class ObjectRegexCodeGenerator<T, P> implements TypedCodeGenerator<T, P, String> {
     private static final String GENERATOR_DESCRIPTOR = getMethodDescriptor(getType(Pattern.class));
     private static final String FIELD_DESCRIPTOR = getDescriptor(Pattern.class);
@@ -46,6 +52,14 @@ public class ObjectRegexCodeGenerator<T, P> implements TypedCodeGenerator<T, P, 
         this.context = context;
     }
 
+    /**
+     * Loads value of property onto stack.
+     * If property is  <strong>not</strong> of type {@link String}, then additional call to {@link Object#toString()}
+     * is performed
+     *
+     * @param property {@link Property} to load onto stack
+     * @param method   {@link MethodVisitor} to generate code for
+     */
     @Override
     public void getPropertyValue(final Property<T, P> property, final MethodVisitor method) {
         method.visitVarInsn(Opcodes.ALOAD, Codes.MATCHED_LOCAL); // property is always local #2

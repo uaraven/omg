@@ -30,9 +30,9 @@ import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class ObjectInCodeGenerator<T, P> extends InCollectionCodeGenerator<T, P> {
+public class StringInCodeGenerator<T, P> extends InCollectionCodeGenerator<T, P> {
 
-    public ObjectInCodeGenerator(final CodeGenerationContext context) {
+    public StringInCodeGenerator(final CodeGenerationContext context) {
         super(context);
     }
 
