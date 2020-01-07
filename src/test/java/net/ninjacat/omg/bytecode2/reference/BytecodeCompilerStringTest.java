@@ -18,7 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
-import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
+import net.ninjacat.omg.bytecode2.BytecodeConditionCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
@@ -33,7 +33,7 @@ public class BytecodeCompilerStringTest {
     public void shouldMatchSimpleStr() {
         final Condition cond = Conditions.matcher().property("strProp").eq("abc").build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abc")), is(true));
@@ -44,7 +44,7 @@ public class BytecodeCompilerStringTest {
     public void shouldMatchNotStr() {
         final Condition cond = Conditions.matcher().property("strProp").neq("abc").build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abc")), is(false));
@@ -59,7 +59,7 @@ public class BytecodeCompilerStringTest {
                         .property("strProp").eq("def"))
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abc")), is(true));
@@ -73,7 +73,7 @@ public class BytecodeCompilerStringTest {
                 .property("strProp").regex("a[bc]d")
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abd")), is(true));
@@ -87,7 +87,7 @@ public class BytecodeCompilerStringTest {
                 .property("strProp").in("abc", "abd", "def")
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("abd")), is(true));
@@ -101,7 +101,7 @@ public class BytecodeCompilerStringTest {
                 .property("strProp").in()
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass("a")), is(false));

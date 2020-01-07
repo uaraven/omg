@@ -18,7 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
-import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
+import net.ninjacat.omg.bytecode2.BytecodeConditionCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
@@ -33,7 +33,7 @@ public class BytecodeCompilerDoubleTest {
     public void shouldMatchDoubleEq() {
         final Condition cond = Conditions.matcher().property("dblProp").eq(4.0).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.0)), is(true));
@@ -45,7 +45,7 @@ public class BytecodeCompilerDoubleTest {
     public void shouldMatchDoubleNeq() {
         final Condition cond = Conditions.matcher().property("dblProp").neq(432.0).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(432.0)), is(false));
@@ -56,7 +56,7 @@ public class BytecodeCompilerDoubleTest {
     public void shouldMatchDoubleLt() {
         final Condition cond = Conditions.matcher().property("dblProp").lt(43.2).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(43.2)), is(false));
@@ -67,7 +67,7 @@ public class BytecodeCompilerDoubleTest {
     public void shouldMatchIntGt() {
         final Condition cond = Conditions.matcher().property("dblProp").gt(43.2).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(43.2)), is(false));
@@ -81,7 +81,7 @@ public class BytecodeCompilerDoubleTest {
                         .property("dblProp").eq(5.38))
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.32)), is(true));
@@ -95,7 +95,7 @@ public class BytecodeCompilerDoubleTest {
                 .property("dblProp").in(4.1, 4.2, 4.3, 4.4, 8012454.0)
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.1)), is(true));
@@ -110,7 +110,7 @@ public class BytecodeCompilerDoubleTest {
                 .property("dblProp").in()
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.1)), is(false));

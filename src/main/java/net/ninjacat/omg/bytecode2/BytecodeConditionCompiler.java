@@ -22,21 +22,25 @@ import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.patterns.MatcherCompiler;
 import net.ninjacat.omg.patterns.Pattern;
 
-public final class AsmPatternCompiler<T> implements MatcherCompiler<T> {
+/**
+ * Compiles {@link Condition} into an instance of {@link Pattern}
+ *
+ * @param <T> Class for which condition is compiled
+ */
+public final class BytecodeConditionCompiler<T> implements MatcherCompiler<T> {
     private final Class<T> cls;
 
-    public static <T> AsmPatternCompiler<T> forClass(final Class<T> cls) {
-        return new AsmPatternCompiler<>(cls);
+    public static <T> BytecodeConditionCompiler<T> forClass(final Class<T> cls) {
+        return new BytecodeConditionCompiler<>(cls);
     }
 
-    private AsmPatternCompiler(final Class<T> cls) {
+    private BytecodeConditionCompiler(final Class<T> cls) {
         this.cls = cls;
     }
 
     @Override
     public Pattern<T> build(final Condition condition) {
-        final MatcherGenerator<T> compiler = new MatcherGenerator<>(cls, condition);
-        return compiler.compilePattern();
+        return build(condition, CompilationOptions.getDefaults());
     }
 
     public Pattern<T> build(final Condition condition, final CompilationOptions options) {

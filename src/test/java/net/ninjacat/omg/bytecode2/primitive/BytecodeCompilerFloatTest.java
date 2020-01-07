@@ -18,7 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.primitive;
 
-import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
+import net.ninjacat.omg.bytecode2.BytecodeConditionCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
@@ -33,7 +33,7 @@ public class BytecodeCompilerFloatTest {
     public void shouldMatchFloatEq() {
         final Condition cond = Conditions.matcher().property("floatProp").eq(4.0f).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.0f)), is(true));
@@ -45,7 +45,7 @@ public class BytecodeCompilerFloatTest {
     public void shouldMatchFloatNeq() {
         final Condition cond = Conditions.matcher().property("floatProp").neq(432.0f).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(432.0f)), is(false));
@@ -56,7 +56,7 @@ public class BytecodeCompilerFloatTest {
     public void shouldMatchFloatLt() {
         final Condition cond = Conditions.matcher().property("floatProp").lt(43.2f).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(43.2f)), is(false));
@@ -67,7 +67,7 @@ public class BytecodeCompilerFloatTest {
     public void shouldMatchIntGt() {
         final Condition cond = Conditions.matcher().property("floatProp").gt(43.2f).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(43.2f)), is(false));
@@ -81,7 +81,7 @@ public class BytecodeCompilerFloatTest {
                         .property("floatProp").eq(5.38f))
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.32f)), is(true));
@@ -95,7 +95,7 @@ public class BytecodeCompilerFloatTest {
                 .property("floatProp").in(4.1f, 4.2f, 4.3f, 4.4f, 8012454.0f)
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.1f)), is(true));
@@ -110,7 +110,7 @@ public class BytecodeCompilerFloatTest {
                 .property("floatProp").in()
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(4.1f)), is(false));

@@ -18,7 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
-import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
+import net.ninjacat.omg.bytecode2.BytecodeConditionCompiler;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.Conditions;
 import net.ninjacat.omg.patterns.Pattern;
@@ -33,7 +33,7 @@ public class BytecodeCompilerLongTest {
     public void shouldMatchLongEq() {
         final Condition cond = Conditions.matcher().property("longProp").eq(432L).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(432L)), is(true));
@@ -44,7 +44,7 @@ public class BytecodeCompilerLongTest {
     public void shouldMatchLongNeq() {
         final Condition cond = Conditions.matcher().property("longProp").neq(432L).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(432L)), is(false));
@@ -55,7 +55,7 @@ public class BytecodeCompilerLongTest {
     public void shouldMatchLongLt() {
         final Condition cond = Conditions.matcher().property("longProp").lt(432L).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(432L)), is(false));
@@ -66,7 +66,7 @@ public class BytecodeCompilerLongTest {
     public void shouldMatchLongGt() {
         final Condition cond = Conditions.matcher().property("longProp").gt(432L).build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(432L)), is(false));
@@ -80,7 +80,7 @@ public class BytecodeCompilerLongTest {
                         .property("longProp").eq(538L))
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(432L)), is(true));
@@ -94,7 +94,7 @@ public class BytecodeCompilerLongTest {
                 .property("longProp").in(41L, 42L, 43L, 44L, 9998012454L)
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(41L)), is(true));
@@ -109,7 +109,7 @@ public class BytecodeCompilerLongTest {
                 .property("longProp").in()
                 .build();
 
-        final AsmPatternCompiler<TestClass> compiler = AsmPatternCompiler.forClass(TestClass.class);
+        final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
 
         assertThat(matcher.matches(new TestClass(41L)), is(false));

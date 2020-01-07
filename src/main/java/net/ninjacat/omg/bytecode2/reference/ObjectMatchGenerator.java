@@ -18,7 +18,7 @@
 
 package net.ninjacat.omg.bytecode2.reference;
 
-import net.ninjacat.omg.bytecode2.AsmPatternCompiler;
+import net.ninjacat.omg.bytecode2.BytecodeConditionCompiler;
 import net.ninjacat.omg.bytecode2.Property;
 import net.ninjacat.omg.bytecode2.TypedCodeGenerator;
 import net.ninjacat.omg.bytecode2.generator.CodeGenerationContext;
@@ -44,7 +44,7 @@ public class ObjectMatchGenerator<T, P, V> implements TypedCodeGenerator<T, P, V
     @SuppressWarnings("unchecked")
     public void getMatchingConstant(final PropertyCondition<V> condition, final MethodVisitor method) {
         final Property<T, P> property = Property.fromPropertyName(condition.getProperty(), context.targetClass());
-        final Class<Pattern<T>> patternClass = AsmPatternCompiler.forClass(property.getType()).getClass((Condition) condition.getValue());
+        final Class<Pattern<T>> patternClass = BytecodeConditionCompiler.forClass(property.getType()).getClass((Condition) condition.getValue());
         final String internalName = Type.getInternalName(patternClass);
         method.visitTypeInsn(Opcodes.NEW, internalName);
         method.visitInsn(Opcodes.DUP);

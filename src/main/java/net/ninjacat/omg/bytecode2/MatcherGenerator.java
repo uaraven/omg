@@ -50,7 +50,7 @@ import static org.objectweb.asm.Opcodes.*;
  *
  * @param <T> Type of object to match property on
  */
-public class MatcherGenerator<T> {
+class MatcherGenerator<T> {
 
     private static final String BASE_INIT_DESCRIPTOR = Type.getMethodDescriptor(Type.getType(void.class));
     private static final String PACKAGE_NAME = MatcherGenerator.class.getPackage().getName() + ".generated";
@@ -61,7 +61,7 @@ public class MatcherGenerator<T> {
     private final Class<T> targetClass;
     private final Condition condition;
 
-    public MatcherGenerator(final Class<T> targetClass, final Condition condition) {
+    MatcherGenerator(final Class<T> targetClass, final Condition condition) {
         this.targetClass = targetClass;
         this.condition = condition;
     }
@@ -75,7 +75,7 @@ public class MatcherGenerator<T> {
         return tryPatternClass.mapTry(this::instantiatePattern).getOrElseThrow(this::wrapException);
     }
 
-    public Class<Pattern<T>> compilePatternClass() {
+    Class<Pattern<T>> compilePatternClass() {
         return compilePatternClass(CompilationOptions.getDefaults());
     }
 
