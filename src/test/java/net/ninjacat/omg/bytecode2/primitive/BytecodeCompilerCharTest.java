@@ -31,7 +31,7 @@ public class BytecodeCompilerCharTest {
 
     @Test
     public void shouldMatchCharEq() {
-        final Condition cond = Conditions.matcher().property("charProp").eq(432).build();
+        final Condition cond = Conditions.matcher().property("charProp").eq((char) 432).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);

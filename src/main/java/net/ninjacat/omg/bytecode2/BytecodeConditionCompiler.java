@@ -19,15 +19,17 @@
 package net.ninjacat.omg.bytecode2;
 
 import net.ninjacat.omg.conditions.Condition;
-import net.ninjacat.omg.patterns.MatcherCompiler;
+import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.patterns.Pattern;
+import net.ninjacat.omg.patterns.PropertyPattern;
+import net.ninjacat.omg.patterns.PropertyPatternCompiler;
 
 /**
  * Compiles {@link Condition} into an instance of {@link Pattern}
  *
  * @param <T> Class for which condition is compiled
  */
-public final class BytecodeConditionCompiler<T> implements MatcherCompiler<T> {
+public final class BytecodeConditionCompiler<T> implements PropertyPatternCompiler<T> {
     private final Class<T> cls;
 
     public static <T> BytecodeConditionCompiler<T> forClass(final Class<T> cls) {
@@ -38,22 +40,26 @@ public final class BytecodeConditionCompiler<T> implements MatcherCompiler<T> {
         this.cls = cls;
     }
 
-    @Override
-    public Pattern<T> build(final Condition condition) {
+    public PropertyPattern<T> build(final Condition condition) {
         return build(condition, CompilationOptions.getDefaults());
     }
 
-    public Pattern<T> build(final Condition condition, final CompilationOptions options) {
+    public PropertyPattern<T> build(final Condition condition, final CompilationOptions options) {
         final MatcherGenerator<T> compiler = new MatcherGenerator<>(cls, condition);
         return compiler.compilePattern(options);
     }
 
-    public Class<Pattern<T>> getClass(final Condition condition) {
+    public Class<PropertyPattern<T>> getClass(final Condition condition) {
         return getClass(condition, CompilationOptions.getDefaults());
     }
 
-    public Class<Pattern<T>> getClass(final Condition condition, final CompilationOptions options) {
+    public Class<PropertyPattern<T>> getClass(final Condition condition, final CompilationOptions options) {
         final MatcherGenerator<T> compiler = new MatcherGenerator<>(cls, condition);
         return compiler.compilePatternClass(options);
+    }
+
+    @Override
+    public <P> PropertyPattern<T> build(final PropertyCondition<P> condition) {
+        return build((Condition) condition);
     }
 }

@@ -26,9 +26,11 @@ import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.bytecode2.generator.ImmutableCodeGenerationContext;
 import net.ninjacat.omg.bytecode2.primitive.*;
 import net.ninjacat.omg.bytecode2.reference.*;
+import net.ninjacat.omg.bytecode2.types.CompatibilityProvider;
 import net.ninjacat.omg.conditions.*;
 import net.ninjacat.omg.errors.CompilerException;
 import net.ninjacat.omg.errors.OmgException;
+import net.ninjacat.omg.errors.TypeConversionException;
 import net.ninjacat.omg.patterns.Pattern;
 import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.*;
@@ -66,26 +68,26 @@ class MatcherGenerator<T> {
         this.condition = condition;
     }
 
-    Pattern<T> compilePattern() {
+    PropertyPattern<T> compilePattern() {
         return compilePattern(CompilationOptions.getDefaults());
     }
 
-    Pattern<T> compilePattern(final CompilationOptions options) {
-        final Try<Class<Pattern<T>>> tryPatternClass = generatePatternClass(options);
+    PropertyPattern<T> compilePattern(final CompilationOptions options) {
+        final Try<Class<PropertyPattern<T>>> tryPatternClass = generatePatternClass(options);
         return tryPatternClass.mapTry(this::instantiatePattern).getOrElseThrow(this::wrapException);
     }
 
-    Class<Pattern<T>> compilePatternClass() {
+    Class<PropertyPattern<T>> compilePatternClass() {
         return compilePatternClass(CompilationOptions.getDefaults());
     }
 
-    Class<Pattern<T>> compilePatternClass(final CompilationOptions options) {
-        final Try<Class<Pattern<T>>> tryPatternClass = generatePatternClass(options);
+    Class<PropertyPattern<T>> compilePatternClass(final CompilationOptions options) {
+        final Try<Class<PropertyPattern<T>>> tryPatternClass = generatePatternClass(options);
         return tryPatternClass.getOrElseThrow(this::wrapException);
     }
 
     @SuppressWarnings("unchecked")
-    Try<Class<Pattern<T>>> generatePatternClass(final CompilationOptions options) {
+    Try<Class<PropertyPattern<T>>> generatePatternClass(final CompilationOptions options) {
         final ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS);
         final String className = generateClassName();
         writer.visit(
@@ -112,7 +114,7 @@ class MatcherGenerator<T> {
                 CompileDebugger.dumpClass(options.dumpToFile(), writer.toByteArray());
             }
             final String generatedClassName = generateBinaryClassName(className);
-            return (Class<Pattern<T>>) LOADER.defineClass(generatedClassName, writer.toByteArray());
+            return (Class<PropertyPattern<T>>) LOADER.defineClass(generatedClassName, writer.toByteArray());
         });
     }
 
@@ -124,10 +126,10 @@ class MatcherGenerator<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private Pattern<T> instantiatePattern(final Class<?> patternClass) throws Throwable {
+    private PropertyPattern<T> instantiatePattern(final Class<?> patternClass) throws Throwable {
         final MethodType constructorType = MethodType.methodType(void.class);
         final MethodHandle constructor = MethodHandles.lookup().findConstructor(patternClass, constructorType);
-        return (Pattern<T>) constructor.invoke();
+        return (PropertyPattern<T>) constructor.invoke();
     }
 
     /**
@@ -246,10 +248,19 @@ class MatcherGenerator<T> {
             final PropertyCondition<V> condition) {
         final Property<T, P> property = createProperty(condition.getProperty(), context.targetClass());
 
+        validateType(property.getType(), condition);
+
         final TypedCodeGenerator<T, P, V> codeGen = getGeneratorFor(property.getType(), condition, context);
 
         codeGen.prepareStackForCompare(property, condition, method);
         codeGen.compare(condition, method);
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    private static <V> void validateType(final Class propertyType, final PropertyCondition<V> condition) {
+        if (!CompatibilityProvider.forClass(propertyType).canBeAssigned(condition)) {
+            throw new TypeConversionException(condition.getValue().getClass(), condition.getValue(), propertyType);
+        }
     }
 
     @SuppressWarnings("rawtypes")

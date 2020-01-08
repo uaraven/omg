@@ -26,6 +26,7 @@ import net.ninjacat.omg.bytecode2.generator.Codes;
 import net.ninjacat.omg.conditions.Condition;
 import net.ninjacat.omg.conditions.PropertyCondition;
 import net.ninjacat.omg.patterns.Pattern;
+import net.ninjacat.omg.patterns.PropertyPattern;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -44,7 +45,7 @@ public class ObjectMatchGenerator<T, P, V> implements TypedCodeGenerator<T, P, V
     @SuppressWarnings("unchecked")
     public void getMatchingConstant(final PropertyCondition<V> condition, final MethodVisitor method) {
         final Property<T, P> property = Property.fromPropertyName(condition.getProperty(), context.targetClass());
-        final Class<Pattern<T>> patternClass = BytecodeConditionCompiler.forClass(property.getType()).getClass((Condition) condition.getValue());
+        final Class<PropertyPattern<T>> patternClass = BytecodeConditionCompiler.forClass(property.getType()).getClass((Condition) condition.getValue());
         final String internalName = Type.getInternalName(patternClass);
         method.visitTypeInsn(Opcodes.NEW, internalName);
         method.visitInsn(Opcodes.DUP);

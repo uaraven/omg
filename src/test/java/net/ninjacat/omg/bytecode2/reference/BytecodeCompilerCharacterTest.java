@@ -76,8 +76,8 @@ public class BytecodeCompilerCharacterTest {
     @Test
     public void shouldMatchCharOrChar() {
         final Condition cond = Conditions.matcher()
-                .or(or -> or.property("charProp").eq(432)
-                        .property("charProp").eq(538))
+                .or(or -> or.property("charProp").eq((char) 432)
+                        .property("charProp").eq((char) 538))
                 .build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
@@ -91,7 +91,7 @@ public class BytecodeCompilerCharacterTest {
     @Test
     public void shouldMatchCharIn() {
         final Condition cond = Conditions.matcher()
-                .property("charProp").in(41, 42, 43, 44, 20124)
+                .property("charProp").in((char) 41, (char) 42, (char) 43, (char) 44, (char) 20124)
                 .build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);

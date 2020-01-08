@@ -31,7 +31,7 @@ public class BytecodeCompilerShortTest {
 
     @Test
     public void shouldMatchShortEq() {
-        final Condition cond = Conditions.matcher().property("shortProp").eq(432).build();
+        final Condition cond = Conditions.matcher().property("shortProp").eq((short) 432).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -42,7 +42,7 @@ public class BytecodeCompilerShortTest {
 
     @Test
     public void shouldMatchShortNeq() {
-        final Condition cond = Conditions.matcher().property("shortProp").neq(432).build();
+        final Condition cond = Conditions.matcher().property("shortProp").neq((short) 432).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -53,7 +53,7 @@ public class BytecodeCompilerShortTest {
 
     @Test
     public void shouldMatchShortLt() {
-        final Condition cond = Conditions.matcher().property("shortProp").lt(432).build();
+        final Condition cond = Conditions.matcher().property("shortProp").lt((short) 432).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -64,7 +64,7 @@ public class BytecodeCompilerShortTest {
 
     @Test
     public void shouldMatchShortGt() {
-        final Condition cond = Conditions.matcher().property("shortProp").gt(432).build();
+        final Condition cond = Conditions.matcher().property("shortProp").gt((short) 432).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -76,8 +76,8 @@ public class BytecodeCompilerShortTest {
     @Test
     public void shouldMatchShortOrShort() {
         final Condition cond = Conditions.matcher()
-                .or(or -> or.property("shortProp").eq(432)
-                        .property("shortProp").eq(538))
+                .or(or -> or.property("shortProp").eq((short) 432)
+                        .property("shortProp").eq((short) 538))
                 .build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
@@ -91,7 +91,7 @@ public class BytecodeCompilerShortTest {
     @Test
     public void shouldMatchShortIn() {
         final Condition cond = Conditions.matcher()
-                .property("shortProp").in(-41, 42, 43, 44, 8012)
+                .property("shortProp").in((short) -41, (short) 42, (short) 43, (short) 44, (short) 8012)
                 .build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);

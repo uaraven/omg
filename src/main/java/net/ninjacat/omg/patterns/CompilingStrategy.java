@@ -19,13 +19,15 @@
 package net.ninjacat.omg.patterns;
 
 import net.ninjacat.omg.bytecode.AsmPatternCompiler;
+import net.ninjacat.omg.bytecode2.BytecodeConditionCompiler;
 import net.ninjacat.omg.reflect.ReflectPatternCompiler;
 
 import java.util.function.Function;
 
 public enum CompilingStrategy {
     SAFE(ReflectPatternCompiler::forClass),
-    FAST(AsmPatternCompiler::forClass);
+    FAST(AsmPatternCompiler::forClass),
+    NEW(BytecodeConditionCompiler::forClass);
 
     private final Function<Class, PropertyPatternCompiler> provider;
 
