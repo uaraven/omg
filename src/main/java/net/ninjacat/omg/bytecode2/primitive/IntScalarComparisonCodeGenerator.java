@@ -30,19 +30,19 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static org.objectweb.asm.Opcodes.*;
 
-public class IntScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Integer, Integer> {
+public class IntScalarComparisonCodeGenerator<T> implements TypedCodeGenerator<T, Number, Number> {
 
     IntScalarComparisonCodeGenerator() {
     }
 
 
     @Override
-    public void getMatchingConstant(final PropertyCondition<Integer> condition, final MethodVisitor method) {
-        Codes.pushInt(method, condition.getValue());
+    public void getMatchingConstant(final PropertyCondition<Number> condition, final MethodVisitor method) {
+        Codes.pushInt(method, condition.getValue().intValue());
     }
 
     @Override
-    public void compare(final PropertyCondition<Integer> condition, final MethodVisitor method) {
+    public void compare(final PropertyCondition<Number> condition, final MethodVisitor method) {
         final int opcode = API.Match(condition.getMethod()).of(
                 Case($(ConditionMethod.EQ), eq -> IF_ICMPEQ),
                 Case($(ConditionMethod.NEQ), eq -> IF_ICMPNE),

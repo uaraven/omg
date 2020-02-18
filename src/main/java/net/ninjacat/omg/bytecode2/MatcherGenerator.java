@@ -258,9 +258,9 @@ class MatcherGenerator<T> {
 
     @SuppressWarnings({"rawtypes"})
     private static <V> void validateType(final Class propertyType, final PropertyCondition<V> condition) {
-        if (!CompatibilityProvider.forClass(propertyType).canBeAssigned(condition)) {
-            throw new TypeConversionException(condition.getValue().getClass(), condition.getValue(), propertyType);
-        }
+//        if (!CompatibilityProvider.forClass(propertyType).canBeAssigned(condition)) {
+//            throw new TypeConversionException(condition.getValue().getClass(), condition.getValue(), propertyType);
+//        }
     }
 
     @SuppressWarnings("rawtypes")

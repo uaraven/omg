@@ -38,7 +38,7 @@ public final class IntGeneratorProvider {
     private IntGeneratorProvider() {
     }
 
-    public static <T> TypedCodeGenerator<T, Integer, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
+    public static <T> TypedCodeGenerator<T, ?, ?> getGenerator(final Condition condition, final CodeGenerationContext context) {
         if (!SUPPORTED_METHODS.contains(condition.getMethod())) {
             throw new CompilerException("Condition {} is not supported for type 'int'", condition);
         }

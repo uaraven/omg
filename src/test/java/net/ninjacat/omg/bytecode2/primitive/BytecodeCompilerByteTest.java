@@ -31,7 +31,7 @@ public class BytecodeCompilerByteTest {
 
     @Test
     public void shouldMatchByteEq() {
-        final Condition cond = Conditions.matcher().property("byteProp").eq(32).build();
+        final Condition cond = Conditions.matcher().property("byteProp").eq((byte) 32).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -42,7 +42,7 @@ public class BytecodeCompilerByteTest {
 
     @Test
     public void shouldMatchByteNeq() {
-        final Condition cond = Conditions.matcher().property("byteProp").neq(43).build();
+        final Condition cond = Conditions.matcher().property("byteProp").neq((byte) 43).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -53,7 +53,7 @@ public class BytecodeCompilerByteTest {
 
     @Test
     public void shouldMatchByteLt() {
-        final Condition cond = Conditions.matcher().property("byteProp").lt(42).build();
+        final Condition cond = Conditions.matcher().property("byteProp").lt((byte) 42).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -64,7 +64,7 @@ public class BytecodeCompilerByteTest {
 
     @Test
     public void shouldMatchByteGt() {
-        final Condition cond = Conditions.matcher().property("byteProp").gt(42).build();
+        final Condition cond = Conditions.matcher().property("byteProp").gt((byte) 42).build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
         final Pattern<TestClass> matcher = compiler.build(cond);
@@ -76,8 +76,8 @@ public class BytecodeCompilerByteTest {
     @Test
     public void shouldMatchByteOrByte() {
         final Condition cond = Conditions.matcher()
-                .or(or -> or.property("byteProp").eq(42)
-                        .property("byteProp").eq(53))
+                .or(or -> or.property("byteProp").eq((byte) 42)
+                        .property("byteProp").eq((byte) 53))
                 .build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);
@@ -91,7 +91,7 @@ public class BytecodeCompilerByteTest {
     @Test
     public void shouldMatchByteIn() {
         final Condition cond = Conditions.matcher()
-                .property("byteProp").in(41, 42, 43, 44, -124)
+                .property("byteProp").in((byte) 41, (byte) 42, (byte) 43, (byte) 44, (byte) -124)
                 .build();
 
         final BytecodeConditionCompiler<TestClass> compiler = BytecodeConditionCompiler.forClass(TestClass.class);

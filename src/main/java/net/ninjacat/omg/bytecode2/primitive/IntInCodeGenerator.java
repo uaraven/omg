@@ -31,7 +31,7 @@ import java.util.Collection;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class IntInCodeGenerator<T> extends InCollectionCodeGenerator<T, Integer> {
+public class IntInCodeGenerator<T> extends InCollectionCodeGenerator<T, Number> {
 
     private static final String VALUE_OF_DESC = Type.getMethodDescriptor(Type.getType(Integer.class), Type.getType(int.class));
 
@@ -40,7 +40,7 @@ public class IntInCodeGenerator<T> extends InCollectionCodeGenerator<T, Integer>
     }
 
     @Override
-    protected void boxIfNeeded(final Property<T, Integer> property, final MethodVisitor method) {
+    protected void boxIfNeeded(final Property<T, Number> property, final MethodVisitor method) {
         method.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Integer.class), "valueOf", VALUE_OF_DESC, false);
     }
 
@@ -48,7 +48,7 @@ public class IntInCodeGenerator<T> extends InCollectionCodeGenerator<T, Integer>
      * @param values Collection of values
      */
     @Override
-    protected void createGetCollectionMethod(final String methodName, final Collection<Integer> values) {
+    protected void createGetCollectionMethod(final String methodName, final Collection<Number> values) {
         final MethodVisitor generator = getContext().classVisitor()
                 .visitMethod(ACC_PRIVATE + ACC_STATIC + ACC_SYNTHETIC, methodName,
                         GENERATOR_DESCRIPTOR, null, null);
@@ -61,7 +61,7 @@ public class IntInCodeGenerator<T> extends InCollectionCodeGenerator<T, Integer>
         Stream.ofAll(values).forEachWithIndex((val, idx) -> {
             generator.visitInsn(DUP);
             Codes.pushInt(generator, idx);
-            Codes.pushInt(generator, val);
+            Codes.pushInt(generator, val.intValue());
             generator.visitInsn(IASTORE);
         });
         // convert array into stream and collect into set
